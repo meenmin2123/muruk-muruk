@@ -13,6 +13,7 @@
 <meta name="apple-mobile-web-app-title" content="무럽무럽" />
 <title>무럽무럽 · 작심삼일도, 꾸준히 하면 됩니다</title>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+<script src="https://accounts.google.com/gsi/client" async defer onload="window.__gsiOnload&&window.__gsiOnload()"></script>
 <style>
   :root{
     --bg:#F3FAF1; --card:#FFFFFF; --primary:#46B97C; --primary-d:#2E9E63;
@@ -405,6 +406,31 @@
   .adv>summary::-webkit-details-marker{display:none;}
   .adv>summary span{font-weight:600; font-size:12px; color:var(--muted);}
   .adv[open]>summary{border-radius:14px 14px 0 0; margin-bottom:-12px;}
+  /* 로그인 게이트 */
+  .login-gate{position:fixed; inset:0; z-index:80; display:none; flex-direction:column; align-items:center; justify-content:center; padding:32px 26px calc(40px + env(safe-area-inset-bottom)); background:linear-gradient(165deg,#D6F0DA 0%,#EAF8E8 45%,var(--bg) 100%); text-align:center;}
+  .login-gate.on{display:flex;}
+  .login-gate .lg-logo{font-size:34px; font-weight:800; letter-spacing:-1.4px;}
+  .login-gate .lg-logo .dot{color:var(--primary);}
+  .login-gate .lg-tag{font-size:14px; color:var(--muted); font-weight:600; margin-top:8px;}
+  .login-gate .lg-art{width:120px; height:116px; margin:18px 0 6px;}
+  .login-gate .lg-desc{font-size:14px; color:var(--text); font-weight:600; line-height:1.65; margin:10px 0 26px; max-width:300px;}
+  .login-gate #gbtn{min-height:44px; display:flex; justify-content:center;}
+  .login-gate .login-hint{font-size:12.5px; color:var(--muted); font-weight:600; background:rgba(255,255,255,.7); border:1px dashed var(--line); border-radius:14px; padding:12px 14px; max-width:300px; line-height:1.55;}
+  .login-gate .lg-guest{margin-top:18px; background:none; border:none; color:var(--muted); font-size:13px; font-weight:700; cursor:pointer; text-decoration:underline; font-family:inherit;}
+  .login-gate .lg-note{font-size:11.5px; color:var(--muted); font-weight:600; margin-top:22px; max-width:300px; line-height:1.5;}
+
+  /* 계정 카드 (설정) */
+  .acct-card{display:flex; align-items:center; gap:12px; background:var(--card); border-radius:18px; padding:14px 15px; box-shadow:var(--shadow-sm); border:1px solid var(--line); margin-bottom:16px;}
+  .acct-av{width:44px; height:44px; border-radius:50%; flex:none; object-fit:cover; background:var(--primary-soft);}
+  .acct-info{flex:1; min-width:0;}
+  .acct-name{font-weight:800; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .acct-email{font-size:12px; color:var(--muted); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;}
+
+  /* 동기화 표시등 (헤더) */
+  .syncdot{position:absolute; top:26px; right:66px; z-index:5; font-size:11px; font-weight:800; color:var(--primary-d); background:rgba(255,255,255,.8); border-radius:20px; padding:5px 10px; display:none; align-items:center; gap:5px;}
+  .syncdot.show{display:inline-flex;}
+  .syncdot.err{color:#D9534F;}
+
   /* 온보딩 */
   .modal.onb{max-width:360px;}
   .onb-art{width:96px; height:92px; margin:0 auto 6px;}
@@ -418,6 +444,7 @@
 <div class="app">
   <header>
     <button class="gear" onclick="openSettings()" aria-label="설정">⚙️</button>
+    <span class="syncdot" id="syncDot"></span>
     <div class="brand">
       <div class="logo">무럽무럽<span class="dot">.</span></div>
     </div>
@@ -532,6 +559,7 @@
   <div class="sheet" onclick="event.stopPropagation()">
     <div class="sheet-head"><span>⚙️ 설정</span><button class="sheet-x" onclick="closeSettings()">✕</button></div>
     <div class="sheet-body">
+      <div class="acct-card" id="acct"></div>
       <div class="nt-card">
         <div class="nt-head">
           <span class="nt-ic">🔔</span>
@@ -559,16 +587,16 @@
         <button class="bk-btn bk-import" style="width:100%;margin-top:10px" onclick="loadSample()">🧪 샘플(예시) 데이터 채우기</button>
       </div>
       <details class="adv">
-        <summary>🛠️ 고급 · 노션 동기화 <span>(개발자용)</span></summary>
+        <summary>🛠️ 고급 · 서버/노션 동기화 <span>(개발자용)</span></summary>
         <div class="bk-card" style="margin-top:12px">
-          <h3>☁️ 노션 동기화</h3>
-          <p class="bk-desc">중계 서버를 켠 뒤 주소를 확인하고 동기화하세요. <b>올리기</b>=노션에 저장, <b>받기</b>=노션에서 가져오기.</p>
+          <h3>☁️ 동기화 서버</h3>
+          <p class="bk-desc">로그인하면 이 서버를 통해 <b>자동 저장</b>돼요. 서버 주소를 바꾸거나 수동으로 올리기/받기 할 때만 사용하세요.</p>
           <input id="syncUrl" placeholder="http://localhost:8787" style="width:100%;border:1.5px solid var(--line);border-radius:12px;padding:11px 13px;font-size:14px;font-family:inherit;outline:none;margin-bottom:10px;color:var(--text)" />
           <div class="bk-row">
-            <button class="bk-btn bk-export" onclick="pushToNotion()">⬆️ 노션에 올리기</button>
-            <button class="bk-btn bk-import" onclick="pullFromNotion()">⬇️ 노션에서 받기</button>
+            <button class="bk-btn bk-export" onclick="pushToNotion()">⬆️ 지금 올리기</button>
+            <button class="bk-btn bk-import" onclick="pullFromNotion()">⬇️ 지금 받기</button>
           </div>
-          <div class="bk-note" id="syncStatus">로그인·계정 없이, 내 노션이 곧 저장소</div>
+          <div class="bk-note" id="syncStatus">로그인하면 자동 저장 · 여기선 수동 동기화</div>
         </div>
       </details>
     </div>
@@ -588,15 +616,41 @@
     <button class="btn btn-soft" style="width:100%;margin-top:9px" onclick="onbStart()">✏️ 내 목표 만들기</button>
   </div>
 </div>
+<div class="login-gate" id="loginGate">
+  <div class="lg-logo">무럽무럽<span class="dot">.</span></div>
+  <div class="lg-tag">작심삼일도, 꾸준히 하면 됩니다 🌿</div>
+  <div class="lg-art" id="lgArt"></div>
+  <div class="lg-desc">로그인하면 목표·기록이 내 계정에 저장돼<br>어느 기기에서든 이어서 쓸 수 있어요.</div>
+  <div id="gbtn"></div>
+  <button class="lg-guest" onclick="useGuest()">로그인 없이 이 기기에서만 사용하기</button>
+  <div class="lg-note">구글 계정으로 안전하게 로그인해요. 비밀번호는 저장하지 않아요.</div>
+</div>
 <script>
-/* ---------- 상태 ---------- */
-const LS='jaksim_v1';
-let state=load();
+/* ---------- 계정 / 인증 ---------- */
+const AUTH = {
+  // ▼▼ Google Cloud Console에서 발급한 OAuth 클라이언트 ID(웹)를 여기에 붙여넣으세요 ▼▼
+  GOOGLE_CLIENT_ID: '여기에_구글_클라이언트_ID.apps.googleusercontent.com',
+};
+const DEFAULT_SYNC='http://localhost:8787';
+const AUTH_LS='jaksim_auth';
+let auth={token:null,user:null,exp:0};
+function loadAuth(){ try{const a=JSON.parse(localStorage.getItem(AUTH_LS)); if(a&&a.token) auth=a;}catch(e){} }
+function saveAuth(){ localStorage.setItem(AUTH_LS,JSON.stringify(auth)); }
+function clearAuth(){ auth={token:null,user:null,exp:0}; localStorage.removeItem(AUTH_LS); }
+function isLoggedIn(){ return !!(auth.token && auth.user && auth.exp > (Date.now()/1000)+5); }
+
+/* ---------- 상태 (계정별 저장) ---------- */
+const LS_BASE='jaksim_v1';
+function curKey(){ return LS_BASE+'_'+((auth.user&&auth.user.sub)||'guest'); }
+let state=null;
+let suspendCloud=false; // true인 동안엔 save()가 클라우드 푸시를 예약하지 않음
 function load(){
-  try{const s=JSON.parse(localStorage.getItem(LS)); if(s)return s;}catch(e){}
-  return {totalDone:0, bestStreak:0, dreams:[], todos:[], lastSeen:null};
+  try{const s=JSON.parse(localStorage.getItem(curKey())); if(s)return s;}catch(e){}
+  // 예전(계정 개념 없던 시절) 데이터가 있으면 한 번 이어받기
+  try{const old=JSON.parse(localStorage.getItem(LS_BASE)); if(old&&(old.dreams||old.todos)) return old;}catch(e){}
+  return defaultState();
 }
-function save(){localStorage.setItem(LS,JSON.stringify(state));}
+function save(){ if(!state) return; localStorage.setItem(curKey(),JSON.stringify(state)); if(!suspendCloud) scheduleCloudSync(); }
 const todayStr=()=>new Date().toISOString().slice(0,10);
 const uid=()=>Math.random().toString(36).slice(2,9);
 
@@ -1342,12 +1396,14 @@ function syncUrl(){
   return u;
 }
 function syncMsg(t){ const e=document.getElementById('syncStatus'); if(e) e.textContent=t; }
+function authHeaders(){ return auth.token?{'Authorization':'Bearer '+auth.token}:{}; }
 async function pushToNotion(){
   const url=syncUrl();
   syncMsg('올리는 중…'); toast('노션에 올리는 중…');
   try{
-    const r=await fetch(url+'/push',{method:'POST',headers:{'Content-Type':'application/json'},
+    const r=await fetch(url+'/push',{method:'POST',headers:{'Content-Type':'application/json',...authHeaders()},
       body:JSON.stringify({dreams:state.dreams,todos:state.todos})});
+    if(r.status===401){ onAuthExpired(); return; }
     if(!r.ok) throw new Error('서버 응답 '+r.status);
     const j=await r.json();
     // 받은 노션 id를 각 항목에 저장 → 다음 동기화 때 갱신(중복 방지)
@@ -1366,7 +1422,8 @@ async function pullFromNotion(){
   if(!confirm('노션 내용으로 앱 데이터를 덮어씁니다. 계속할까요? (필요하면 먼저 내보내기 하세요)')) return;
   syncMsg('받는 중…'); toast('노션에서 받는 중…');
   try{
-    const r=await fetch(url+'/pull');
+    const r=await fetch(url+'/pull',{headers:authHeaders()});
+    if(r.status===401){ onAuthExpired(); return; }
     if(!r.ok) throw new Error('서버 응답 '+r.status);
     const j=await r.json();
     if(!Array.isArray(j.dreams)||!Array.isArray(j.todos)) throw new Error('형식 오류');
@@ -1381,6 +1438,119 @@ async function pullFromNotion(){
     syncMsg('실패: '+e.message+' (서버가 켜져 있나요?)');
     toast('받기 실패 — 서버 확인이 필요해요');
   }
+}
+
+/* ---------- 계정 클라우드 자동 동기화 (구글 로그인 → 노션 저장) ---------- */
+function setSyncDot(kind){
+  const el=document.getElementById('syncDot'); if(!el) return;
+  if(!isLoggedIn()){ el.className='syncdot'; return; }
+  const map={sync:['☁︎ 동기화 중…',''],saved:['☁︎ 저장됨',''],err:['⚠︎ 동기화 실패','err']};
+  const m=map[kind]||map.saved;
+  el.textContent=m[0]; el.className='syncdot show '+(m[1]||'');
+  if(kind==='saved'){ clearTimeout(setSyncDot._t); setSyncDot._t=setTimeout(()=>el.classList.remove('show'),1600); }
+}
+let cloudTimer=null;
+function scheduleCloudSync(){
+  if(suspendCloud || !isLoggedIn()) return;
+  clearTimeout(cloudTimer);
+  cloudTimer=setTimeout(cloudPush,1500);
+}
+function onAuthExpired(){ toast('로그인이 만료됐어요. 다시 로그인해 주세요'); clearAuth(); showLoginGate(); }
+async function cloudPush(){
+  if(!isLoggedIn()||!state) return;
+  setSyncDot('sync');
+  try{
+    const r=await fetch(syncUrl()+'/push',{method:'POST',headers:{'Content-Type':'application/json',...authHeaders()},
+      body:JSON.stringify({dreams:state.dreams,todos:state.todos})});
+    if(r.status===401){ onAuthExpired(); return; }
+    if(!r.ok) throw new Error('서버 '+r.status);
+    const j=await r.json();
+    suspendCloud=true;
+    state.dreams.forEach(d=>{ if(j.dreamIds&&j.dreamIds[d.id]) d.notionId=j.dreamIds[d.id]; });
+    state.todos.forEach(t=>{ if(j.todoIds&&j.todoIds[t.id]) t.notionId=j.todoIds[t.id]; });
+    save(); suspendCloud=false;
+    setSyncDot('saved');
+  }catch(e){ setSyncDot('err'); }
+}
+async function cloudSyncOnStart(){
+  if(!isLoggedIn()||!state) return;
+  setSyncDot('sync');
+  try{
+    const r=await fetch(syncUrl()+'/pull',{headers:authHeaders()});
+    if(r.status===401){ onAuthExpired(); return; }
+    if(!r.ok) throw new Error('서버 '+r.status);
+    const j=await r.json();
+    if(!Array.isArray(j.dreams)||!Array.isArray(j.todos)) throw new Error('형식 오류');
+    if(j.dreams.length||j.todos.length){
+      // 클라우드(노션)를 기준으로 이 기기 데이터를 맞춤
+      suspendCloud=true;
+      state.dreams=j.dreams; state.todos=j.todos;
+      state.totalDone=state.todos.filter(t=>t.done).length;
+      state.bestStreak=Math.max(state.bestStreak||0, streakCount());
+      ensureDailyTodos();
+      save(); renderCatPick(); renderAll();
+      suspendCloud=false;
+      setSyncDot('saved');
+    } else if(state.dreams.length||state.todos.length){
+      await cloudPush(); // 클라우드가 비어 있으면 이 기기 데이터를 처음 올림
+    } else {
+      setSyncDot('saved');
+    }
+  }catch(e){ setSyncDot('err'); }
+}
+
+/* ---------- 로그인 / 계정 UI ---------- */
+function decodeJwt(t){ try{ return JSON.parse(decodeURIComponent(escape(atob(String(t).split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))))); }catch(e){ return null; } }
+function onGoogleCredential(resp){
+  const p=decodeJwt(resp&&resp.credential); if(!p){ toast('로그인에 실패했어요'); return; }
+  auth={token:resp.credential, exp:p.exp, user:{sub:p.sub, email:p.email||'', name:p.name||p.email||'사용자', picture:p.picture||''}};
+  saveAuth(); afterLogin();
+}
+let googleReady=false;
+function setupGoogleBtn(){
+  if(googleReady) return;
+  if(!(window.google&&google.accounts&&google.accounts.id)) return;
+  const b=document.getElementById('gbtn');
+  if(!AUTH.GOOGLE_CLIENT_ID || /여기에/.test(AUTH.GOOGLE_CLIENT_ID)){
+    if(b) b.innerHTML='<div class="login-hint">개발용: 구글 클라이언트 ID가 아직 설정되지 않았어요.<br>아래 “이 기기에서만 사용하기”로 둘러볼 수 있어요.</div>';
+    return;
+  }
+  googleReady=true;
+  google.accounts.id.initialize({client_id:AUTH.GOOGLE_CLIENT_ID, callback:onGoogleCredential, auto_select:true, cancel_on_tap_outside:false});
+  if(b) google.accounts.id.renderButton(b,{theme:'filled_blue',size:'large',shape:'pill',text:'continue_with',width:280});
+  google.accounts.id.prompt();
+}
+window.__gsiOnload=setupGoogleBtn; // GIS 스크립트 로드 완료 시 호출
+function showLoginGate(){
+  const art=document.getElementById('lgArt'); if(art&&!art.innerHTML) art.innerHTML=emptyArt();
+  renderProfile();
+  document.getElementById('loginGate').classList.add('on');
+  setupGoogleBtn();
+  let n=0; const iv=setInterval(()=>{ if(googleReady||n++>40) clearInterval(iv); else setupGoogleBtn(); },150);
+}
+function hideLoginGate(){ document.getElementById('loginGate').classList.remove('on'); }
+function renderProfile(){
+  const el=document.getElementById('acct'); if(!el) return;
+  if(auth.user){
+    el.innerHTML=`<img class="acct-av" src="${auth.user.picture||''}" alt="" referrerpolicy="no-referrer" onerror="this.style.visibility='hidden'">
+      <div class="acct-info"><div class="acct-name">${esc(auth.user.name||'사용자')}</div><div class="acct-email">${esc(auth.user.email||'')}</div></div>
+      <button class="bk-btn bk-reset" style="flex:none;min-width:auto;padding:10px 14px" onclick="logout()">로그아웃</button>`;
+  }else{
+    el.innerHTML=`<div class="acct-info"><div class="acct-name">게스트로 사용 중</div><div class="acct-email">로그인하면 기기 간 동기화돼요</div></div>
+      <button class="bk-btn bk-export" style="flex:none;min-width:auto;padding:10px 14px" onclick="showLoginGate()">로그인</button>`;
+  }
+}
+function afterLogin(){
+  hideLoginGate();
+  startAppUI();
+  switchTab('today',document.querySelector('[data-tab=today]'));
+  cloudSyncOnStart();
+}
+function useGuest(){ hideLoginGate(); startAppUI(); }
+function logout(){
+  if(!confirm('로그아웃할까요? 이 기기의 기록은 남고, 다시 로그인하면 이어집니다.')) return;
+  clearAuth(); closeSettings(); state=null; setSyncDot();
+  showLoginGate();
 }
 
 /* ---------- PWA / 알림 ---------- */
@@ -1478,7 +1648,8 @@ function fireReminder(){
 }
 
 /* ---------- 시작 ---------- */
-(function init(){
+function startAppUI(){
+  state=load();
   document.getElementById('greet').innerHTML=GREETS[Math.floor(Math.random()*GREETS.length)]+
     '<small>오늘은 딱 3개까지만. 무리하지 않는 게 꾸준함의 비결이에요.</small>';
   // 끊긴 스트릭 위로 (어제까지 했는데 이틀 이상 비면)
@@ -1491,10 +1662,17 @@ function fireReminder(){
   renderCatPick();
   renderAll();
   setupNotifications();
+  renderProfile();
   const su=document.getElementById('syncUrl');
-  if(su) su.value=(state.settings&&state.settings.syncUrl)||'http://localhost:8787';
+  if(su) su.value=(state.settings&&state.settings.syncUrl)||DEFAULT_SYNC;
   if(!(state.settings&&state.settings.onboarded) && state.dreams.length===0) setTimeout(showOnboarding,450);
-})();
+}
+function boot(){
+  loadAuth();
+  if(isLoggedIn()) afterLogin();   // 로그인 상태면 바로 앱 + 클라우드 동기화
+  else showLoginGate();            // 아니면 로그인 화면
+}
+boot();
 
 /* ---------- 서비스워커 등록 (file:// 제외) ---------- */
 if('serviceWorker' in navigator && location.protocol!=='file:'){
