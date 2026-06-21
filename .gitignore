@@ -1,0 +1,13 @@
+# 비밀키 (절대 커밋 금지)
+server/.env
+.env
+*.local
+
+# OS
+.DS_Store
+
+# Node
+node_modules/
+
+# 로컬 에디터/프리뷰 설정
+.claude/

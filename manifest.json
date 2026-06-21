@@ -1,0 +1,22 @@
+{
+  "name": "무럽무럽 · 작심삼일도, 꾸준히 하면 됩니다",
+  "short_name": "무럽무럽",
+  "description": "작은 실천을 매일 쌓아가는 따뜻한 습관 앱. 꿈 → 목표 → 오늘 할 일.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#46B97C",
+  "background_color": "#F3FAF1",
+  "lang": "ko",
+  "dir": "ltr",
+  "categories": ["productivity", "lifestyle"],
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
