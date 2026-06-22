@@ -99,6 +99,7 @@ const rRel   =p=>(p?.relation||[]).map(x=>x.id);
 
 const createPage=(ds,props,icon)=>api('/pages','POST',{parent:{type:'data_source_id',data_source_id:ds},properties:props,...(icon?{icon:{type:'emoji',emoji:icon}}:{})});
 const updatePage=(id,props)=>api('/pages/'+id,'PATCH',{properties:props});
+const archivePage=id=>api('/pages/'+id,'PATCH',{archived:true});
 
 const queryAll=async (ds,filter)=>{
   let out=[],cursor=undefined;
@@ -154,7 +155,17 @@ async function push({dreams=[],todos=[]}, user){
     else { const pg=await createPage(TODO_DS,props); pageId=pg.id; }
     todoIds[t.id]=pageId;
   }
-  return {dreamIds,todoIds,pushed:{dreams:dreams.length,todos:todos.length}};
+
+  // 삭제 동기화(조정): push는 전체 상태를 보내므로, 이번에 없는 이 사용자의
+  // 노션 페이지는 보관(archive) 처리해 앱의 삭제를 노션에도 반영.
+  const keepDreams=new Set(Object.values(dreamIds));
+  const keepTodos=new Set(Object.values(todoIds));
+  let archived=0;
+  const [exDreams,exTodos]=await Promise.all([queryAll(DREAM_DS,userFilter(user)),queryAll(TODO_DS,userFilter(user))]);
+  for(const row of exTodos){ if(!keepTodos.has(row.id)){ await archivePage(row.id); archived++; } }
+  for(const row of exDreams){ if(!keepDreams.has(row.id)){ await archivePage(row.id); archived++; } }
+
+  return {dreamIds,todoIds,pushed:{dreams:dreams.length,todos:todos.length},archived};
 }
 
 // ---- PULL: 노션 → 앱 ----

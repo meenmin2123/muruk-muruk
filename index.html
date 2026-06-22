@@ -628,8 +628,8 @@
 <script>
 /* ---------- 계정 / 인증 ---------- */
 const AUTH = {
-  // ▼▼ Google Cloud Console에서 발급한 OAuth 클라이언트 ID(웹)를 여기에 붙여넣으세요 ▼▼
-  GOOGLE_CLIENT_ID: '여기에_구글_클라이언트_ID.apps.googleusercontent.com',
+  // Google Cloud Console에서 발급한 OAuth 클라이언트 ID(웹)
+  GOOGLE_CLIENT_ID: '799206799966-g5rvshvvsbsh41dfmo60s23gc9l31gmh.apps.googleusercontent.com',
 };
 const DEFAULT_SYNC='http://localhost:8787';
 const AUTH_LS='jaksim_auth';
@@ -1410,7 +1410,7 @@ async function pushToNotion(){
     state.dreams.forEach(d=>{ if(j.dreamIds&&j.dreamIds[d.id]) d.notionId=j.dreamIds[d.id]; });
     state.todos.forEach(t=>{ if(j.todoIds&&j.todoIds[t.id]) t.notionId=j.todoIds[t.id]; });
     save();
-    syncMsg(`올리기 완료 · 목표 ${j.pushed.dreams} · 할 일 ${j.pushed.todos}`);
+    syncMsg(`올리기 완료 · 목표 ${j.pushed.dreams} · 할 일 ${j.pushed.todos}${j.archived?` · 정리 ${j.archived}`:''}`);
     toast('노션에 올렸어요 ☁️');
   }catch(e){
     syncMsg('실패: '+e.message+' (서버가 켜져 있나요?)');
