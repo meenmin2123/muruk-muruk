@@ -1,0 +1,80 @@
+# Render 블루프린트 — 무럽무럽 전체 스택(프론트 + 백엔드 + Postgres)을 한 번에 배포.
+#
+# 사용법:
+#   1) 이 저장소를 Render에 연결 (Dashboard → New → Blueprint → 이 repo/branch 선택)
+#   2) Render가 render.yaml 을 읽어 서비스 3개를 자동 생성
+#   3) sync:false 로 표시된 비밀값(ANTHROPIC_API_KEY 등)만 대시보드에서 입력
+#   4) Deploy
+#
+# 주의:
+#   - Render가 서비스에 부여하는 실제 URL을 확인하고, 이름이 바뀌면 아래
+#     NEXT_PUBLIC_API_BASE / CORS_ORIGINS 값을 그 URL로 맞춰주세요.
+#   - 구글 로그인: 발급해둔 클라이언트 ID의 "승인된 자바스크립트 출처"에
+#     프론트 URL(https://muruk-frontend.onrender.com)을 추가해야 동작합니다.
+
+databases:
+  - name: muruk-db
+    databaseName: muruk
+    user: muruk
+    plan: free
+
+services:
+  # --- 백엔드 (Kotlin / Spring Boot) ---
+  - type: web
+    name: muruk-backend
+    runtime: docker
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /api/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: postgres
+      - key: DB_HOST
+        fromDatabase:
+          name: muruk-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: muruk-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: muruk-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: muruk-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: muruk-db
+          property: password
+      # 구글 OAuth 클라이언트 ID (기존 PWA에서 쓰던 값 재사용)
+      - key: GOOGLE_CLIENT_ID
+        value: 799206799966-g5rvshvvsbsh41dfmo60s23gc9l31gmh.apps.googleusercontent.com
+      # 프론트 출처 허용(CORS) — 프론트 실제 URL로 맞추기
+      - key: CORS_ORIGINS
+        value: https://muruk-frontend.onrender.com
+      # Claude 코칭 키 — 대시보드에서 입력
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      # (선택) 노션 직접 백업 — 쓸 때만 대시보드에서 입력
+      - key: NOTION_TOKEN
+        sync: false
+      - key: NOTION_DATABASE_ID
+        sync: false
+
+  # --- 프론트 (Next.js) ---
+  - type: web
+    name: muruk-frontend
+    runtime: docker
+    plan: free
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    envVars:
+      # NEXT_PUBLIC_* 는 빌드 시점에 박힘 → 백엔드 실제 URL로 맞추기
+      - key: NEXT_PUBLIC_API_BASE
+        value: https://muruk-backend.onrender.com
+      - key: NEXT_PUBLIC_GOOGLE_CLIENT_ID
+        value: 799206799966-g5rvshvvsbsh41dfmo60s23gc9l31gmh.apps.googleusercontent.com

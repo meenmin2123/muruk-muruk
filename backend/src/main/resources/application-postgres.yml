@@ -1,0 +1,8 @@
+# 'postgres' 프로필 — Render 등 운영 배포용.
+# Render 데이터베이스가 넘겨주는 부분값(DB_HOST/PORT/NAME/USER/PASSWORD)으로 접속 URL을 조립한다.
+# (기본 application.yml 은 로컬 H2 그대로 유지)
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
