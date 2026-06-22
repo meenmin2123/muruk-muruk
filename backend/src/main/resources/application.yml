@@ -1,0 +1,28 @@
+server:
+  port: ${PORT:8080}
+
+spring:
+  application:
+    name: muruk-backend
+  # 기본은 로컬 H2 (Postgres 없이 바로 실행). 운영에선 아래 env로 Postgres 연결.
+  datasource:
+    url: ${DB_URL:jdbc:h2:mem:muruk;DB_CLOSE_DELAY=-1;MODE=PostgreSQL}
+    username: ${DB_USER:sa}
+    password: ${DB_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+muruk:
+  # 구글 OAuth 웹 클라이언트 ID (프론트와 동일한 값). 비우면 인증이 비활성(개발용).
+  google-client-id: ${GOOGLE_CLIENT_ID:}
+  # 허용할 프론트 출처(CORS)
+  cors-allowed-origins: ${CORS_ORIGINS:http://localhost:3000}
+  # (선택) 노션 백업 중계 서버 주소. 비우면 백업 비활성.
+  notion-relay-url: ${NOTION_RELAY_URL:}
+
+# Claude API 키는 표준 환경변수 ANTHROPIC_API_KEY 로 주입됩니다.
+logging:
+  level:
+    com.muruk: INFO

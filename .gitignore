@@ -8,6 +8,17 @@ server/.env
 
 # Node
 node_modules/
+.next/
+out/
+next-env.d.ts
+
+# Kotlin / Gradle 백엔드
+backend/.gradle/
+backend/build/
+.gradle/
 
 # 로컬 에디터/프리뷰 설정
 .claude/
+
+# TS 빌드 캐시
+*.tsbuildinfo
