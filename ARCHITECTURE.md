@@ -38,7 +38,22 @@
 | PUT | `/api/state` | 내 상태 올리기(+노션 백업) |
 | POST | `/api/coach` | AI 코칭 (`{ kind, context }` → `{ message }`) |
 
-## 실행
+## 프론트 화면 (기존 PWA에서 이식)
+- 4탭: **오늘 / 나의 목표 / 칭찬나무 / 기록** + 설정 시트(프로필·로그아웃·AI 코칭)
+- 목표 생성(카테고리·색·칭찬판 모양), 할 일 추가/완료/내일로, 매일반복 스티커 적립,
+  칭찬판 6테마(나무·포도·별·꽃밭·풍선·무지개) SVG, 도장, 연속기록·잔디 달력
+- 상태 변경은 디바운스로 백엔드에 자동 저장(`PUT /api/state`), 시작 시 자동 불러오기
+
+## 실행 (Docker — 가장 간단)
+```bash
+cp .env.example .env     # ANTHROPIC_API_KEY, GOOGLE_CLIENT_ID 등 채우기
+docker compose up --build
+# 프론트 http://localhost:3000 · 백엔드 http://localhost:8080 · Postgres 5432
+```
+> `NEXT_PUBLIC_*`(API 주소·구글 클라이언트 ID)는 프론트 **빌드 시점**에 박히므로
+> 값을 바꾸면 `docker compose build frontend` 로 다시 빌드해야 합니다.
+
+## 실행 (개별 실행)
 
 ### 백엔드 (JDK 21)
 ```bash
@@ -66,7 +81,8 @@ npm run dev    # http://localhost:3000
 2. **Claude API 키** → 백엔드 `ANTHROPIC_API_KEY`
 3. (운영) **Postgres** 인스턴스 → `DB_URL/DB_USER/DB_PASSWORD`
 
-## 한계 (v2 골격)
-- 목표/할일/칭찬나무 등 풍부한 UI는 아직 미이식 (기존 PWA에서 점진 이식).
-- 상태는 JSON 문서 1건으로 저장(낙관적 잠금/충돌 해결 미구현).
+## 한계 (현재)
+- 상태는 JSON 문서 1건으로 저장(낙관적 잠금/충돌 해결 미구현) — 여러 기기 동시 편집 시 마지막 저장이 우선.
 - 노션 백업은 best-effort(실패해도 본 저장에 영향 없음).
+- 알림/PWA 설치, 백업 파일 내보내기/가져오기, 커스텀 카테고리 등 일부 기존 기능은 추후 이식.
+- AI 코칭은 '오늘의 응원' 1종(2번 단계에서 주간 회고·슬럼프 케어·할 일 추천 확장 예정).

@@ -1,0 +1,56 @@
+# 무럽무럽 v2 전체 스택: Postgres + Kotlin 백엔드 + Next.js 프론트
+# 사용:  .env 파일에 비밀값을 채운 뒤  ->  docker compose up --build
+#
+# .env 예시:
+#   ANTHROPIC_API_KEY=sk-ant-...
+#   GOOGLE_CLIENT_ID=xxx.apps.googleusercontent.com
+#   POSTGRES_PASSWORD=change-me
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: muruk
+      POSTGRES_USER: muruk
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-muruk}
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U muruk"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PORT: 8080
+      DB_URL: jdbc:postgresql://db:5432/muruk
+      DB_USER: muruk
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-muruk}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      NOTION_RELAY_URL: ${NOTION_RELAY_URL:-}
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # NEXT_PUBLIC_* 는 빌드 타임에 박힘
+        NEXT_PUBLIC_API_BASE: ${NEXT_PUBLIC_API_BASE:-http://localhost:8080}
+        NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+
+volumes:
+  dbdata:

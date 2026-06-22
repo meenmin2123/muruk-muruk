@@ -1,7 +1,8 @@
 "use client";
 
 import { getToken } from "./auth";
-import type { AppState, CoachKind, MurukUser } from "./types";
+import type { AppState } from "./state";
+import type { CoachKind, MurukUser } from "./types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8080";
 
@@ -22,7 +23,7 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
 
 export const api = {
   me: () => request<MurukUser>("/api/me"),
-  pullState: () => request<AppState>("/api/state"),
+  pullState: () => request<unknown>("/api/state"),
   pushState: (state: AppState) =>
     request<{ ok: boolean; updatedAt: string }>("/api/state", {
       method: "PUT",
