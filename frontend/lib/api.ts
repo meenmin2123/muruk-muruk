@@ -17,17 +17,24 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
     },
   });
   if (res.status === 401) throw new Error("UNAUTHORIZED");
+  if (res.status === 409) throw new Error("CONFLICT");
   if (!res.ok) throw new Error(`API ${res.status}`);
   return (await res.json()) as T;
 }
 
+export interface StateEnvelope {
+  data: unknown;
+  version: number;
+  updatedAt: string | null;
+}
+
 export const api = {
   me: () => request<MurukUser>("/api/me"),
-  pullState: () => request<unknown>("/api/state"),
-  pushState: (state: AppState) =>
-    request<{ ok: boolean; updatedAt: string }>("/api/state", {
+  pullState: () => request<StateEnvelope>("/api/state"),
+  pushState: (state: AppState, baseVersion: number) =>
+    request<{ ok: boolean; version: number; updatedAt: string }>("/api/state", {
       method: "PUT",
-      body: JSON.stringify(state),
+      body: JSON.stringify({ data: state, baseVersion }),
     }),
   coach: (kind: CoachKind, context: string) =>
     request<{ message: string }>("/api/coach", {

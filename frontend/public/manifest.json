@@ -1,0 +1,13 @@
+{
+  "name": "무럽무럽",
+  "short_name": "무럽무럽",
+  "description": "작심삼일도, 꾸준히 하면 됩니다 🌿",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f3faf1",
+  "theme_color": "#46b97c",
+  "lang": "ko",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

@@ -17,4 +17,4 @@ export interface AppState {
   [key: string]: unknown;
 }
 
-export type CoachKind = "encourage" | "weeklyReview" | "slumpCare" | "suggestTasks";
+export type CoachKind = "encourage" | "weeklyReview" | "slumpCare" | "suggestTasks" | "celebrate";

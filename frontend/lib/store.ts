@@ -5,6 +5,7 @@ import { api } from "./api";
 import {
   AppState,
   CHEERS,
+  CustomCat,
   Dream,
   awardSticker,
   defaultState,
@@ -13,7 +14,6 @@ import {
   rand,
   removeSticker,
   streakCount,
-  template,
   todayStr,
   uid,
   Repeat,
@@ -38,8 +38,10 @@ export interface AppActions {
   toggleTodo(id: string): void;
   removeTodo(id: string): void;
   tomorrow(id: string): void;
-  addDream(d: { title: string; cat: string; color: string; theme: string }): void;
+  addDream(d: { title: string; cat: string; color: string; theme: string; emoji: string }): void;
   removeDream(id: string): void;
+  addCustomCat(c: { emoji: string; label: string; color: string }): void;
+  replaceState(s: AppState): void;
   toggleCollapse(id: string): void;
   setDday(id: string, date: string | null): void;
   addGoal(dreamId: string, title: string, repeat: Repeat): void;
@@ -55,6 +57,7 @@ export function useAppState() {
   const [gold, setGold] = useState<string | null>(null);
 
   const stateRef = useRef<AppState | null>(null);
+  const versionRef = useRef(0);
   const loaded = useRef(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -73,7 +76,9 @@ export function useAppState() {
     (async () => {
       let s: AppState;
       try {
-        s = normalize(await api.pullState());
+        const env = await api.pullState();
+        s = normalize(env.data);
+        versionRef.current = env.version ?? 0;
       } catch {
         s = defaultState();
       }
@@ -95,9 +100,22 @@ export function useAppState() {
     timer.current = setTimeout(async () => {
       setSyncing(true);
       try {
-        await api.pushState(state);
-      } catch {
-        /* best-effort */
+        const res = await api.pushState(state, versionRef.current);
+        versionRef.current = res.version;
+      } catch (e) {
+        if ((e as Error).message === "CONFLICT") {
+          // 다른 기기에서 먼저 변경됨 → 서버 최신 상태로 동기화(로컬 덮어쓰기 방지).
+          try {
+            const env = await api.pullState();
+            versionRef.current = env.version ?? 0;
+            loaded.current = false; // 이번 setState 가 다시 push 되지 않도록
+            setState(ensureDailyTodos(normalize(env.data)));
+            setTimeout(() => (loaded.current = true), 0);
+            setToast("다른 기기에서 변경되어 최신 상태로 맞췄어요 🔄");
+          } catch {
+            /* ignore */
+          }
+        }
       } finally {
         setSyncing(false);
       }
@@ -164,11 +182,22 @@ export function useAppState() {
       setToast("내일로 미뤘어요. 괜찮아요 🤍");
     },
     addDream(d) {
-      const t = template(d.cat);
       mutate((s) => {
-        s.dreams.push({ id: uid(), title: d.title, emoji: t.emoji, cat: d.cat, color: d.color, theme: d.theme, targetDate: null, goals: [] });
+        s.dreams.push({ id: uid(), title: d.title, emoji: d.emoji, cat: d.cat, color: d.color, theme: d.theme, targetDate: null, goals: [] });
       });
-      setToast(`${t.emoji} ${t.label} 목표를 세웠어요`);
+      setToast(`${d.emoji} 목표를 세웠어요`);
+    },
+    addCustomCat(c) {
+      const key = "custom_" + uid();
+      mutate((s) => {
+        s.customCats.push({ key, emoji: c.emoji, label: c.label, ph: `${c.label} 목표를 적어요`, dday: false, color: c.color, goals: [], custom: true });
+      });
+    },
+    replaceState(s) {
+      const next = ensureDailyTodos(structuredClone(s));
+      next.lastSeen = todayStr();
+      setState(next);
+      setToast("백업을 불러왔어요 ✅");
     },
     removeDream(id) {
       mutate((s) => {

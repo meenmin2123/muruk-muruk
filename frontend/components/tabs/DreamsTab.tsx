@@ -1,8 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import { api } from "@/lib/api";
 import type { AppActions } from "@/lib/store";
 import { AppState, CAT_ORDER, Dream, PALETTE, Repeat, TEMPLATES, THEMES, ddayText, template, todayStr } from "@/lib/state";
+
+interface CatMeta {
+  key: string;
+  emoji: string;
+  label: string;
+  ph: string;
+  color: string;
+}
 
 export function DreamsTab({ state, actions }: { state: AppState; actions: AppActions }) {
   const [open, setOpen] = useState(false);
@@ -10,17 +19,33 @@ export function DreamsTab({ state, actions }: { state: AppState; actions: AppAct
   const [color, setColor] = useState(TEMPLATES.free.color);
   const [theme, setTheme] = useState("tree");
   const [title, setTitle] = useState("");
+  const [catOpen, setCatOpen] = useState(false);
+  const [ce, setCe] = useState("🎨");
+  const [cl, setCl] = useState("");
 
-  function pickCat(c: string) {
-    setCat(c);
-    setColor(template(c).color);
+  const presets: CatMeta[] = CAT_ORDER.map((c) => ({ key: c, emoji: TEMPLATES[c].emoji, label: TEMPLATES[c].label, ph: TEMPLATES[c].ph, color: TEMPLATES[c].color }));
+  const customs: CatMeta[] = state.customCats.map((c) => ({ key: c.key, emoji: c.emoji, label: c.label, ph: c.ph, color: c.color }));
+  const allCats = [...presets, ...customs];
+  const meta = allCats.find((c) => c.key === cat) ?? presets[presets.length - 1];
+
+  function pickCat(c: CatMeta) {
+    setCat(c.key);
+    setColor(c.color);
   }
   function create() {
     const v = title.trim();
     if (!v) return;
-    actions.addDream({ title: v, cat, color, theme });
+    actions.addDream({ title: v, cat, color, theme, emoji: meta.emoji });
     setTitle("");
     setOpen(false);
+  }
+  function addCustom() {
+    const label = cl.trim();
+    if (!label) return;
+    actions.addCustomCat({ emoji: ce.trim() || "🎯", label, color });
+    setCl("");
+    setCe("🎨");
+    setCatOpen(false);
   }
 
   return (
@@ -37,12 +62,27 @@ export function DreamsTab({ state, actions }: { state: AppState; actions: AppAct
       {open && (
         <div className="card">
           <div className="row-wrap">
-            {CAT_ORDER.map((c) => (
-              <div key={c} className={"chip" + (c === cat ? " on" : "")} onClick={() => pickCat(c)}>
-                {TEMPLATES[c].emoji} {TEMPLATES[c].label}
+            {allCats.map((c) => (
+              <div key={c.key} className={"chip" + (c.key === cat ? " on" : "")} onClick={() => pickCat(c)}>
+                {c.emoji} {c.label}
               </div>
             ))}
+            <div className="chip" onClick={() => setCatOpen((o) => !o)}>
+              ＋ 직접
+            </div>
           </div>
+
+          {catOpen && (
+            <div className="card" style={{ background: "#f6fbf4" }}>
+              <div className="muted" style={{ fontWeight: 800, marginBottom: 8 }}>나만의 카테고리</div>
+              <div className="addbar">
+                <input style={{ flex: "0 0 64px", textAlign: "center" }} value={ce} maxLength={2} onChange={(e) => setCe(e.target.value)} />
+                <input value={cl} placeholder="카테고리 이름 (예: 독서)" maxLength={10} onChange={(e) => setCl(e.target.value)} onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && addCustom()} />
+                <button onClick={addCustom}>추가</button>
+              </div>
+            </div>
+          )}
+
           <div className="row-wrap" style={{ alignItems: "center" }}>
             <span className="muted" style={{ fontWeight: 800 }}>색</span>
             {PALETTE.map((c) => (
@@ -58,7 +98,7 @@ export function DreamsTab({ state, actions }: { state: AppState; actions: AppAct
             ))}
           </div>
           <div className="addbar">
-            <input value={title} placeholder={template(cat).ph} maxLength={40} onChange={(e) => setTitle(e.target.value)} onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && create()} />
+            <input value={title} placeholder={meta.ph} maxLength={40} onChange={(e) => setTitle(e.target.value)} onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && create()} />
             <button onClick={create}>추가</button>
           </div>
         </div>
@@ -76,6 +116,8 @@ export function DreamsTab({ state, actions }: { state: AppState; actions: AppAct
 function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState; actions: AppActions }) {
   const [goalText, setGoalText] = useState("");
   const [repeat, setRepeat] = useState<Repeat>("once");
+  const [aiTasks, setAiTasks] = useState<string[]>([]);
+  const [aiLoading, setAiLoading] = useState(false);
   const color = d.color || template(d.cat).color;
   const tpl = template(d.cat);
   const linked = state.todos.filter((t) => t.goalId && d.goals.some((g) => g.id === t.goalId));
@@ -90,6 +132,25 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
     if (!v) return;
     actions.addGoal(d.id, v, repeat);
     setGoalText("");
+  }
+
+  async function aiSuggest() {
+    setAiLoading(true);
+    setAiTasks([]);
+    try {
+      const ctx = JSON.stringify({ 목표: d.title, 카테고리: tpl.label, 이미있는할일: used });
+      const { message } = await api.coach("suggestTasks", ctx);
+      const lines = message
+        .split("\n")
+        .map((l) => l.replace(/^[\s\d.\-*•")(]+/, "").trim())
+        .filter((l) => l.length > 0 && l.length <= 30 && !used.includes(l))
+        .slice(0, 5);
+      setAiTasks(lines);
+    } catch {
+      setAiTasks([]);
+    } finally {
+      setAiLoading(false);
+    }
   }
 
   return (
@@ -155,6 +216,19 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
             </div>
           )}
 
+          {aiTasks.length > 0 && (
+            <div style={{ marginTop: 11 }}>
+              <div className="muted" style={{ fontWeight: 700, marginBottom: 7 }}>🤖 AI 추천 — 눌러서 추가</div>
+              <div className="row-wrap">
+                {aiTasks.map((s) => (
+                  <span key={s} className="chip" onClick={() => { addGoal(s); setAiTasks((p) => p.filter((x) => x !== s)); }}>
+                    + {s}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="goal-add">
             <input value={goalText} placeholder="직접 할 일 추가" maxLength={40} onChange={(e) => setGoalText(e.target.value)} onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && addGoal(goalText)} />
             <button onClick={() => addGoal(goalText)}>추가</button>
@@ -165,6 +239,9 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
             </button>
             <button className={"theme-opt" + (repeat === "daily" ? " on" : "")} style={{ flex: "0 0 auto" }} onClick={() => setRepeat("daily")}>
               🔁 매일 반복
+            </button>
+            <button className="gt-badge" style={{ flex: "0 0 auto" }} onClick={aiSuggest} disabled={aiLoading}>
+              {aiLoading ? "추천 생각 중…" : "🤖 AI 추천"}
             </button>
           </div>
         </>

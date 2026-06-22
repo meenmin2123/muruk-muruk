@@ -1,12 +1,31 @@
 "use client";
 
 import { useState } from "react";
+import { api } from "@/lib/api";
 import type { AppActions } from "@/lib/store";
-import { AppState, findGoal, todayStr } from "@/lib/state";
+import { AppState, daysSinceLastDone, findGoal, todayStr } from "@/lib/state";
 
 export function TodayTab({ state, actions }: { state: AppState; actions: AppActions }) {
   const [text, setText] = useState("");
   const [goalId, setGoalId] = useState("");
+  const [slump, setSlump] = useState("");
+  const [slumpLoading, setSlumpLoading] = useState(false);
+
+  const gap = daysSinceLastDone(state);
+  const showSlump = gap >= 3; // 3일 이상 쉰 경우 슬럼프 케어 노출
+
+  async function careForSlump() {
+    setSlumpLoading(true);
+    try {
+      const ctx = JSON.stringify({ 마지막완료로부터일수: gap, 누적완료: state.totalDone, 목표수: state.dreams.length });
+      const { message } = await api.coach("slumpCare", ctx);
+      setSlump(message);
+    } catch {
+      setSlump("괜찮아요. 오늘 아주 작은 것 하나만 다시 시작해봐요 🤍");
+    } finally {
+      setSlumpLoading(false);
+    }
+  }
 
   const all = state.todos.filter((t) => t.date === todayStr());
   const done = all.filter((t) => t.done).length;
@@ -59,6 +78,22 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
       <div className="greet">
         오늘도 한 걸음 어때요? ☀️<small>오늘은 딱 3개까지만. 무리하지 않는 게 꾸준함의 비결이에요.</small>
       </div>
+
+      {showSlump && (
+        <div className="card" style={{ background: "linear-gradient(135deg,#FFF3E0,#FFE9D6)", border: "1px solid #FFD9A8" }}>
+          <div style={{ fontWeight: 800, fontSize: 14.5 }}>🌤️ {gap}일 만이네요, 다시 만나서 반가워요</div>
+          {slump ? (
+            <p style={{ marginTop: 8, lineHeight: 1.6, marginBottom: 0 }}>{slump}</p>
+          ) : (
+            <>
+              <p className="muted" style={{ margin: "6px 0 12px" }}>쉬어가도 괜찮아요. 다시 시작하는 게 진짜 꾸준함이에요.</p>
+              <button className="btn" onClick={careForSlump} disabled={slumpLoading}>
+                {slumpLoading ? "마음 챙기는 중…" : "오늘 다시 시작 응원받기 🤍"}
+              </button>
+            </>
+          )}
+        </div>
+      )}
 
       <div className="ringwrap">
         <div className="ring">

@@ -4,6 +4,7 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import jakarta.persistence.Version
 import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.type.SqlTypes
 import java.time.Instant
@@ -27,4 +28,9 @@ class UserState(
 
     @Column(nullable = false)
     var updatedAt: Instant = Instant.now(),
+
+    // 낙관적 잠금용 버전. 저장 시마다 자동 증가 → 다른 기기와 충돌 감지에 사용.
+    @Version
+    @Column(nullable = false)
+    var version: Long = 0,
 )

@@ -114,6 +114,14 @@ export function streakCount(s: AppState): number {
   return count;
 }
 
+/** 마지막으로 무언가 완료한 날로부터 며칠 지났는지. 한 번도 없으면 -1. */
+export function daysSinceLastDone(s: AppState): number {
+  const dates = s.todos.filter((t) => t.done).map((t) => t.date).sort();
+  if (dates.length === 0) return -1;
+  const last = dates[dates.length - 1];
+  return Math.round((+new Date(todayStr()) - +new Date(last)) / 86400000);
+}
+
 export function totalStickers(s: AppState): number {
   let n = 0;
   s.dreams.forEach((d) => d.goals.forEach((g) => (n += g.earned ?? 0)));

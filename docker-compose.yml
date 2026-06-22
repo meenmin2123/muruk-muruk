@@ -37,6 +37,8 @@ services:
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
       NOTION_RELAY_URL: ${NOTION_RELAY_URL:-}
+      NOTION_TOKEN: ${NOTION_TOKEN:-}
+      NOTION_DATABASE_ID: ${NOTION_DATABASE_ID:-}
     ports:
       - "8080:8080"
 
