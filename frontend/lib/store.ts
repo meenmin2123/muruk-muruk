@@ -150,16 +150,16 @@ export function useAppState() {
           toastMsg = rand(CHEERS);
           if (t.goalId) {
             const found = findGoal(s, t.goalId);
-            if (found && found.goal.repeat === "daily") {
+            if (found) {
               toastMsg = "🌟 칭찬 스티커를 받았어요!";
-              if (awardSticker(found.goal)) goldTitle = found.goal.title;
+              if (awardSticker(found.dream)) goldTitle = found.dream.title;
             }
           }
         } else {
           s.totalDone = Math.max(0, s.totalDone - 1);
           if (t.goalId) {
             const found = findGoal(s, t.goalId);
-            if (found) removeSticker(found.goal);
+            if (found) removeSticker(found.dream);
           }
         }
       });

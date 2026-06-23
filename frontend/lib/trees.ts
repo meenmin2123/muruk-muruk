@@ -1,6 +1,7 @@
 // 칭찬판 SVG 렌더러 (index.html에서 이식). 문자열을 반환 → dangerouslySetInnerHTML로 렌더.
-import type { Goal } from "./state";
+import type { StickerBoard } from "./state";
 
+type Goal = StickerBoard;
 const stk = (g: Goal) => g.stickers ?? [];
 
 export function treeSVG(g: Goal): string {

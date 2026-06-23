@@ -22,6 +22,17 @@ export interface Dream {
   targetDate: string | null;
   collapsed?: boolean;
   goals: Goal[];
+  // 칭찬판은 목표(꿈) 단위 — 이 목표의 할 일을 완료할 때마다 스티커가 쌓인다.
+  stickers?: string[];
+  earned?: number;
+  stamps?: number;
+}
+
+/** 스티커판을 가진 대상(목표). */
+export interface StickerBoard {
+  stickers?: string[];
+  earned?: number;
+  stamps?: number;
 }
 
 export interface Todo {
@@ -124,7 +135,7 @@ export function daysSinceLastDone(s: AppState): number {
 
 export function totalStickers(s: AppState): number {
   let n = 0;
-  s.dreams.forEach((d) => d.goals.forEach((g) => (n += g.earned ?? 0)));
+  s.dreams.forEach((d) => (n += d.earned ?? 0));
   return n;
 }
 
@@ -144,29 +155,27 @@ export function ddayText(date: string | null): string | null {
   return "D+" + -diff;
 }
 
-/** 매일 반복 할일 완료 시 스티커 적립. 판(10칸)을 채우면 도장 +1 후 true. */
-export function awardSticker(g: Goal): boolean {
-  if (g.repeat !== "daily") return false;
-  g.stickers = g.stickers ?? [];
-  if (g.stickers.length >= BOARD) g.stickers = [];
-  g.stickers.push(rand(STICKERS));
-  g.earned = (g.earned ?? 0) + 1;
-  if (g.stickers.length >= BOARD) {
-    g.stamps = (g.stamps ?? 0) + 1;
+/** 할일 완료 시 목표(꿈) 칭찬판에 스티커 적립. 판(10칸)을 채우면 도장 +1 후 true. */
+export function awardSticker(b: StickerBoard): boolean {
+  b.stickers = b.stickers ?? [];
+  if (b.stickers.length >= BOARD) b.stickers = [];
+  b.stickers.push(rand(STICKERS));
+  b.earned = (b.earned ?? 0) + 1;
+  if (b.stickers.length >= BOARD) {
+    b.stamps = (b.stamps ?? 0) + 1;
     return true;
   }
   return false;
 }
 
-export function removeSticker(g: Goal): void {
-  if (g.repeat !== "daily") return;
-  g.stickers = g.stickers ?? [];
-  if (g.stickers.length > 0) g.stickers.pop();
-  else if ((g.stamps ?? 0) > 0) {
-    g.stamps = (g.stamps ?? 0) - 1;
-    g.stickers = Array.from({ length: BOARD - 1 }, () => rand(STICKERS));
+export function removeSticker(b: StickerBoard): void {
+  b.stickers = b.stickers ?? [];
+  if (b.stickers.length > 0) b.stickers.pop();
+  else if ((b.stamps ?? 0) > 0) {
+    b.stamps = (b.stamps ?? 0) - 1;
+    b.stickers = Array.from({ length: BOARD - 1 }, () => rand(STICKERS));
   }
-  g.earned = Math.max(0, (g.earned ?? 0) - 1);
+  b.earned = Math.max(0, (b.earned ?? 0) - 1);
 }
 
 /** 매일 반복 할일을 오늘 자동 생성 (없으면). */
