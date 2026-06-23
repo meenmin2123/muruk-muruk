@@ -16,6 +16,8 @@ FROM node:22-alpine
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
+# Next standalone 서버가 0.0.0.0 에 바인딩하도록(미지정 시 localhost만 잡혀 502 발생)
+ENV HOSTNAME=0.0.0.0
 COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/.next/static ./.next/static
 COPY --from=build /app/public ./public
