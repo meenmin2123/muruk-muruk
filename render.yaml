@@ -32,7 +32,7 @@ services:
         value: postgres
       # 무료 등급(512MB)에 맞춰 JVM 힙 제한 — OOM 방지
       - key: JAVA_TOOL_OPTIONS
-        value: -XX:MaxRAMPercentage=70.0 -XX:+UseSerialGC -Xss512k
+        value: -XX:MaxRAMPercentage=65.0 -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss512k
       - key: DB_HOST
         fromDatabase:
           name: muruk-db
