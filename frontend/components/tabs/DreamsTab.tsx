@@ -52,11 +52,10 @@ export function DreamsTab({ state, actions }: { state: AppState; actions: AppAct
     <section>
       <div className="sec-title">
         <h2>나의 목표</h2>
-        <span className="hint">목표 → 할 일 → 오늘</span>
       </div>
 
       <button className="newdream-btn" onClick={() => setOpen((o) => !o)}>
-        {open ? "✕ 닫기" : "＋ 새 목표 만들기"}
+        {open ? "닫기" : "＋ 새 목표"}
       </button>
 
       {open && (
@@ -89,7 +88,7 @@ export function DreamsTab({ state, actions }: { state: AppState; actions: AppAct
               <div key={c} className={"sw" + (c.toLowerCase() === color.toLowerCase() ? " on" : "")} style={{ background: c }} onClick={() => setColor(c)} />
             ))}
           </div>
-          <div className="muted" style={{ margin: "2px 2px 8px", fontWeight: 700 }}>칭찬판 모양 (만든 뒤 바꿀 수 없어요)</div>
+          <div className="muted" style={{ margin: "2px 2px 8px", fontWeight: 700 }}>칭찬판 모양</div>
           <div className="row-wrap">
             {THEMES.map((t) => (
               <button key={t.key} className={"theme-opt" + (t.key === theme ? " on" : "")} onClick={() => setTheme(t.key)}>
@@ -105,7 +104,7 @@ export function DreamsTab({ state, actions }: { state: AppState; actions: AppAct
       )}
 
       {state.dreams.length === 0 ? (
-        <div className="empty">이루고 싶은 목표를 하나 세워볼까요?<br />거창하지 않아도 좋아요.</div>
+        <div className="empty">목표를 하나 세워보세요.</div>
       ) : (
         state.dreams.map((d) => <DreamCard key={d.id} dream={d} state={state} actions={actions} />)
       )}
@@ -180,7 +179,7 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
           <div className="progress">
             <i style={{ width: pct + "%", background: `linear-gradient(90deg, ${color}88, ${color})` }} />
           </div>
-          <div className="progress-l">{linked.length ? `${doneN}/${linked.length} 실천 · ${pct}%` : "추천 할 일을 눌러 시작해보세요"}</div>
+          <div className="progress-l">{linked.length ? `${doneN}/${linked.length} · ${pct}%` : ""}</div>
 
           {d.goals.map((g) => {
             const added = state.todos.some((t) => t.goalId === g.id && t.date === todayStr());
@@ -189,7 +188,7 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
               <div className={"goal" + (isDone ? " done" : "")} key={g.id}>
                 <span className="g-t">· {g.title}</span>
                 <button className={"gt-badge" + (g.repeat === "daily" ? " daily" : "")} onClick={() => actions.toggleGoalRepeat(d.id, g.id)}>
-                  {g.repeat === "daily" ? "🔁 매일" : "한 번"}
+                  {g.repeat === "daily" ? "매일" : "한 번"}
                 </button>
                 {g.repeat !== "daily" && (
                   <button className={"add-today" + (added ? " added" : "")} style={!added ? { background: color } : undefined} onClick={() => actions.goalToToday(g.id)}>
@@ -205,7 +204,7 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
 
           {sugg.length > 0 && (
             <div style={{ marginTop: 11 }}>
-              <div className="muted" style={{ fontWeight: 700, marginBottom: 7 }}>💡 {tpl.label} 추천 — 눌러서 추가</div>
+              <div className="muted" style={{ fontWeight: 700, marginBottom: 7 }}>추천</div>
               <div className="row-wrap">
                 {sugg.map((s) => (
                   <span key={s} className="chip" onClick={() => addGoal(s)}>
@@ -218,7 +217,7 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
 
           {aiTasks.length > 0 && (
             <div style={{ marginTop: 11 }}>
-              <div className="muted" style={{ fontWeight: 700, marginBottom: 7 }}>🤖 AI 추천 — 눌러서 추가</div>
+              <div className="muted" style={{ fontWeight: 700, marginBottom: 7 }}>AI 추천</div>
               <div className="row-wrap">
                 {aiTasks.map((s) => (
                   <span key={s} className="chip" onClick={() => { addGoal(s); setAiTasks((p) => p.filter((x) => x !== s)); }}>
@@ -235,13 +234,13 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
           </div>
           <div className="row-wrap" style={{ marginTop: 8 }}>
             <button className={"theme-opt" + (repeat === "once" ? " on" : "")} style={{ flex: "0 0 auto" }} onClick={() => setRepeat("once")}>
-              📌 한 번
+              한 번
             </button>
             <button className={"theme-opt" + (repeat === "daily" ? " on" : "")} style={{ flex: "0 0 auto" }} onClick={() => setRepeat("daily")}>
-              🔁 매일 반복
+              매일 반복
             </button>
             <button className="gt-badge" style={{ flex: "0 0 auto" }} onClick={aiSuggest} disabled={aiLoading}>
-              {aiLoading ? "추천 생각 중…" : "🤖 AI 추천"}
+              {aiLoading ? "…" : "AI 추천"}
             </button>
           </div>
         </>

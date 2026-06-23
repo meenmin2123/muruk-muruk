@@ -38,13 +38,8 @@ export function LoginGate({ onLogin }: { onLogin: () => void }) {
       <h1 style={{ fontSize: 30, marginBottom: 6 }}>
         무럽무럽<span style={{ color: "var(--primary)" }}>.</span>
       </h1>
-      <p className="muted" style={{ marginBottom: 28 }}>
-        작심삼일도, 꾸준히 하면 됩니다 🌿
-      </p>
-      <p style={{ marginBottom: 24 }}>
-        로그인하면 목표·기록이 내 계정에 저장돼
-        <br />
-        어느 기기에서든 이어서 쓸 수 있어요.
+      <p className="muted" style={{ marginBottom: 32 }}>
+        작심삼일도, 꾸준히 하면 됩니다
       </p>
       <div ref={btnRef} style={{ display: "flex", justifyContent: "center" }} />
       {!configured && (

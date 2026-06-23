@@ -57,19 +57,19 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
         <div className="logo">
           무럽무럽<span className="dot">.</span>
         </div>
-        <div className="tagline">작심삼일도, 꾸준히 하면 됩니다 🌿{syncing ? " · 동기화 중…" : ""}</div>
+        {syncing && <div className="tagline">저장 중…</div>}
         <div className="toprow">
           <div className="stat">
-            <div className="v">{streak}일째</div>
-            <div className="l">🔥 연속 기록</div>
+            <div className="v">{streak}</div>
+            <div className="l">연속</div>
           </div>
           <div className="stat">
-            <div className="v">{stickers}개</div>
-            <div className="l">🌟 모은 스티커</div>
+            <div className="v">{stickers}</div>
+            <div className="l">스티커</div>
           </div>
           <div className="stat">
-            <div className="v">{state.totalDone}개</div>
-            <div className="l">✅ 누적 완료</div>
+            <div className="v">{state.totalDone}</div>
+            <div className="l">완료</div>
           </div>
         </div>
       </header>
@@ -82,7 +82,7 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
       </main>
 
       <nav>
-        <NavBtn icon="🌱" label="나의 목표" active={tab === "dreams"} onClick={() => setTab("dreams")} />
+        <NavBtn icon="🌱" label="목표" active={tab === "dreams"} onClick={() => setTab("dreams")} />
         <NavBtn icon="☀️" label="오늘" active={tab === "today"} onClick={() => setTab("today")} />
         <NavBtn icon="🌳" label="칭찬나무" active={tab === "stickers"} onClick={() => setTab("stickers")} />
         <NavBtn icon="📈" label="기록" active={tab === "records"} onClick={() => setTab("records")} />
@@ -94,11 +94,11 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
         <div className="modal-bg" onClick={clearGold}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div style={{ display: "flex", justifyContent: "center" }} dangerouslySetInnerHTML={{ __html: stampSVG(150) }} />
-            <h3 style={{ margin: "10px 0 6px" }}>참 잘했어요! 🎉</h3>
-            <p className="muted">“{gold}” 스티커판을 가득 채웠어요. 도장을 쾅!</p>
-            {celebrate && <p style={{ lineHeight: 1.6, marginTop: 4 }}>🤖 {celebrate}</p>}
+            <h3 style={{ margin: "10px 0 6px" }}>완성! 🎉</h3>
+            <p className="muted">“{gold}” 칭찬판을 가득 채웠어요.</p>
+            {celebrate && <p style={{ lineHeight: 1.6, marginTop: 4 }}>{celebrate}</p>}
             <button className="btn" style={{ width: "100%" }} onClick={clearGold}>
-              최고예요! 🎉
+              확인
             </button>
           </div>
         </div>
@@ -244,23 +244,21 @@ function SettingsSheet({
         </div>
 
         <div className="card">
-          <h3 style={{ margin: "0 0 6px", fontSize: 15 }}>🤖 AI 코칭</h3>
-          <p className="muted" style={{ marginBottom: 12 }}>내 기록을 보고 Claude가 맞춤 응원을 건네요.</p>
+          <h3 style={{ margin: "0 0 10px", fontSize: 15 }}>AI 코칭</h3>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             <button className="btn" onClick={askCoach} disabled={loading}>
-              {loading ? "생각 중…" : "오늘의 응원"}
+              {loading ? "…" : "오늘의 응원"}
             </button>
             <button className="btn btn-soft" onClick={weeklyReview} disabled={reviewLoading}>
-              {reviewLoading ? "돌아보는 중…" : "주간 회고"}
+              {reviewLoading ? "…" : "주간 회고"}
             </button>
           </div>
           {coach && <p style={{ marginTop: 14, lineHeight: 1.6 }}>{coach}</p>}
-          {review && <p style={{ marginTop: 14, lineHeight: 1.6 }}>📅 {review}</p>}
+          {review && <p style={{ marginTop: 14, lineHeight: 1.6 }}>{review}</p>}
         </div>
 
         <div className="card">
-          <h3 style={{ margin: "0 0 6px", fontSize: 15 }}>💾 백업 / 복원</h3>
-          <p className="muted" style={{ marginBottom: 12 }}>내 데이터를 파일로 내보내거나 불러올 수 있어요.</p>
+          <h3 style={{ margin: "0 0 10px", fontSize: 15 }}>백업</h3>
           <div style={{ display: "flex", gap: 8 }}>
             <button className="btn btn-soft" onClick={exportData}>내보내기</button>
             <button className="btn btn-soft" onClick={() => fileRef.current?.click()}>불러오기</button>
@@ -269,16 +267,11 @@ function SettingsSheet({
         </div>
 
         <div className="card">
-          <h3 style={{ margin: "0 0 6px", fontSize: 15 }}>🔔 알림</h3>
-          <p className="muted" style={{ marginBottom: 12 }}>
-            {notif === "granted" ? "알림이 켜져 있어요." : notif === "denied" ? "브라우저에서 알림이 차단됐어요." : "할 일 알림을 받아보세요."}
-          </p>
+          <h3 style={{ margin: "0 0 10px", fontSize: 15 }}>알림</h3>
           <button className="btn btn-soft" onClick={enableNotif} disabled={notif !== "default"}>
-            {notif === "granted" ? "켜짐 ✓" : "알림 켜기"}
+            {notif === "granted" ? "켜짐" : notif === "denied" ? "차단됨" : "알림 켜기"}
           </button>
         </div>
-
-        <p className="muted" style={{ textAlign: "center" }}>데이터는 계정에 묶여 클라우드(Postgres)에 저장돼요.</p>
       </div>
     </div>
   );

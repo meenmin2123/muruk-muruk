@@ -75,20 +75,16 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
 
   return (
     <section>
-      <div className="greet">
-        오늘도 한 걸음 어때요? ☀️<small>오늘은 딱 3개까지만. 무리하지 않는 게 꾸준함의 비결이에요.</small>
-      </div>
-
       {showSlump && (
-        <div className="card" style={{ background: "linear-gradient(135deg,#FFF3E0,#FFE9D6)", border: "1px solid #FFD9A8" }}>
-          <div style={{ fontWeight: 800, fontSize: 14.5 }}>🌤️ {gap}일 만이네요, 다시 만나서 반가워요</div>
+        <div className="card" style={{ background: "#fff7ee", border: "1px solid #ffe0b8" }}>
+          <div style={{ fontWeight: 700 }}>{gap}일 만이에요</div>
           {slump ? (
             <p style={{ marginTop: 8, lineHeight: 1.6, marginBottom: 0 }}>{slump}</p>
           ) : (
             <>
-              <p className="muted" style={{ margin: "6px 0 12px" }}>쉬어가도 괜찮아요. 다시 시작하는 게 진짜 꾸준함이에요.</p>
+              <p className="muted" style={{ margin: "4px 0 12px" }}>쉬어가도 괜찮아요. 다시 시작해볼까요?</p>
               <button className="btn" onClick={careForSlump} disabled={slumpLoading}>
-                {slumpLoading ? "마음 챙기는 중…" : "오늘 다시 시작 응원받기 🤍"}
+                {slumpLoading ? "…" : "다시 시작 응원받기"}
               </button>
             </>
           )}
@@ -105,22 +101,13 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
         </div>
         <div className="ringtxt">
           {all.length === 0 ? (
-            <>
-              <div className="t">오늘의 할 일</div>
-              <div className="s">작은 것 하나면 충분해요</div>
-            </>
+            <div className="t">오늘의 할 일</div>
           ) : done === all.length ? (
-            <>
-              <div className="t">오늘 다 해냈어요! 🎉</div>
-              <div className="s">대단해요, 푹 쉬어요</div>
-            </>
+            <div className="t">오늘 완료 🎉</div>
           ) : (
-            <>
-              <div className="t">
-                {done} / {all.length} 완료
-              </div>
-              <div className="s">{all.length - done}개 남았어요, 천천히</div>
-            </>
+            <div className="t">
+              {done} / {all.length}
+            </div>
           )}
         </div>
       </div>
@@ -128,7 +115,7 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
       <div className="addbar">
         <input
           value={text}
-          placeholder="오늘 할 일 하나 적기…"
+          placeholder="할 일 적기"
           maxLength={60}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => {
@@ -140,10 +127,10 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
 
       <select className="goalpick" value={goalId} onChange={(e) => setGoalId(e.target.value)} disabled={!hasGoals}>
         {!hasGoals ? (
-          <option value="">먼저 ‘나의 목표’에서 할 일을 만들어주세요</option>
+          <option value="">‘나의 목표’에서 먼저 만들기</option>
         ) : (
           <>
-            <option value="">연결할 할 일을 골라요</option>
+            <option value="">목표 선택</option>
             {state.dreams
               .filter((d) => d.goals.length)
               .map((d) => (
@@ -160,13 +147,13 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
       </select>
 
       {all.length === 0 ? (
-        <div className="empty">아직 오늘 할 일이 없어요.<br />딱 하나만 적어볼까요? 그거면 충분해요.</div>
+        <div className="empty">오늘 할 일이 없어요.</div>
       ) : (
         <>
           {rows(visible)}
           {overflow.length > 0 && (
             <div className="muted" style={{ textAlign: "center", margin: "4px 0 14px" }}>
-              오늘은 위 3가지에 집중해요. 나머지 {overflow.length}개는 잠시 접어둘게요 🤍
+              나머지 {overflow.length}개
             </div>
           )}
           {rows(overflow)}
