@@ -53,9 +53,9 @@ services:
         fromDatabase:
           name: muruk-db
           property: password
-      # 구글 OAuth 클라이언트 ID (기존 PWA에서 쓰던 값 재사용)
+      # 구글 OAuth 웹 클라이언트 ID
       - key: GOOGLE_CLIENT_ID
-        value: 799206799966-g5rvshvvsbsh41dfmo60s23gc9l31gmh.apps.googleusercontent.com
+        value: 799206979966-2lnqig1fc0unf4g7j2q44mll6kg4sn1f.apps.googleusercontent.com
       # 프론트 출처 허용(CORS) — 프론트 실제 URL로 맞추기
       - key: CORS_ORIGINS
         value: https://muruk-frontend.onrender.com
@@ -80,4 +80,4 @@ services:
       - key: NEXT_PUBLIC_API_BASE
         value: https://muruk-backend.onrender.com
       - key: NEXT_PUBLIC_GOOGLE_CLIENT_ID
-        value: 799206799966-g5rvshvvsbsh41dfmo60s23gc9l31gmh.apps.googleusercontent.com
+        value: 799206979966-2lnqig1fc0unf4g7j2q44mll6kg4sn1f.apps.googleusercontent.com
