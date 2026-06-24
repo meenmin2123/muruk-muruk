@@ -120,6 +120,7 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
   const [repeat, setRepeat] = useState<Repeat>("once");
   const [aiTasks, setAiTasks] = useState<string[]>([]);
   const [aiLoading, setAiLoading] = useState(false);
+  const [aiMsg, setAiMsg] = useState("");
   const [editTitle, setEditTitle] = useState(false);
   const [titleVal, setTitleVal] = useState(d.title);
   const [editGoalId, setEditGoalId] = useState("");
@@ -146,6 +147,7 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
   async function aiSuggest() {
     setAiLoading(true);
     setAiTasks([]);
+    setAiMsg("");
     try {
       const ctx = JSON.stringify({ 목표: d.title, 카테고리: tpl.label, 이미있는할일: used });
       const { message } = await api.coach("suggestTasks", ctx);
@@ -155,8 +157,10 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
         .filter((l) => l.length > 0 && l.length <= 30 && !used.includes(l))
         .slice(0, 5);
       setAiTasks(lines);
-    } catch {
-      setAiTasks([]);
+      // 결과 줄이 없으면(키 미설정 안내문 등 비정상 응답) 사용자에게 알린다.
+      if (lines.length === 0) setAiMsg(message.includes("ANTHROPIC_API_KEY") ? "서버에 AI 키가 설정되지 않았어요." : "추천을 받지 못했어요. 잠시 후 다시 시도해 주세요.");
+    } catch (e) {
+      setAiMsg((e as Error).message === "UNAUTHORIZED" ? "로그인이 필요해요." : "AI 추천을 불러오지 못했어요. (네트워크/서버 확인)");
     } finally {
       setAiLoading(false);
     }
@@ -290,9 +294,13 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
             </div>
           )}
 
+          {aiMsg && (
+            <div className="muted" style={{ marginTop: 10, fontWeight: 700 }}>⚠️ {aiMsg}</div>
+          )}
+
           {aiTasks.length > 0 && (
             <div style={{ marginTop: 11 }}>
-              <div className="muted" style={{ fontWeight: 700, marginBottom: 7 }}>AI 추천</div>
+              <div className="muted" style={{ fontWeight: 700, marginBottom: 7 }}>AI 추천 (눌러서 추가)</div>
               <div className="row-wrap">
                 {aiTasks.map((s) => (
                   <span key={s} className="chip" onClick={() => { addGoal(s, "once"); setAiTasks((p) => p.filter((x) => x !== s)); }}>
