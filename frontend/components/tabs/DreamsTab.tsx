@@ -235,8 +235,8 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
                 )}
                 {editGoalId !== g.id && (
                   <>
-                    <button className={"gt-badge" + (g.repeat === "daily" ? " daily" : "")} onClick={() => actions.toggleGoalRepeat(d.id, g.id)}>
-                      {g.repeat === "daily" ? "매일" : "한 번"}
+                    <button className={"gt-badge" + (g.repeat === "daily" ? " daily" : "")} onClick={() => actions.toggleGoalRepeat(d.id, g.id)} title="눌러서 '한 번 ↔ 매일' 전환">
+                      {g.repeat === "daily" ? "🔁 매일" : "✓ 한 번"}
                     </button>
                     {g.repeat === "daily" ? (
                       <span className="add-today added" style={{ cursor: "default" }}>오늘에 있음</span>
@@ -280,21 +280,24 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
             </div>
           )}
 
-          <div className="goal-add">
-            <input value={goalText} placeholder="직접 할 일 추가" maxLength={40} onChange={(e) => setGoalText(e.target.value)} onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && addGoal(goalText)} />
+          <div className="muted" style={{ fontWeight: 700, margin: "14px 2px 6px" }}>할 일 추가 — 어떤 종류인가요?</div>
+          <div className="repeat-pick">
+            <button className={"rep-opt" + (repeat === "once" ? " on" : "")} onClick={() => setRepeat("once")}>
+              <b>✓ 한 번만</b>
+              <small>하면 끝나는 일 (예약·신청 등)</small>
+            </button>
+            <button className={"rep-opt" + (repeat === "daily" ? " on" : "")} onClick={() => setRepeat("daily")}>
+              <b>🔁 매일</b>
+              <small>매일 반복하는 습관 (운동·공부 등)</small>
+            </button>
+          </div>
+          <div className="goal-add" style={{ marginTop: 8 }}>
+            <input value={goalText} placeholder={repeat === "daily" ? "매일 할 습관 적기" : "한 번 할 일 적기"} maxLength={40} onChange={(e) => setGoalText(e.target.value)} onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && addGoal(goalText)} />
             <button onClick={() => addGoal(goalText)}>추가</button>
           </div>
-          <div className="row-wrap" style={{ marginTop: 8 }}>
-            <button className={"theme-opt" + (repeat === "once" ? " on" : "")} style={{ flex: "0 0 auto" }} onClick={() => setRepeat("once")}>
-              한 번
-            </button>
-            <button className={"theme-opt" + (repeat === "daily" ? " on" : "")} style={{ flex: "0 0 auto" }} onClick={() => setRepeat("daily")}>
-              매일 반복
-            </button>
-            <button className="gt-badge" style={{ flex: "0 0 auto" }} onClick={aiSuggest} disabled={aiLoading}>
-              {aiLoading ? "…" : "AI 추천"}
-            </button>
-          </div>
+          <button className="ai-btn" onClick={aiSuggest} disabled={aiLoading}>
+            {aiLoading ? "AI가 생각 중…" : "✨ AI로 할 일 추천받기"}
+          </button>
         </>
       )}
     </div>

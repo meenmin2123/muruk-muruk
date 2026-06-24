@@ -577,6 +577,59 @@ main {
   color: #fff;
   background: linear-gradient(135deg, var(--primary), var(--primary-d));
 }
+.repeat-pick {
+  display: flex;
+  gap: 8px;
+}
+.rep-opt {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  text-align: left;
+  border: 1.5px solid var(--line);
+  background: #fff;
+  border-radius: 14px;
+  padding: 10px 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.rep-opt b {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text);
+}
+.rep-opt small {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  line-height: 1.35;
+}
+.rep-opt.on {
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--primary), var(--primary-d));
+}
+.rep-opt.on b,
+.rep-opt.on small {
+  color: #fff;
+}
+.ai-btn {
+  width: 100%;
+  margin-top: 10px;
+  border: 1.5px dashed var(--accent2);
+  background: #f6fbf4;
+  color: var(--primary-d);
+  font-weight: 800;
+  border-radius: 14px;
+  padding: 11px;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.ai-btn:disabled {
+  opacity: 0.6;
+}
 .newdream-btn {
   width: 100%;
   border: 1.5px dashed var(--primary);
