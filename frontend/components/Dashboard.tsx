@@ -7,6 +7,7 @@ import { AppState, defaultState, streakCount, totalStickers } from "@/lib/state"
 import type { AppActions } from "@/lib/store";
 import { stampSVG } from "@/lib/trees";
 import { useAppState } from "@/lib/store";
+import { useDailyReminder, DEFAULT_REMINDER_TIME } from "@/lib/reminder";
 import { TodayTab } from "./tabs/TodayTab";
 import { DreamsTab } from "./tabs/DreamsTab";
 import { StickersTab } from "./tabs/StickersTab";
@@ -21,6 +22,8 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
   const [celebrate, setCelebrate] = useState("");
   const routed = useRef(false);
   const user = getUser();
+
+  useDailyReminder(state);
 
   // 신규 사용자(목표 0개)는 첫 진입을 '목표' 탭으로 안내.
   useEffect(() => {
@@ -226,11 +229,17 @@ function SettingsSheet({
     reader.readAsText(file);
   }
 
+  const remindOn = !!state.settings?.reminderEnabled;
+  const remindTime = (state.settings?.reminderTime as string) || DEFAULT_REMINDER_TIME;
+
   async function enableNotif() {
     if (typeof Notification === "undefined") return;
     const p = await Notification.requestPermission();
     setNotif(p);
-    if (p === "granted") new Notification("무럽무럽", { body: "알림이 켜졌어요! 오늘도 한 걸음 🌿" });
+    if (p === "granted") {
+      actions.updateSettings({ reminderEnabled: true, reminderTime: remindTime });
+      new Notification("무럽무럽", { body: `매일 ${remindTime}에 알려드릴게요! 오늘도 한 걸음 🌿` });
+    }
   }
 
   return (
@@ -281,10 +290,32 @@ function SettingsSheet({
         </div>
 
         <div className="card">
-          <h3 style={{ margin: "0 0 10px", fontSize: 15 }}>알림</h3>
-          <button className="btn btn-soft" onClick={enableNotif} disabled={notif !== "default"}>
-            {notif === "granted" ? "켜짐" : notif === "denied" ? "차단됨" : "알림 켜기"}
-          </button>
+          <h3 style={{ margin: "0 0 10px", fontSize: 15 }}>매일 알림</h3>
+          {notif !== "granted" ? (
+            <>
+              <p className="muted" style={{ margin: "0 0 10px" }}>정해진 시간에 오늘 남은 할 일을 살짝 알려드려요.</p>
+              <button className="btn btn-soft" onClick={enableNotif} disabled={notif === "denied"}>
+                {notif === "denied" ? "브라우저에서 차단됨" : "알림 켜기"}
+              </button>
+            </>
+          ) : (
+            <div className="remind-row">
+              <label className="remind-toggle">
+                <input type="checkbox" checked={remindOn} onChange={(e) => actions.updateSettings({ reminderEnabled: e.target.checked })} />
+                <span>{remindOn ? "켜짐" : "꺼짐"}</span>
+              </label>
+              <input
+                type="time"
+                value={remindTime}
+                disabled={!remindOn}
+                onChange={(e) => actions.updateSettings({ reminderTime: e.target.value || DEFAULT_REMINDER_TIME })}
+                className="remind-time"
+              />
+            </div>
+          )}
+          {notif === "granted" && remindOn && (
+            <p className="muted" style={{ margin: "10px 0 0" }}>매일 {remindTime}, 앱을 열어두었거나 다시 열었을 때 알려드려요.</p>
+          )}
         </div>
       </div>
     </div>

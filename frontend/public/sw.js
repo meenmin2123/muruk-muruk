@@ -30,3 +30,16 @@ self.addEventListener("fetch", (e) => {
     )
   );
 });
+
+// 알림 클릭 시 앱 창으로 포커스(없으면 새로 연다).
+self.addEventListener("notificationclick", (e) => {
+  e.notification.close();
+  e.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((cls) => {
+      for (const c of cls) {
+        if ("focus" in c) return c.focus();
+      }
+      if (self.clients.openWindow) return self.clients.openWindow("/");
+    })
+  );
+});

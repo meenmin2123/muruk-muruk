@@ -76,6 +76,7 @@ export interface AppActions {
   toggleGoalRepeat(dreamId: string, goalId: string): void;
   renameDream(dreamId: string, title: string): void;
   renameGoal(dreamId: string, goalId: string, title: string): void;
+  updateSettings(patch: Record<string, unknown>): void;
   goalToToday(goalId: string): "added" | "exists";
 }
 
@@ -323,6 +324,11 @@ export function useAppState() {
         s.todos.forEach((t) => {
           if (t.goalId === goalId) t.text = v;
         });
+      });
+    },
+    updateSettings(patch) {
+      mutate((s) => {
+        s.settings = { ...s.settings, ...patch };
       });
     },
     goalToToday(goalId) {

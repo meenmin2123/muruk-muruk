@@ -383,6 +383,36 @@ main {
     transform: rotate(-7deg);
   }
 }
+.remind-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.remind-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.remind-toggle input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+}
+.remind-time {
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text);
+  background: #fff;
+}
+.remind-time:disabled {
+  opacity: 0.5;
+}
 .icon-btn {
   border: none;
   background: none;
