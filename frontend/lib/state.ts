@@ -22,6 +22,8 @@ export interface Dream {
   stickers?: string[];
   earned?: number;
   stamps?: number;
+  // 칭찬판 칸 수. 디데이 있으면 날짜로 자동 설정, 없으면 사용자가 직접 지정. 없으면 BOARD(10).
+  boardSize?: number;
 }
 
 /** 스티커판을 가진 대상(목표). */
@@ -150,6 +152,16 @@ export function findGoal(s: AppState, gid: string): { goal: Goal; dream: Dream }
   return null;
 }
 
+/** 오늘로부터 해당 날짜까지 남은 일수. */
+export function daysUntil(date: string): number {
+  return Math.round((+new Date(date) - +new Date(todayStr())) / 86400000);
+}
+
+/** 목표의 칭찬판 칸 수 (1~100로 보정). 미지정 시 기본 10칸. */
+export function boardCap(d: Dream): number {
+  return Math.min(100, Math.max(1, Math.round(d.boardSize ?? BOARD)));
+}
+
 export function ddayText(date: string | null): string | null {
   if (!date) return null;
   const diff = Math.round((+new Date(date) - +new Date(todayStr())) / 86400000);
@@ -158,25 +170,25 @@ export function ddayText(date: string | null): string | null {
   return "D+" + -diff;
 }
 
-/** 할일 완료 시 목표(꿈) 칭찬판에 스티커 적립. 판(10칸)을 채우면 도장 +1 후 true. */
-export function awardSticker(b: StickerBoard): boolean {
+/** 할일 완료 시 목표(꿈) 칭찬판에 스티커 적립. 판(cap칸)을 채우면 도장 +1 후 true. */
+export function awardSticker(b: StickerBoard, cap: number = BOARD): boolean {
   b.stickers = b.stickers ?? [];
-  if (b.stickers.length >= BOARD) b.stickers = [];
+  if (b.stickers.length >= cap) b.stickers = [];
   b.stickers.push(rand(STICKERS));
   b.earned = (b.earned ?? 0) + 1;
-  if (b.stickers.length >= BOARD) {
+  if (b.stickers.length >= cap) {
     b.stamps = (b.stamps ?? 0) + 1;
     return true;
   }
   return false;
 }
 
-export function removeSticker(b: StickerBoard): void {
+export function removeSticker(b: StickerBoard, cap: number = BOARD): void {
   b.stickers = b.stickers ?? [];
   if (b.stickers.length > 0) b.stickers.pop();
   else if ((b.stamps ?? 0) > 0) {
     b.stamps = (b.stamps ?? 0) - 1;
-    b.stickers = Array.from({ length: BOARD - 1 }, () => rand(STICKERS));
+    b.stickers = Array.from({ length: Math.max(0, cap - 1) }, () => rand(STICKERS));
   }
   b.earned = Math.max(0, (b.earned ?? 0) - 1);
 }

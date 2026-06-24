@@ -16,6 +16,8 @@ import {
   streakCount,
   todayStr,
   dateStr,
+  daysUntil,
+  boardCap,
   Todo,
   uid,
   Repeat,
@@ -33,14 +35,14 @@ function applyToggle(s: AppState, t: Todo): { toast: string; gold: string | null
       const found = findGoal(s, t.goalId);
       if (found) {
         toast = "🌟 칭찬 스티커를 받았어요!";
-        if (awardSticker(found.dream)) gold = found.dream.title;
+        if (awardSticker(found.dream, boardCap(found.dream))) gold = found.dream.title;
       }
     }
   } else {
     s.totalDone = Math.max(0, s.totalDone - 1);
     if (t.goalId) {
       const found = findGoal(s, t.goalId);
-      if (found) removeSticker(found.dream);
+      if (found) removeSticker(found.dream, boardCap(found.dream));
     }
   }
   return { toast, gold };
@@ -71,6 +73,7 @@ export interface AppActions {
   replaceState(s: AppState): void;
   toggleCollapse(id: string): void;
   setDday(id: string, date: string | null): void;
+  setBoardSize(id: string, n: number): void;
   addGoal(dreamId: string, title: string, repeat: Repeat): void;
   removeGoal(dreamId: string, goalId: string): void;
   toggleGoalRepeat(dreamId: string, goalId: string): void;
@@ -272,7 +275,16 @@ export function useAppState() {
     setDday(id, date) {
       mutate((s) => {
         const d = s.dreams.find((x) => x.id === id);
-        if (d) d.targetDate = date || null;
+        if (!d) return;
+        d.targetDate = date || null;
+        // 디데이가 있으면 남은 날짜 수를 칭찬판 칸 수로 자동 설정(설정 시점 기준 고정).
+        if (d.targetDate) d.boardSize = Math.min(100, Math.max(1, daysUntil(d.targetDate)));
+      });
+    },
+    setBoardSize(id, n) {
+      mutate((s) => {
+        const d = s.dreams.find((x) => x.id === id);
+        if (d) d.boardSize = Math.min(100, Math.max(1, Math.round(n || 10)));
       });
     },
     addGoal(dreamId, title, repeat) {

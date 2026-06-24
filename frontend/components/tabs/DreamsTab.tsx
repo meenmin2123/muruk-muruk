@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { api } from "@/lib/api";
 import type { AppActions } from "@/lib/store";
-import { AppState, CAT_ORDER, Dream, PALETTE, Repeat, TEMPLATES, THEMES, ddayText, template, todayStr } from "@/lib/state";
+import { AppState, CAT_ORDER, Dream, PALETTE, Repeat, TEMPLATES, THEMES, boardCap, ddayText, template, todayStr } from "@/lib/state";
 
 interface CatMeta {
   key: string;
@@ -209,6 +209,24 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
             <i style={{ width: pct + "%", background: `linear-gradient(90deg, ${color}88, ${color})` }} />
           </div>
           <div className="progress-l">{linked.length ? `${doneN}/${linked.length} · ${pct}%` : ""}</div>
+
+          <div className="board-cap">
+            <span>🌳 칭찬판</span>
+            {d.targetDate ? (
+              <b style={{ color }}>{boardCap(d)}칸 · 디데이까지 매일 채우기</b>
+            ) : (
+              <>
+                <input
+                  type="number"
+                  min={1}
+                  max={100}
+                  value={boardCap(d)}
+                  onChange={(e) => actions.setBoardSize(d.id, Number(e.target.value))}
+                />
+                <span>칸 채우면 도장 1개</span>
+              </>
+            )}
+          </div>
 
           {d.goals.map((g) => {
             const added = state.todos.some((t) => t.goalId === g.id && t.date === todayStr());
