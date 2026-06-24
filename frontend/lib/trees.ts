@@ -104,7 +104,8 @@ export function rainbowSVG(g: Goal): string {
 export function gridBoardSVG(holder: Goal, cap: number, accent: string, fillEmoji: string): string {
   const filled = stk(holder).length;
   const n = Math.min(100, Math.max(1, Math.round(cap)));
-  const cols = Math.min(7, n);
+  // 칸이 많아지면 열을 늘려 세로로 너무 길어지지 않게 (최대 ~8줄 목표).
+  const cols = Math.min(n, Math.max(7, Math.ceil(n / 8)));
   const rows = Math.ceil(n / cols);
   const cell = 42;
   const pad = 16;

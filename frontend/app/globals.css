@@ -127,44 +127,6 @@ main {
   font-size: 12.5px;
   margin-top: 3px;
 }
-.ringwrap {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  background: var(--card);
-  border-radius: 20px;
-  padding: 16px;
-  box-shadow: var(--shadow-sm);
-  margin-bottom: 16px;
-}
-.ring {
-  position: relative;
-  width: 72px;
-  height: 72px;
-  flex: none;
-}
-.ring svg {
-  transform: rotate(-90deg);
-}
-.ring .pct {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 17px;
-}
-.ringtxt .t {
-  font-weight: 800;
-  font-size: 15px;
-}
-.ringtxt .s {
-  font-size: 12.5px;
-  color: var(--muted);
-  margin-top: 3px;
-  font-weight: 600;
-}
 .addbar {
   display: flex;
   gap: 8px;
@@ -449,8 +411,8 @@ main {
   outline: none;
 }
 .today-tree {
-  max-width: 230px;
-  margin: 4px auto 16px;
+  max-width: 250px;
+  margin: 6px auto 18px;
 }
 .today-tree > div:first-child {
   border-radius: 16px;

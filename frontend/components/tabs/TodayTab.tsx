@@ -30,8 +30,6 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
 
   const all = state.todos.filter((t) => t.date === todayStr());
   const done = all.filter((t) => t.done).length;
-  const pct = all.length ? Math.round((done / all.length) * 100) : 0;
-  const C = 188.5;
 
   const dreamsWithGoals = state.dreams.filter((d) => d.goals.length);
 
@@ -95,39 +93,18 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
         </div>
       )}
 
-      <div className="ringwrap">
-        <div className="ring">
-          <svg width="72" height="72">
-            <circle cx="36" cy="36" r="30" fill="none" stroke="#D6F0DA" strokeWidth="8" />
-            <circle cx="36" cy="36" r="30" fill="none" stroke="#46B97C" strokeWidth="8" strokeLinecap="round" strokeDasharray={C} strokeDashoffset={C - (C * pct) / 100} style={{ transition: "stroke-dashoffset .5s" }} />
-          </svg>
-          <div className="pct">{pct}%</div>
-        </div>
-        <div className="ringtxt">
-          {all.length === 0 ? (
-            <div className="t">오늘의 할 일</div>
-          ) : done === all.length ? (
-            <div className="t">오늘 완료 🎉</div>
-          ) : (
-            <div className="t">
-              {done} / {all.length}
-            </div>
-          )}
+      <div className="today-tree">
+        <div dangerouslySetInnerHTML={{ __html: treeSVG({ stickers: Array.from({ length: Math.min(done, 10) }, () => "🍎") }) }} />
+        <div className="today-tree-cap">
+          {all.length === 0
+            ? "오늘의 나무 · 할 일을 더하면 자라기 시작해요"
+            : done === 0
+            ? "오늘의 나무 · 하나씩 완료하면 열매가 열려요"
+            : done >= all.length
+            ? `오늘 다 했어요! 🎉 (${done}/${all.length})`
+            : `오늘 ${done}/${all.length} 완료`}
         </div>
       </div>
-
-      {all.length > 0 && (
-        <div className="today-tree">
-          <div dangerouslySetInnerHTML={{ __html: treeSVG({ stickers: Array.from({ length: Math.min(done, 10) }, () => "🍎") }) }} />
-          <div className="today-tree-cap">
-            {done === 0
-              ? "오늘의 나무 · 하나씩 완료하면 열매가 열려요"
-              : done >= all.length
-              ? "오늘의 나무 · 다 자랐어요 🎉"
-              : `오늘의 나무 · ${done}/${all.length} 완료`}
-          </div>
-        </div>
-      )}
 
       {all.length === 0 ? (
         <div className="empty">
