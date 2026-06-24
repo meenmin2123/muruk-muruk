@@ -201,7 +201,7 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
     <div className="flip" style={{ height: faceH }}>
       <div className={"flip-inner" + (flipped ? " flipped" : "")}>
         <div className="flip-face flip-front" ref={frontRef} aria-hidden={flipped}>
-          <div className="dream" onDoubleClick={() => setFlipped(true)}>
+          <div className="dream">
       <div className="dream-h">
         <span className="dream-emoji" style={{ background: color + "22" }} onClick={() => actions.toggleCollapse(d.id)}>
           {d.emoji}
@@ -372,7 +372,7 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
         </div>
 
         <div className="flip-face flip-back" ref={backRef} aria-hidden={!flipped}>
-          <div className="dream board-back" onDoubleClick={() => setFlipped(false)}>
+          <div className="dream board-back">
             <div className="dream-h">
               <span className="dream-emoji" style={{ background: color + "22" }}>{d.emoji}</span>
               <span className="t">{d.title}</span>
