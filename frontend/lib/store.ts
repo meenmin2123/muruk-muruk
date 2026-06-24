@@ -15,6 +15,7 @@ import {
   removeSticker,
   streakCount,
   todayStr,
+  dateStr,
   Todo,
   uid,
   Repeat,
@@ -73,6 +74,8 @@ export interface AppActions {
   addGoal(dreamId: string, title: string, repeat: Repeat): void;
   removeGoal(dreamId: string, goalId: string): void;
   toggleGoalRepeat(dreamId: string, goalId: string): void;
+  renameDream(dreamId: string, title: string): void;
+  renameGoal(dreamId: string, goalId: string, title: string): void;
   goalToToday(goalId: string): "added" | "exists";
 }
 
@@ -188,7 +191,7 @@ export function useAppState() {
         if (!t) return;
         const d = new Date();
         d.setDate(d.getDate() + 1);
-        t.date = d.toISOString().slice(0, 10);
+        t.date = dateStr(d);
       });
       setToast("내일로 미뤘어요. 괜찮아요 🤍");
     },
@@ -253,6 +256,28 @@ export function useAppState() {
         if (g.repeat === "daily" && !s.todos.some((t) => t.goalId === g.id && t.date === todayStr())) {
           s.todos.push({ id: uid(), text: g.title, date: todayStr(), done: false, goalId: g.id });
         }
+      });
+    },
+    renameDream(dreamId, title) {
+      const v = title.trim();
+      if (!v) return;
+      mutate((s) => {
+        const d = s.dreams.find((x) => x.id === dreamId);
+        if (d) d.title = v;
+      });
+    },
+    renameGoal(dreamId, goalId, title) {
+      const v = title.trim();
+      if (!v) return;
+      mutate((s) => {
+        const d = s.dreams.find((x) => x.id === dreamId);
+        const g = d?.goals.find((x) => x.id === goalId);
+        if (!g) return;
+        g.title = v;
+        // 이 할 일에서 만들어진 todo들의 텍스트도 함께 갱신해 오늘 목록과 일치시킨다.
+        s.todos.forEach((t) => {
+          if (t.goalId === goalId) t.text = v;
+        });
       });
     },
     goalToToday(goalId) {

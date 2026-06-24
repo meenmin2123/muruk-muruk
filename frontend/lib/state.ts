@@ -102,7 +102,14 @@ export const CHEERS = ["한 걸음 더 나아갔어요!", "오늘의 나, 멋지
 export const GREETS = ["오늘도 만나서 반가워요 ☀️", "딱 하나만 해도 성공이에요", "무리하지 말아요, 작게 시작해요", "어제의 나보다 한 걸음 더"];
 
 export const uid = () => Math.random().toString(36).slice(2, 9);
-export const todayStr = () => new Date().toISOString().slice(0, 10);
+/** 로컬 시간대 기준 YYYY-MM-DD. (UTC인 toISOString 사용 금지 — 한국 오전 시간대 오동작) */
+export const dateStr = (d: Date) => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
+export const todayStr = () => dateStr(new Date());
 export const rand = <T,>(a: T[]) => a[Math.floor(Math.random() * a.length)];
 
 export function defaultState(): AppState {
@@ -118,7 +125,7 @@ export function streakCount(s: AppState): number {
   let count = 0;
   const d = new Date();
   if (!days.has(todayStr())) d.setDate(d.getDate() - 1);
-  while (days.has(d.toISOString().slice(0, 10))) {
+  while (days.has(dateStr(d))) {
     count++;
     d.setDate(d.getDate() - 1);
   }

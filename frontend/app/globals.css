@@ -220,6 +220,7 @@ main {
 .check {
   width: 30px;
   height: 30px;
+  padding: 0;
   border-radius: 50%;
   border: 3px solid var(--primary-soft);
   flex: none;
@@ -229,7 +230,12 @@ main {
   justify-content: center;
   color: #fff;
   font-size: 16px;
+  font-family: inherit;
   background: #fff;
+}
+.check:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 .check.done {
   background: linear-gradient(135deg, var(--primary), var(--primary-d));
@@ -341,6 +347,32 @@ main {
   gap: 9px;
   padding: 9px 0;
   border-top: 1px dashed var(--line);
+}
+.icon-btn {
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 14px;
+  padding: 4px 6px;
+  cursor: pointer;
+  opacity: 0.6;
+  font-family: inherit;
+  flex: none;
+}
+.icon-btn:hover,
+.icon-btn:focus-visible {
+  opacity: 1;
+}
+.rename-input {
+  flex: 1;
+  min-width: 0;
+  border: 1.5px solid var(--primary);
+  border-radius: 9px;
+  padding: 5px 9px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
 }
 .today-tree {
   max-width: 230px;

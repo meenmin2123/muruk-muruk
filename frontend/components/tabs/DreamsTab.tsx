@@ -120,6 +120,10 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
   const [repeat, setRepeat] = useState<Repeat>("once");
   const [aiTasks, setAiTasks] = useState<string[]>([]);
   const [aiLoading, setAiLoading] = useState(false);
+  const [editTitle, setEditTitle] = useState(false);
+  const [titleVal, setTitleVal] = useState(d.title);
+  const [editGoalId, setEditGoalId] = useState("");
+  const [goalVal, setGoalVal] = useState("");
   const color = d.color || template(d.cat).color;
   const tpl = template(d.cat);
   const linked = state.todos.filter((t) => t.goalId && d.goals.some((g) => g.id === t.goalId));
@@ -161,10 +165,30 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
         <span className="dream-emoji" style={{ background: color + "22" }} onClick={() => actions.toggleCollapse(d.id)}>
           {d.emoji}
         </span>
-        <span className="t" onClick={() => actions.toggleCollapse(d.id)}>
-          {d.title}
-        </span>
-        {tpl.dday &&
+        {editTitle ? (
+          <input
+            className="rename-input t"
+            value={titleVal}
+            autoFocus
+            maxLength={40}
+            onChange={(e) => setTitleVal(e.target.value)}
+            onBlur={() => { actions.renameDream(d.id, titleVal); setEditTitle(false); }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.nativeEvent.isComposing) { actions.renameDream(d.id, titleVal); setEditTitle(false); }
+              if (e.key === "Escape") { setTitleVal(d.title); setEditTitle(false); }
+            }}
+          />
+        ) : (
+          <>
+            <span className="t" onClick={() => actions.toggleCollapse(d.id)}>
+              {d.title}
+            </span>
+            <button className="icon-btn" aria-label="목표 이름 수정" onClick={() => { setTitleVal(d.title); setEditTitle(true); }}>
+              ✎
+            </button>
+          </>
+        )}
+        {!editTitle && tpl.dday &&
           (dd && d.targetDate ? (
             <span className="muted" style={{ fontWeight: 800, color }}>
               {tpl.ddayLabel} {dd}
@@ -172,9 +196,11 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
           ) : (
             <input type="date" value={d.targetDate ?? ""} onChange={(e) => actions.setDday(d.id, e.target.value)} style={{ border: "1.5px dashed var(--line)", borderRadius: 9, padding: "4px 8px", fontSize: 11.5 }} />
           ))}
-        <button className="x" onClick={() => confirm("이 목표와 할 일을 삭제할까요?") && actions.removeDream(d.id)}>
-          ✕
-        </button>
+        {!editTitle && (
+          <button className="x" aria-label="목표 삭제" onClick={() => confirm("이 목표와 할 일을 삭제할까요?") && actions.removeDream(d.id)}>
+            ✕
+          </button>
+        )}
       </div>
 
       {!d.collapsed && (
@@ -189,20 +215,41 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
             const isDone = g.repeat === "once" && state.todos.some((t) => t.goalId === g.id && t.done);
             return (
               <div className={"goal" + (isDone ? " done" : "")} key={g.id}>
-                <span className="g-t">· {g.title}</span>
-                <button className={"gt-badge" + (g.repeat === "daily" ? " daily" : "")} onClick={() => actions.toggleGoalRepeat(d.id, g.id)}>
-                  {g.repeat === "daily" ? "매일" : "한 번"}
-                </button>
-                {g.repeat === "daily" ? (
-                  <span className="add-today added" style={{ cursor: "default" }}>오늘에 있음</span>
+                {editGoalId === g.id ? (
+                  <input
+                    className="rename-input g-t"
+                    value={goalVal}
+                    autoFocus
+                    maxLength={40}
+                    onChange={(e) => setGoalVal(e.target.value)}
+                    onBlur={() => { actions.renameGoal(d.id, g.id, goalVal); setEditGoalId(""); }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.nativeEvent.isComposing) { actions.renameGoal(d.id, g.id, goalVal); setEditGoalId(""); }
+                      if (e.key === "Escape") setEditGoalId("");
+                    }}
+                  />
                 ) : (
-                  <button className={"add-today" + (added ? " added" : "")} style={!added ? { background: color } : undefined} onClick={() => actions.goalToToday(g.id)}>
-                    {added ? "오늘에 있음" : "+ 오늘"}
-                  </button>
+                  <span className="g-t" onClick={() => { setEditGoalId(g.id); setGoalVal(g.title); }} title="눌러서 이름 수정">
+                    · {g.title}
+                  </span>
                 )}
-                <button className="x" onClick={() => actions.removeGoal(d.id, g.id)}>
-                  ✕
-                </button>
+                {editGoalId !== g.id && (
+                  <>
+                    <button className={"gt-badge" + (g.repeat === "daily" ? " daily" : "")} onClick={() => actions.toggleGoalRepeat(d.id, g.id)}>
+                      {g.repeat === "daily" ? "매일" : "한 번"}
+                    </button>
+                    {g.repeat === "daily" ? (
+                      <span className="add-today added" style={{ cursor: "default" }}>오늘에 있음</span>
+                    ) : (
+                      <button className={"add-today" + (added ? " added" : "")} style={!added ? { background: color } : undefined} onClick={() => actions.goalToToday(g.id)}>
+                        {added ? "오늘에 있음" : "+ 오늘"}
+                      </button>
+                    )}
+                    <button className="x" aria-label="할 일 삭제" onClick={() => actions.removeGoal(d.id, g.id)}>
+                      ✕
+                    </button>
+                  </>
+                )}
               </div>
             );
           })}

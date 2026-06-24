@@ -224,7 +224,7 @@ function SettingsSheet({
       <div className="sheet" onClick={(e) => e.stopPropagation()}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
           <b style={{ fontSize: 17 }}>⚙️ 설정</b>
-          <button className="x" onClick={onClose}>
+          <button className="x" aria-label="설정 닫기" onClick={onClose}>
             ✕
           </button>
         </div>

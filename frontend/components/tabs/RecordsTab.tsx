@@ -1,6 +1,6 @@
 "use client";
 
-import { AppState, streakCount, todayStr } from "@/lib/state";
+import { AppState, dateStr, streakCount, todayStr } from "@/lib/state";
 
 export function RecordsTab({ state }: { state: AppState }) {
   const streak = streakCount(state);
@@ -11,7 +11,7 @@ export function RecordsTab({ state }: { state: AppState }) {
   for (let i = 13; i >= 0; i--) {
     const d = new Date();
     d.setDate(d.getDate() - i);
-    const ds = d.toISOString().slice(0, 10);
+    const ds = dateStr(d);
     const n = counts[ds] ?? 0;
     const lvl = n === 0 ? "" : n === 1 ? "l1" : n === 2 ? "l2" : "l3";
     cells.push(<div className={`cell ${lvl} ${ds === todayStr() ? "today" : ""}`} key={ds} />);

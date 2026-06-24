@@ -50,9 +50,15 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
       const fg = t.goalId ? findGoal(state, t.goalId) : null;
       return (
         <div className={"task" + (t.done ? " done" : "")} key={t.id}>
-          <div className={"check" + (t.done ? " done" : "")} onClick={() => actions.toggleTodo(t.id)}>
+          <button
+            type="button"
+            className={"check" + (t.done ? " done" : "")}
+            onClick={() => actions.toggleTodo(t.id)}
+            aria-pressed={t.done}
+            aria-label={(t.done ? "완료 취소: " : "완료: ") + t.text}
+          >
             {t.done ? "✓" : ""}
-          </div>
+          </button>
           <div className="body">
             <div className="txt">{t.text}</div>
             {fg && (
@@ -67,7 +73,7 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
               내일로
             </button>
           )}
-          <button className="x" onClick={() => actions.removeTodo(t.id)}>
+          <button className="x" aria-label="할 일 삭제" onClick={() => actions.removeTodo(t.id)}>
             ✕
           </button>
         </div>
