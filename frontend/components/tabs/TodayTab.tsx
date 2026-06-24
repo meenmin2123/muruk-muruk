@@ -130,7 +130,7 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
           <button onClick={add}>추가</button>
         </div>
         <select className="goalpick" value={goalId} onChange={(e) => setGoalId(e.target.value)} aria-label="연결할 목표">
-          <option value="">목표 없이 (그냥 오늘 할 일)</option>
+          <option value="">🌳 목표 연결 안 함</option>
           {dreamsWithGoals.map((d) => (
             <optgroup key={d.id} label={`${d.emoji} ${d.title}`}>
               {d.goals.map((g) => (
@@ -141,7 +141,6 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
             </optgroup>
           ))}
         </select>
-        {goalId === "" && <div className="muted addbox-hint">목표를 고르면 그 목표 나무에 스티커가 쌓여요.</div>}
       </div>
     </section>
   );

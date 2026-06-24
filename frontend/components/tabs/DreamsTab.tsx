@@ -22,6 +22,7 @@ export function DreamsTab({ state, actions }: { state: AppState; actions: AppAct
   const [catOpen, setCatOpen] = useState(false);
   const [ce, setCe] = useState("🎨");
   const [cl, setCl] = useState("");
+  const [deco, setDeco] = useState(false);
 
   const presets: CatMeta[] = CAT_ORDER.map((c) => ({ key: c, emoji: TEMPLATES[c].emoji, label: TEMPLATES[c].label, ph: TEMPLATES[c].ph, color: TEMPLATES[c].color }));
   const customs: CatMeta[] = state.customCats.map((c) => ({ key: c.key, emoji: c.emoji, label: c.label, ph: c.ph, color: c.color }));
@@ -62,7 +63,8 @@ export function DreamsTab({ state, actions }: { state: AppState; actions: AppAct
       </button>
 
       {open && (
-        <div className="card">
+        <div className="card newdream">
+          <div className="field-label">어떤 목표예요?</div>
           <div className="row-wrap">
             {allCats.map((c) => (
               <div key={c.key} className={"chip" + (c.key === cat ? " on" : "")} onClick={() => pickCat(c)}>
@@ -75,34 +77,38 @@ export function DreamsTab({ state, actions }: { state: AppState; actions: AppAct
           </div>
 
           {catOpen && (
-            <div className="card" style={{ background: "#f6fbf4" }}>
-              <div className="muted" style={{ fontWeight: 800, marginBottom: 8 }}>나만의 카테고리</div>
-              <div className="addbar">
-                <input style={{ flex: "0 0 64px", textAlign: "center" }} value={ce} maxLength={2} onChange={(e) => setCe(e.target.value)} />
-                <input value={cl} placeholder="카테고리 이름 (예: 독서)" maxLength={10} onChange={(e) => setCl(e.target.value)} onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && addCustom()} />
-                <button onClick={addCustom}>추가</button>
-              </div>
+            <div className="addbar" style={{ marginBottom: 12 }}>
+              <input style={{ flex: "0 0 56px", textAlign: "center" }} value={ce} maxLength={2} onChange={(e) => setCe(e.target.value)} />
+              <input value={cl} placeholder="카테고리 이름 (예: 독서)" maxLength={10} onChange={(e) => setCl(e.target.value)} onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && addCustom()} />
+              <button onClick={addCustom}>추가</button>
             </div>
           )}
 
-          <div className="row-wrap" style={{ alignItems: "center" }}>
-            <span className="muted" style={{ fontWeight: 800 }}>색</span>
-            {PALETTE.map((c) => (
-              <div key={c} className={"sw" + (c.toLowerCase() === color.toLowerCase() ? " on" : "")} style={{ background: c }} onClick={() => setColor(c)} />
-            ))}
-          </div>
-          <div className="muted" style={{ margin: "2px 2px 8px", fontWeight: 700 }}>칭찬판 모양</div>
-          <div className="row-wrap">
-            {THEMES.map((t) => (
-              <button key={t.key} className={"theme-opt" + (t.key === theme ? " on" : "")} onClick={() => setTheme(t.key)}>
-                {t.emoji} {t.label}
-              </button>
-            ))}
-          </div>
-          <div className="addbar">
-            <input value={title} placeholder={meta.ph} maxLength={40} onChange={(e) => setTitle(e.target.value)} onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && create()} />
-            <button onClick={create}>추가</button>
-          </div>
+          <input className="newdream-title" value={title} placeholder={meta.ph} maxLength={40} onChange={(e) => setTitle(e.target.value)} onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && create()} />
+
+          <button className="link deco-toggle" onClick={() => setDeco((o) => !o)}>
+            {deco ? "꾸미기 닫기 ▴" : "🎨 색·칭찬판 모양 바꾸기 ▾"}
+          </button>
+          {deco && (
+            <>
+              <div className="field-label">색</div>
+              <div className="row-wrap">
+                {PALETTE.map((c) => (
+                  <div key={c} className={"sw" + (c.toLowerCase() === color.toLowerCase() ? " on" : "")} style={{ background: c }} onClick={() => setColor(c)} />
+                ))}
+              </div>
+              <div className="field-label">칭찬판 모양</div>
+              <div className="row-wrap">
+                {THEMES.map((t) => (
+                  <button key={t.key} className={"theme-opt" + (t.key === theme ? " on" : "")} onClick={() => setTheme(t.key)}>
+                    {t.emoji} {t.label}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+
+          <button className="btn newdream-create" onClick={create}>＋ 목표 추가</button>
         </div>
       )}
 
@@ -311,24 +317,22 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
             </div>
           )}
 
-          <div className="muted" style={{ fontWeight: 700, margin: "14px 2px 6px" }}>할 일 추가 — 어떤 종류인가요?</div>
-          <div className="repeat-pick">
-            <button className={"rep-opt" + (repeat === "once" ? " on" : "")} onClick={() => setRepeat("once")}>
-              <b>✓ 한 번만</b>
-              <small>하면 끝나는 일 (예약·신청 등)</small>
-            </button>
-            <button className={"rep-opt" + (repeat === "daily" ? " on" : "")} onClick={() => setRepeat("daily")}>
-              <b>🔁 매일</b>
-              <small>매일 반복하는 습관 (운동·공부 등)</small>
-            </button>
+          <div className="taskadd">
+            <div className="goal-add">
+              <input value={goalText} placeholder="할 일 추가" maxLength={40} onChange={(e) => setGoalText(e.target.value)} onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && addGoal(goalText)} />
+              <button onClick={() => addGoal(goalText)}>추가</button>
+            </div>
+            <div className="taskadd-opts">
+              <div className="seg" role="group" aria-label="할 일 종류">
+                <button className={repeat === "once" ? "on" : ""} onClick={() => setRepeat("once")}>✓ 한 번</button>
+                <button className={repeat === "daily" ? "on" : ""} onClick={() => setRepeat("daily")}>🔁 매일</button>
+              </div>
+              <button className="ai-link" onClick={aiSuggest} disabled={aiLoading}>
+                {aiLoading ? "생각 중…" : "✨ AI 추천"}
+              </button>
+            </div>
+            <div className="taskadd-help">한 번 = 하면 끝 · 매일 = 매일 자동으로 떠요</div>
           </div>
-          <div className="goal-add" style={{ marginTop: 8 }}>
-            <input value={goalText} placeholder={repeat === "daily" ? "매일 할 습관 적기" : "한 번 할 일 적기"} maxLength={40} onChange={(e) => setGoalText(e.target.value)} onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && addGoal(goalText)} />
-            <button onClick={() => addGoal(goalText)}>추가</button>
-          </div>
-          <button className="ai-btn" onClick={aiSuggest} disabled={aiLoading}>
-            {aiLoading ? "AI가 생각 중…" : "✨ AI로 할 일 추천받기"}
-          </button>
         </>
       )}
     </div>
