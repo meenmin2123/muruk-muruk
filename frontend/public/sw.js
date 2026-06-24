@@ -1,21 +1,40 @@
-// 무럽무럽 서비스워커 — 앱 셸 오프라인 캐시(간단 버전).
-const CACHE = "muruk-v1";
-const SHELL = ["/", "/manifest.json", "/icon.svg"];
+// 무럽무럽 서비스워커.
+// 핵심: HTML 문서는 "네트워크 우선" — 새 배포가 즉시 반영되도록.
+// (캐시 우선으로 옛 HTML을 서빙하면, 바뀐 JS 청크 파일명을 못 찾아 앱이 크래시함)
+const CACHE = "muruk-v2";
 
-self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).catch(() => {}));
+self.addEventListener("install", () => {
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (e) => {
-  e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))));
-  self.clients.claim();
+  e.waitUntil(
+    caches
+      .keys()
+      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then(() => self.clients.claim())
+  );
 });
 
 self.addEventListener("fetch", (e) => {
   const { request } = e;
-  // API 호출은 캐시하지 않음(항상 네트워크).
   if (request.method !== "GET" || request.url.includes("/api/")) return;
+
+  // HTML 문서(페이지 이동): 네트워크 우선 → 항상 최신, 오프라인이면 캐시 폴백.
+  if (request.mode === "navigate" || request.destination === "document") {
+    e.respondWith(
+      fetch(request)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put(request, copy)).catch(() => {});
+          return res;
+        })
+        .catch(() => caches.match(request).then((c) => c || caches.match("/")))
+    );
+    return;
+  }
+
+  // 그 외(_next 해시 자산, 이미지 등): 캐시 우선(내용이 바뀌면 파일명이 바뀌므로 안전).
   e.respondWith(
     caches.match(request).then(
       (cached) =>

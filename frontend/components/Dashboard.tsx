@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
-import { clearToken, getUser } from "@/lib/auth";
+import { clearToken, getUser, isAdminEmail } from "@/lib/auth";
 import { AppState, defaultState, streakCount, totalStickers } from "@/lib/state";
 import type { AppActions } from "@/lib/store";
 import type { AdminUserState } from "@/lib/types";
@@ -162,20 +162,27 @@ function SettingsSheet({
   const [reviewLoading, setReviewLoading] = useState(false);
   const [notif, setNotif] = useState(typeof Notification !== "undefined" ? Notification.permission : "default");
   const fileRef = useRef<HTMLInputElement>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(isAdminEmail(userEmail));
   const [adminData, setAdminData] = useState<AdminUserState[] | null>(null);
   const [adminLoading, setAdminLoading] = useState(false);
+  const [adminErr, setAdminErr] = useState("");
 
   useEffect(() => {
-    api.me().then((m) => setIsAdmin(!!m.isAdmin)).catch(() => {});
+    api.me().then((m) => setIsAdmin((v) => v || !!m.isAdmin)).catch(() => {});
   }, []);
 
   async function loadAdmin() {
     setAdminLoading(true);
+    setAdminErr("");
     try {
       setAdminData(await api.adminStates());
-    } catch {
+    } catch (e) {
       setAdminData(null);
+      setAdminErr(
+        (e as Error).message === "UNAUTHORIZED"
+          ? "로그인이 필요해요."
+          : "불러오기 실패 — 백엔드 재배포와 ADMIN_EMAILS 설정을 확인하세요.",
+      );
     } finally {
       setAdminLoading(false);
     }
@@ -331,6 +338,7 @@ function SettingsSheet({
             <button className="btn btn-soft" onClick={loadAdmin} disabled={adminLoading}>
               {adminLoading ? "불러오는 중…" : adminData ? "새로고침" : "전체 데이터 보기"}
             </button>
+            {adminErr && <p className="muted" style={{ margin: "10px 0 0", fontWeight: 700 }}>⚠️ {adminErr}</p>}
             {adminData && (
               <div style={{ marginTop: 12 }}>
                 <div className="muted" style={{ fontWeight: 800, marginBottom: 8 }}>사용자 {adminData.length}명</div>

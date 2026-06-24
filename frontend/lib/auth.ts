@@ -6,6 +6,16 @@ const TOKEN_KEY = "muruk_id_token";
 
 export const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? "";
 
+// 관리자 이메일(개발용). 서버도 ADMIN_EMAILS로 별도 검증하므로 여기는 UI 노출용.
+const ADMIN_EMAILS = (process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? "min1016alsrud@gmail.com")
+  .split(",")
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
+
+export function isAdminEmail(email?: string | null): boolean {
+  return !!email && ADMIN_EMAILS.includes(email.toLowerCase());
+}
+
 interface JwtPayload {
   sub: string;
   email?: string;

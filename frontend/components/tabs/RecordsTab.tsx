@@ -14,7 +14,11 @@ export function RecordsTab({ state }: { state: AppState }) {
     const ds = dateStr(d);
     const n = counts[ds] ?? 0;
     const lvl = n === 0 ? "" : n === 1 ? "l1" : n === 2 ? "l2" : "l3";
-    cells.push(<div className={`cell ${lvl} ${ds === todayStr() ? "today" : ""}`} key={ds} />);
+    cells.push(
+      <div className={`cell ${lvl} ${ds === todayStr() ? "today" : ""}`} key={ds} title={`${ds} · ${n}개 완료`}>
+        <span className="cell-d">{d.getDate()}</span>
+      </div>,
+    );
   }
 
   return (
