@@ -84,11 +84,14 @@ export function useAppState() {
   const [syncing, setSyncing] = useState(false);
   const [toast, setToastRaw] = useState("");
   const [gold, setGold] = useState<string | null>(null);
+  const [undoLabel, setUndoLabel] = useState("");
 
   const stateRef = useRef<AppState | null>(null);
   const versionRef = useRef(0);
   const loaded = useRef(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const undoSnap = useRef<AppState | null>(null);
+  const undoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     stateRef.current = state;
@@ -97,6 +100,45 @@ export function useAppState() {
   const setToast = useCallback((msg: string) => {
     setToastRaw(msg);
     setTimeout(() => setToastRaw(""), 2200);
+  }, []);
+
+  // 삭제 직전 상태를 스냅샷해 두고 5초간 되돌리기를 제공.
+  const armUndo = useCallback((label: string) => {
+    undoSnap.current = stateRef.current ? structuredClone(stateRef.current) : null;
+    setUndoLabel(label);
+    if (undoTimer.current) clearTimeout(undoTimer.current);
+    undoTimer.current = setTimeout(() => {
+      setUndoLabel("");
+      undoSnap.current = null;
+    }, 5000);
+  }, []);
+
+  const runUndo = useCallback(() => {
+    if (undoTimer.current) clearTimeout(undoTimer.current);
+    if (undoSnap.current) setState(undoSnap.current);
+    undoSnap.current = null;
+    setUndoLabel("");
+  }, []);
+
+  // 자정이 지나거나 다시 포커스됐을 때, 날짜가 바뀌었으면 오늘 목록을 갱신.
+  useEffect(() => {
+    const refresh = () => {
+      const cur = stateRef.current;
+      if (!cur || !loaded.current) return;
+      if (cur.lastSeen === todayStr()) return;
+      const next = ensureDailyTodos(structuredClone(cur));
+      next.lastSeen = todayStr();
+      setState(next);
+    };
+    const onVis = () => document.visibilityState === "visible" && refresh();
+    document.addEventListener("visibilitychange", onVis);
+    window.addEventListener("focus", refresh);
+    const iv = setInterval(refresh, 60000);
+    return () => {
+      document.removeEventListener("visibilitychange", onVis);
+      window.removeEventListener("focus", refresh);
+      clearInterval(iv);
+    };
   }, []);
 
   // 최초 로드: 백엔드에서 받아오기 (없으면 기본 상태)
@@ -181,6 +223,7 @@ export function useAppState() {
       else if (toastMsg) setToast(toastMsg);
     },
     removeTodo(id) {
+      armUndo("할 일을 삭제했어요");
       mutate((s) => {
         s.todos = s.todos.filter((t) => t.id !== id);
       });
@@ -214,6 +257,7 @@ export function useAppState() {
       setToast("백업을 불러왔어요 ✅");
     },
     removeDream(id) {
+      armUndo("목표를 삭제했어요");
       mutate((s) => {
         s.dreams = s.dreams.filter((d) => d.id !== id);
       });
@@ -242,6 +286,7 @@ export function useAppState() {
       });
     },
     removeGoal(dreamId, goalId) {
+      armUndo("할 일을 삭제했어요");
       mutate((s) => {
         const d = s.dreams.find((x) => x.id === dreamId);
         if (d) d.goals = d.goals.filter((g) => g.id !== goalId);
@@ -292,5 +337,5 @@ export function useAppState() {
     },
   };
 
-  return { state, syncing, toast, gold, clearGold: () => setGold(null), actions };
+  return { state, syncing, toast, gold, clearGold: () => setGold(null), undoLabel, runUndo, actions };
 }

@@ -15,11 +15,20 @@ import { RecordsTab } from "./tabs/RecordsTab";
 type Tab = "dreams" | "today" | "stickers" | "records";
 
 export function Dashboard({ onLogout }: { onLogout: () => void }) {
-  const { state, syncing, toast, gold, clearGold, actions } = useAppState();
+  const { state, syncing, toast, gold, clearGold, undoLabel, runUndo, actions } = useAppState();
   const [tab, setTab] = useState<Tab>("today");
   const [settings, setSettings] = useState(false);
   const [celebrate, setCelebrate] = useState("");
+  const routed = useRef(false);
   const user = getUser();
+
+  // 신규 사용자(목표 0개)는 첫 진입을 '목표' 탭으로 안내.
+  useEffect(() => {
+    if (state && !routed.current) {
+      routed.current = true;
+      if (state.dreams.length === 0) setTab("dreams");
+    }
+  }, [state]);
 
   // 칭찬판 완성 시 Claude 축하 메시지 가져오기
   useEffect(() => {
@@ -88,7 +97,12 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
         <NavBtn icon="📈" label="기록" active={tab === "records"} onClick={() => setTab("records")} />
       </nav>
 
-      <div className={"toast" + (toast ? " show" : "")}>{toast}</div>
+      <div className={"toast" + (toast && !undoLabel ? " show" : "")}>{toast}</div>
+
+      <div className={"toast undo" + (undoLabel ? " show" : "")}>
+        <span>{undoLabel}</span>
+        <button onClick={runUndo}>되돌리기</button>
+      </div>
 
       {gold && (
         <div className="modal-bg" onClick={clearGold}>

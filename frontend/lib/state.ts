@@ -6,10 +6,6 @@ export interface Goal {
   id: string;
   title: string;
   repeat: Repeat;
-  stickers?: string[];
-  earned?: number;
-  stamps?: number;
-  goldEarned?: boolean;
 }
 
 export interface Dream {

@@ -666,6 +666,26 @@ nav button.on {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
+.toast.undo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-right: 8px;
+}
+.toast.undo button {
+  background: none;
+  border: none;
+  color: var(--accent2);
+  font-weight: 800;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 20px;
+}
+.toast.undo button:active {
+  background: rgba(255, 255, 255, 0.12);
+}
 .modal-bg {
   position: fixed;
   inset: 0;
