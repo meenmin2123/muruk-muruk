@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import type { AppActions } from "@/lib/store";
 import { AppState, CAT_ORDER, Dream, PALETTE, Repeat, TEMPLATES, THEMES, boardCap, ddayText, template, todayStr } from "@/lib/state";
+import { boardSVG, gridBoardSVG, stampSVG } from "@/lib/trees";
 
 interface CatMeta {
   key: string;
@@ -133,6 +134,10 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
   const [goalVal, setGoalVal] = useState("");
   const [editCap, setEditCap] = useState(false);
   const [ddayOpen, setDdayOpen] = useState(false);
+  const [flipped, setFlipped] = useState(false);
+  const frontRef = useRef<HTMLDivElement>(null);
+  const backRef = useRef<HTMLDivElement>(null);
+  const [faceH, setFaceH] = useState<number>();
   const color = d.color || template(d.cat).color;
   const tpl = template(d.cat);
   const linked = state.todos.filter((t) => t.goalId && d.goals.some((g) => g.id === t.goalId));
@@ -141,6 +146,26 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
   const dd = ddayText(d.targetDate);
   const used = d.goals.map((g) => g.title);
   const sugg = (tpl.goals || []).filter((s) => !used.includes(s));
+
+  // 뒤집힌 면(칭찬판) 렌더 정보
+  const cap = boardCap(d);
+  const boardLen = d.stickers?.length ?? 0;
+  const boardGold = boardLen >= cap;
+  const themeEmoji = THEMES.find((t) => t.key === d.theme)?.emoji || "🌳";
+  const boardHtml = cap === 10 ? boardSVG(d, d.theme || "tree") : gridBoardSVG(d, cap, color, themeEmoji);
+
+  // 카드 높이를 현재 보이는 면에 맞춰 부드럽게 조절(앞/뒷면 높이가 달라도 자연스럽게).
+  useLayoutEffect(() => {
+    const measure = () => {
+      const el = flipped ? backRef.current : frontRef.current;
+      if (el) setFaceH(el.offsetHeight);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    if (frontRef.current) ro.observe(frontRef.current);
+    if (backRef.current) ro.observe(backRef.current);
+    return () => ro.disconnect();
+  }, [flipped]);
 
   // 직접 입력은 선택한 종류(repeat)를 따르고, 추천/AI 칩은 대부분 한 번짜리라 'once' 기본.
   function addGoal(t: string, rep: Repeat = repeat) {
@@ -173,7 +198,10 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
   }
 
   return (
-    <div className="dream">
+    <div className="flip" style={{ height: faceH }}>
+      <div className={"flip-inner" + (flipped ? " flipped" : "")}>
+        <div className="flip-face flip-front" ref={frontRef} aria-hidden={flipped}>
+          <div className="dream" onDoubleClick={() => setFlipped(true)}>
       <div className="dream-h">
         <span className="dream-emoji" style={{ background: color + "22" }} onClick={() => actions.toggleCollapse(d.id)}>
           {d.emoji}
@@ -205,6 +233,11 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
           <span className="muted" style={{ fontWeight: 800, color }}>
             {(tpl.ddayLabel || "디데이") + " "}{dd}
           </span>
+        )}
+        {!editTitle && (
+          <button className="icon-btn flipbtn" aria-label="칭찬판 보기" onClick={() => setFlipped(true)}>
+            🌳
+          </button>
         )}
         {!editTitle && (
           <button className="x" aria-label="목표 삭제" onClick={() => confirm("이 목표와 할 일을 삭제할까요?") && actions.removeDream(d.id)}>
@@ -335,6 +368,31 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
           </div>
         </>
       )}
+          </div>
+        </div>
+
+        <div className="flip-face flip-back" ref={backRef} aria-hidden={!flipped}>
+          <div className="dream board-back" onDoubleClick={() => setFlipped(false)}>
+            <div className="dream-h">
+              <span className="dream-emoji" style={{ background: color + "22" }}>{d.emoji}</span>
+              <span className="t">{d.title}</span>
+              <span className="muted" style={{ fontWeight: 800, color }}>{boardGold ? "완성 🎉" : `${boardLen}/${cap}`}</span>
+              <button className="icon-btn" aria-label="목표로 돌아가기" onClick={() => setFlipped(false)}>↩</button>
+            </div>
+            <div className="board-back-art">
+              <div dangerouslySetInnerHTML={{ __html: boardHtml }} />
+              {boardGold && (
+                <div className="board-stamp"><div dangerouslySetInnerHTML={{ __html: stampSVG(140) }} /></div>
+              )}
+            </div>
+            <div className="muted board-back-foot">
+              {d.stamps ? `도장 ${d.stamps}개 · ` : ""}
+              {boardLen === 0 ? "할 일을 완료하면 스티커가 쌓여요" : `스티커 ${d.earned ?? boardLen}개`}
+              {d.targetDate ? " · 디데이까지" : ""}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -10,10 +10,9 @@ import { useAppState } from "@/lib/store";
 import { useDailyReminder, DEFAULT_REMINDER_TIME } from "@/lib/reminder";
 import { TodayTab } from "./tabs/TodayTab";
 import { DreamsTab } from "./tabs/DreamsTab";
-import { StickersTab } from "./tabs/StickersTab";
 import { RecordsTab } from "./tabs/RecordsTab";
 
-type Tab = "dreams" | "today" | "stickers" | "records";
+type Tab = "dreams" | "today" | "records";
 
 export function Dashboard({ onLogout }: { onLogout: () => void }) {
   const { state, syncing, toast, gold, clearGold, undoLabel, runUndo, actions } = useAppState();
@@ -79,14 +78,12 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
       <main>
         {tab === "today" && <TodayTab state={state} actions={actions} />}
         {tab === "dreams" && <DreamsTab state={state} actions={actions} />}
-        {tab === "stickers" && <StickersTab state={state} />}
         {tab === "records" && <RecordsTab state={state} />}
       </main>
 
       <nav>
         <NavBtn icon="🌱" label="목표" active={tab === "dreams"} onClick={() => setTab("dreams")} />
         <NavBtn icon="☀️" label="오늘" active={tab === "today"} onClick={() => setTab("today")} />
-        <NavBtn icon="🌳" label="칭찬나무" active={tab === "stickers"} onClick={() => setTab("stickers")} />
         <NavBtn icon="📈" label="기록" active={tab === "records"} onClick={() => setTab("records")} />
       </nav>
 
