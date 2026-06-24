@@ -38,9 +38,18 @@ header {
   position: relative;
 }
 .logo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
   font-size: 26px;
   font-weight: 800;
   letter-spacing: -1px;
+}
+.logo-ic {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  display: block;
 }
 .logo .dot {
   color: var(--primary);

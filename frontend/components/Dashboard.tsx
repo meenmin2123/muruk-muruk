@@ -67,23 +67,13 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
           ⚙️
         </button>
         <div className="logo">
-          무럽무럽<span className="dot">.</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/icon.svg" alt="" className="logo-ic" />
+          <span>
+            무럽무럽<span className="dot">.</span>
+          </span>
         </div>
         {syncing && <div className="tagline">저장 중…</div>}
-        <div className="toprow">
-          <div className="stat">
-            <div className="v">{streak}</div>
-            <div className="l">연속</div>
-          </div>
-          <div className="stat">
-            <div className="v">{stickers}</div>
-            <div className="l">스티커</div>
-          </div>
-          <div className="stat">
-            <div className="v">{state.totalDone}</div>
-            <div className="l">완료</div>
-          </div>
-        </div>
       </header>
 
       <main>

@@ -4,8 +4,10 @@ import { AppState, BOARD, totalStickers } from "@/lib/state";
 import { boardSVG, stampSVG } from "@/lib/trees";
 
 export function StickersTab({ state }: { state: AppState }) {
-  // 칭찬판은 목표(꿈) 단위 — 할 일이 하나라도 있는 목표마다 나무 한 그루.
-  const items = state.dreams.filter((d) => d.goals.length > 0);
+  // 칭찬나무는 목표(꿈) 단위 — 스티커를 1개라도 받은 목표만 나무로 표시(빈 나무 숨김).
+  const items = state.dreams.filter(
+    (d) => (d.earned ?? 0) > 0 || (d.stamps ?? 0) > 0 || (d.stickers?.length ?? 0) > 0,
+  );
 
   const total = totalStickers(state);
   const stamps = items.reduce((s, d) => s + (d.stamps ?? 0), 0);
