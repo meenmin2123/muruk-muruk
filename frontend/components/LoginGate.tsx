@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import { GOOGLE_CLIENT_ID, saveToken, whenGoogleReady } from "@/lib/auth";
-import { stampSVG } from "@/lib/trees";
 
 export function LoginGate({ onLogin }: { onLogin: () => void }) {
   const btnRef = useRef<HTMLDivElement>(null);
@@ -35,8 +34,9 @@ export function LoginGate({ onLogin }: { onLogin: () => void }) {
   const configured = GOOGLE_CLIENT_ID && !GOOGLE_CLIENT_ID.includes("여기에");
 
   return (
-    <div className="wrap" style={{ textAlign: "center", paddingTop: 64 }}>
-      <div className="stamp-hero" aria-hidden dangerouslySetInnerHTML={{ __html: stampSVG(132) }} />
+    <div className="wrap" style={{ textAlign: "center", paddingTop: 80 }}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/icon.svg" alt="" className="login-ic" />
       <h1 style={{ fontSize: 30, marginBottom: 6 }}>
         무럽무럽<span style={{ color: "var(--primary)" }}>.</span>
       </h1>
