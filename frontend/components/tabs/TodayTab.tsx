@@ -147,7 +147,11 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
       </select>
 
       {all.length === 0 ? (
-        <div className="empty">오늘 할 일이 없어요.</div>
+        <div className="empty">
+          오늘 할 일이 없어요.
+          <br />
+          ‘나의 목표’에서 <b>+오늘</b>으로 담거나 위에서 바로 추가해요.
+        </div>
       ) : (
         <>
           {rows(visible)}

@@ -53,6 +53,9 @@ export function DreamsTab({ state, actions }: { state: AppState; actions: AppAct
       <div className="sec-title">
         <h2>나의 목표</h2>
       </div>
+      <p className="muted" style={{ margin: "-4px 2px 12px", fontSize: 12.5, lineHeight: 1.5 }}>
+        큰 목표와 할 일을 <b>계획</b>하는 곳이에요. 오늘 할 건 <b>+오늘</b>으로 담고, 완료 체크는 <b>오늘 할 일</b> 탭에서 해요.
+      </p>
 
       <button className="newdream-btn" onClick={() => setOpen((o) => !o)}>
         {open ? "닫기" : "＋ 새 목표"}
@@ -183,22 +186,16 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
 
           {d.goals.map((g) => {
             const added = state.todos.some((t) => t.goalId === g.id && t.date === todayStr());
-            const todayDone = state.todos.some((t) => t.goalId === g.id && t.date === todayStr() && t.done);
+            const isDone = g.repeat === "once" && state.todos.some((t) => t.goalId === g.id && t.done);
             return (
-              <div className={"goal" + (todayDone ? " done" : "")} key={g.id}>
-                <div
-                  className={"check" + (todayDone ? " done" : "")}
-                  style={!todayDone ? { borderColor: color } : undefined}
-                  onClick={() => actions.toggleGoalDone(g.id)}
-                  title={todayDone ? "완료 취소" : "오늘 완료"}
-                >
-                  {todayDone ? "✓" : ""}
-                </div>
-                <span className="g-t">{g.title}</span>
+              <div className={"goal" + (isDone ? " done" : "")} key={g.id}>
+                <span className="g-t">· {g.title}</span>
                 <button className={"gt-badge" + (g.repeat === "daily" ? " daily" : "")} onClick={() => actions.toggleGoalRepeat(d.id, g.id)}>
                   {g.repeat === "daily" ? "매일" : "한 번"}
                 </button>
-                {g.repeat !== "daily" && !todayDone && (
+                {g.repeat === "daily" ? (
+                  <span className="add-today added" style={{ cursor: "default" }}>오늘에 있음</span>
+                ) : (
                   <button className={"add-today" + (added ? " added" : "")} style={!added ? { background: color } : undefined} onClick={() => actions.goalToToday(g.id)}>
                     {added ? "오늘에 있음" : "+ 오늘"}
                   </button>
