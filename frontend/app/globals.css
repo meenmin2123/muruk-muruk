@@ -348,6 +348,41 @@ main {
   padding: 9px 0;
   border-top: 1px dashed var(--line);
 }
+.stamp-hero {
+  display: inline-block;
+  margin-bottom: 20px;
+  transform-origin: center;
+  animation: stampDown 0.7s cubic-bezier(0.18, 0.7, 0.2, 1) both;
+}
+.stamp-hero svg {
+  filter: drop-shadow(0 6px 10px rgba(218, 58, 58, 0.22));
+}
+@keyframes stampDown {
+  0% {
+    transform: scale(2.3) rotate(-15deg);
+    opacity: 0;
+  }
+  55% {
+    transform: scale(0.86) rotate(-9deg);
+    opacity: 1;
+  }
+  72% {
+    transform: scale(1.07) rotate(-6deg);
+  }
+  86% {
+    transform: scale(0.97) rotate(-8deg);
+  }
+  100% {
+    transform: scale(1) rotate(-7deg);
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stamp-hero {
+    animation: none;
+    transform: rotate(-7deg);
+  }
+}
 .icon-btn {
   border: none;
   background: none;
