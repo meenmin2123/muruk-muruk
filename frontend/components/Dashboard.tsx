@@ -5,6 +5,7 @@ import { api } from "@/lib/api";
 import { clearToken, getUser } from "@/lib/auth";
 import { AppState, defaultState, streakCount, totalStickers } from "@/lib/state";
 import type { AppActions } from "@/lib/store";
+import type { AdminUserState } from "@/lib/types";
 import { stampSVG } from "@/lib/trees";
 import { useAppState } from "@/lib/store";
 import { useDailyReminder, DEFAULT_REMINDER_TIME } from "@/lib/reminder";
@@ -161,6 +162,24 @@ function SettingsSheet({
   const [reviewLoading, setReviewLoading] = useState(false);
   const [notif, setNotif] = useState(typeof Notification !== "undefined" ? Notification.permission : "default");
   const fileRef = useRef<HTMLInputElement>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminData, setAdminData] = useState<AdminUserState[] | null>(null);
+  const [adminLoading, setAdminLoading] = useState(false);
+
+  useEffect(() => {
+    api.me().then((m) => setIsAdmin(!!m.isAdmin)).catch(() => {});
+  }, []);
+
+  async function loadAdmin() {
+    setAdminLoading(true);
+    try {
+      setAdminData(await api.adminStates());
+    } catch {
+      setAdminData(null);
+    } finally {
+      setAdminLoading(false);
+    }
+  }
 
   async function askCoach() {
     setLoading(true);
@@ -304,6 +323,38 @@ function SettingsSheet({
             <p className="muted" style={{ margin: "10px 0 0" }}>매일 {remindTime}, 앱을 열어두었거나 다시 열었을 때 알려드려요.</p>
           )}
         </div>
+
+        {isAdmin && (
+          <div className="card" style={{ border: "1.5px solid #ffe0b8", background: "#fffaf3" }}>
+            <h3 style={{ margin: "0 0 6px", fontSize: 15 }}>🛠 관리자 — 전체 데이터</h3>
+            <p className="muted" style={{ margin: "0 0 10px" }}>모든 사용자의 목표·할 일 데이터를 조회합니다.</p>
+            <button className="btn btn-soft" onClick={loadAdmin} disabled={adminLoading}>
+              {adminLoading ? "불러오는 중…" : adminData ? "새로고침" : "전체 데이터 보기"}
+            </button>
+            {adminData && (
+              <div style={{ marginTop: 12 }}>
+                <div className="muted" style={{ fontWeight: 800, marginBottom: 8 }}>사용자 {adminData.length}명</div>
+                {adminData.map((u) => {
+                  const dreams = Array.isArray(u.data?.dreams) ? u.data!.dreams!.length : 0;
+                  const todos = Array.isArray(u.data?.todos) ? u.data!.todos!.length : 0;
+                  const done = typeof u.data?.totalDone === "number" ? u.data!.totalDone : 0;
+                  return (
+                    <details key={u.userId} className="admin-row">
+                      <summary>
+                        <b>{u.name}</b> <span className="muted">{u.email}</span>
+                        <span className="admin-counts">목표 {dreams} · 할일 {todos} · 완료 {done}</span>
+                      </summary>
+                      <div className="muted" style={{ fontSize: 11.5, margin: "4px 0 6px" }}>
+                        최근접속 {u.lastSeenAt?.slice(0, 10) ?? "-"} · 저장 {u.updatedAt?.slice(0, 10) ?? "-"} · v{u.version}
+                      </div>
+                      <pre className="admin-json">{JSON.stringify(u.data, null, 2)}</pre>
+                    </details>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -59,6 +59,9 @@ services:
       # 프론트 출처 허용(CORS) — 프론트 실제 URL로 맞추기
       - key: CORS_ORIGINS
         value: https://muruk-frontend.onrender.com
+      # 관리자 이메일(쉼표 구분) — 전체 사용자 데이터 조회 가능
+      - key: ADMIN_EMAILS
+        value: min1016alsrud@gmail.com
       # Claude 코칭 키 — 대시보드에서 입력
       - key: ANTHROPIC_API_KEY
         sync: false

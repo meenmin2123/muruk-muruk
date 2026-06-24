@@ -2,7 +2,9 @@ package com.muruk.web
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.muruk.config.MurukProperties
 import com.muruk.domain.UserState
+import com.muruk.repo.AppUserRepository
 import com.muruk.repo.UserStateRepository
 import com.muruk.security.CurrentUserHolder
 import com.muruk.service.CoachingService
@@ -27,11 +29,51 @@ class HealthController {
 /** 로그인 후 내 프로필 확인용. */
 @RestController
 @RequestMapping("/api")
-class MeController {
+class MeController(private val props: MurukProperties) {
     @GetMapping("/me")
     fun me(): Map<String, Any?> {
         val u = CurrentUserHolder.require()
-        return mapOf("id" to u.id, "email" to u.email, "name" to u.name, "picture" to u.picture)
+        return mapOf(
+            "id" to u.id,
+            "email" to u.email,
+            "name" to u.name,
+            "picture" to u.picture,
+            "isAdmin" to props.isAdmin(u.email),
+        )
+    }
+}
+
+/** 관리자 전용 — 전체 사용자와 그 앱 데이터를 조회(개발/운영 점검용). */
+@RestController
+@RequestMapping("/api/admin")
+class AdminController(
+    private val users: AppUserRepository,
+    private val states: UserStateRepository,
+    private val props: MurukProperties,
+    private val mapper: ObjectMapper,
+) {
+    private fun requireAdmin() {
+        val u = CurrentUserHolder.require()
+        if (!props.isAdmin(u.email)) throw ResponseStatusException(HttpStatus.FORBIDDEN, "관리자 전용")
+    }
+
+    @GetMapping("/states")
+    fun all(): List<Map<String, Any?>> {
+        requireAdmin()
+        val stateById = states.findAll().associateBy { it.userId }
+        return users.findAll().sortedByDescending { it.lastSeenAt }.map { user ->
+            val st = stateById[user.id]
+            mapOf(
+                "userId" to user.id,
+                "email" to user.email,
+                "name" to user.name,
+                "picture" to user.picture,
+                "lastSeenAt" to user.lastSeenAt.toString(),
+                "updatedAt" to st?.updatedAt?.toString(),
+                "version" to (st?.version ?: 0L),
+                "data" to (st?.let { mapper.readTree(it.data) }),
+            )
+        }
     }
 }
 
