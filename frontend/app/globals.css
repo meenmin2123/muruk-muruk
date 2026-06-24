@@ -342,6 +342,23 @@ main {
   padding: 9px 0;
   border-top: 1px dashed var(--line);
 }
+.today-tree {
+  max-width: 230px;
+  margin: 4px auto 16px;
+}
+.today-tree > div:first-child {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  line-height: 0;
+}
+.today-tree-cap {
+  text-align: center;
+  font-weight: 800;
+  font-size: 12.5px;
+  color: var(--primary-d);
+  margin-top: 7px;
+}
 .goal .g-t {
   flex: 1;
   font-weight: 600;
