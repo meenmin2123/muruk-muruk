@@ -7,7 +7,14 @@ export const metadata: Metadata = {
   description: "작심삼일도, 꾸준히 하면 됩니다 🌿",
   manifest: "/manifest.json",
   appleWebApp: { capable: true, statusBarStyle: "default", title: "무럽무럽" },
-  icons: { icon: "/icon.svg", apple: "/icon.svg" },
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export const viewport = {
