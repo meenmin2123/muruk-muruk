@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { GOOGLE_CLIENT_ID, saveToken, whenGoogleReady } from "@/lib/auth";
+import { treeSVG } from "@/lib/trees";
 
 export function LoginGate({ onLogin }: { onLogin: () => void }) {
   const btnRef = useRef<HTMLDivElement>(null);
@@ -34,16 +35,28 @@ export function LoginGate({ onLogin }: { onLogin: () => void }) {
   const configured = GOOGLE_CLIENT_ID && !GOOGLE_CLIENT_ID.includes("여기에");
 
   return (
-    <div className="wrap" style={{ textAlign: "center", paddingTop: 80 }}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/icon.svg" alt="" className="login-ic" />
-      <h1 style={{ fontSize: 30, marginBottom: 6 }}>
+    <div className="login">
+      <div className="login-hero">
+        <span className="float f1" aria-hidden>⭐</span>
+        <span className="float f2" aria-hidden>🌸</span>
+        <span className="float f3" aria-hidden>🍀</span>
+        <span className="float f4" aria-hidden>💖</span>
+        <div className="login-tree" dangerouslySetInnerHTML={{ __html: treeSVG({ stickers: ["⭐", "🌟", "💖", "🌸", "🍀", "🐣"] }) }} />
+      </div>
+
+      <h1 className="login-title">
         무럽무럽<span style={{ color: "var(--primary)" }}>.</span>
       </h1>
-      <p className="muted" style={{ marginBottom: 32 }}>
-        작심삼일도, 꾸준히 하면 됩니다
-      </p>
-      <div ref={btnRef} style={{ display: "flex", justifyContent: "center" }} />
+      <p className="login-tagline">작심삼일도, 꾸준히 하면 됩니다 🌿</p>
+
+      <div className="login-features">
+        <span>🌱 작은 목표</span>
+        <span>✅ 매일 체크</span>
+        <span>🌳 자라는 나무</span>
+      </div>
+
+      <div ref={btnRef} className="login-btn" />
+
       {!configured && (
         <p className="muted" style={{ marginTop: 20 }}>
           개발용: <code>NEXT_PUBLIC_GOOGLE_CLIENT_ID</code> 를 설정하면
