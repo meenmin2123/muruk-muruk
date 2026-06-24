@@ -100,9 +100,9 @@ export function rainbowSVG(g: Goal): string {
   return `<svg viewBox="0 0 304 224" style="width:100%;display:block"><rect width="304" height="224" fill="#EAF4FD"/>${arcs}${cells}<ellipse cx="46" cy="190" rx="30" ry="15" fill="#fff"/><ellipse cx="258" cy="190" rx="30" ry="15" fill="#fff"/></svg>`;
 }
 
-/** 임의의 칸 수(cap)를 격자(도장 카드)로 그린다. 채운 칸은 적립된 스티커 이모지를 보여준다. */
-export function gridBoardSVG(holder: Goal, cap: number, accent: string): string {
-  const s = stk(holder);
+/** 임의의 칸 수(cap)를 격자(도장 카드)로 그린다. 채운 칸은 테마 이모지로 채운다. */
+export function gridBoardSVG(holder: Goal, cap: number, accent: string, fillEmoji: string): string {
+  const filled = stk(holder).length;
   const n = Math.min(100, Math.max(1, Math.round(cap)));
   const cols = Math.min(7, n);
   const rows = Math.ceil(n / cols);
@@ -115,10 +115,10 @@ export function gridBoardSVG(holder: Goal, cap: number, accent: string): string 
   for (let i = 0; i < n; i++) {
     const cx = pad + (i % cols) * cell + cell / 2;
     const cy = pad + Math.floor(i / cols) * cell + cell / 2;
-    const e = s[i];
+    const on = i < filled;
     cells +=
-      `<circle cx="${cx}" cy="${cy.toFixed(1)}" r="${r}" fill="#fff" stroke="${e ? accent : "#dfe9da"}" stroke-width="2.5"/>` +
-      (e ? `<text x="${cx}" y="${(cy + 6).toFixed(1)}" text-anchor="middle" font-size="19">${e}</text>` : "");
+      `<circle cx="${cx}" cy="${cy.toFixed(1)}" r="${r}" fill="#fff" stroke="${on ? accent : "#dfe9da"}" stroke-width="2.5"/>` +
+      (on ? `<text x="${cx}" y="${(cy + 6).toFixed(1)}" text-anchor="middle" font-size="19">${fillEmoji}</text>` : "");
   }
   return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;display:block"><rect width="${w}" height="${h}" rx="18" fill="#f6fbf4"/>${cells}</svg>`;
 }

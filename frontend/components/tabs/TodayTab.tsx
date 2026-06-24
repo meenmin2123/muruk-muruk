@@ -33,15 +33,12 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
   const pct = all.length ? Math.round((done / all.length) * 100) : 0;
   const C = 188.5;
 
-  const hasGoals = state.dreams.some((d) => d.goals.length);
-  const visible = all.slice(0, 3);
-  const overflow = all.slice(3);
+  const dreamsWithGoals = state.dreams.filter((d) => d.goals.length);
 
   function add() {
     const v = text.trim();
     if (!v) return;
-    if (!goalId) return;
-    actions.addTodo(v, goalId);
+    actions.addTodo(v, goalId || null);
     setText("");
   }
 
@@ -127,62 +124,48 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
               ? "오늘의 나무 · 하나씩 완료하면 열매가 열려요"
               : done >= all.length
               ? "오늘의 나무 · 다 자랐어요 🎉"
-              : `오늘의 나무 · 열매 ${Math.min(done, 10)}개`}
+              : `오늘의 나무 · ${done}/${all.length} 완료`}
           </div>
         </div>
       )}
-
-      <div className="addbar">
-        <input
-          value={text}
-          placeholder="할 일 적기"
-          maxLength={60}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.nativeEvent.isComposing) add();
-          }}
-        />
-        <button onClick={add}>추가</button>
-      </div>
-
-      <select className="goalpick" value={goalId} onChange={(e) => setGoalId(e.target.value)} disabled={!hasGoals}>
-        {!hasGoals ? (
-          <option value="">‘나의 목표’에서 먼저 만들기</option>
-        ) : (
-          <>
-            <option value="">목표 선택</option>
-            {state.dreams
-              .filter((d) => d.goals.length)
-              .map((d) => (
-                <optgroup key={d.id} label={`${d.emoji} ${d.title}`}>
-                  {d.goals.map((g) => (
-                    <option key={g.id} value={g.id}>
-                      {g.title}
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-          </>
-        )}
-      </select>
 
       {all.length === 0 ? (
         <div className="empty">
           오늘 할 일이 없어요.
           <br />
-          ‘나의 목표’에서 <b>+오늘</b>으로 담거나 위에서 바로 추가해요.
+          아래에서 바로 추가하거나 ‘나의 목표’에서 <b>+오늘</b>으로 담아요.
         </div>
       ) : (
-        <>
-          {rows(visible)}
-          {overflow.length > 0 && (
-            <div className="muted" style={{ textAlign: "center", margin: "4px 0 14px" }}>
-              나머지 {overflow.length}개
-            </div>
-          )}
-          {rows(overflow)}
-        </>
+        rows(all)
       )}
+
+      <div className="addbox">
+        <div className="addbar">
+          <input
+            value={text}
+            placeholder="오늘 할 일 적기"
+            maxLength={60}
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.nativeEvent.isComposing) add();
+            }}
+          />
+          <button onClick={add}>추가</button>
+        </div>
+        <select className="goalpick" value={goalId} onChange={(e) => setGoalId(e.target.value)} aria-label="연결할 목표">
+          <option value="">목표 없이 (그냥 오늘 할 일)</option>
+          {dreamsWithGoals.map((d) => (
+            <optgroup key={d.id} label={`${d.emoji} ${d.title}`}>
+              {d.goals.map((g) => (
+                <option key={g.id} value={g.id}>
+                  {g.title}
+                </option>
+              ))}
+            </optgroup>
+          ))}
+        </select>
+        {goalId === "" && <div className="muted addbox-hint">목표를 고르면 그 목표 나무에 스티커가 쌓여요.</div>}
+      </div>
     </section>
   );
 }

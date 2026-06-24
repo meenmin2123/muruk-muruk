@@ -1,6 +1,6 @@
 "use client";
 
-import { AppState, boardCap, totalStickers } from "@/lib/state";
+import { AppState, THEMES, boardCap, totalStickers } from "@/lib/state";
 import { boardSVG, gridBoardSVG, stampSVG } from "@/lib/trees";
 
 export function StickersTab({ state }: { state: AppState }) {
@@ -36,8 +36,9 @@ export function StickersTab({ state }: { state: AppState }) {
           const cap = boardCap(dream);
           const len = dream.stickers?.length ?? 0;
           const gold = len >= cap;
-          // 10칸이면 테마 그림, 그 외엔 격자(도장 카드).
-          const html = cap === 10 ? boardSVG(dream, dream.theme || "tree") : gridBoardSVG(dream, cap, dream.color || "#46b97c");
+          const themeEmoji = THEMES.find((t) => t.key === dream.theme)?.emoji || "🌳";
+          // 10칸이면 테마 그림, 그 외엔 격자(도장 카드) — 채운 칸은 테마 이모지로.
+          const html = cap === 10 ? boardSVG(dream, dream.theme || "tree") : gridBoardSVG(dream, cap, dream.color || "#46b97c", themeEmoji);
           return (
             <div className={"tree-card" + (gold ? " done" : "")} key={dream.id}>
               <div className="tree-title">

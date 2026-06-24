@@ -577,6 +577,15 @@ main {
   color: #fff;
   background: linear-gradient(135deg, var(--primary), var(--primary-d));
 }
+.addbox {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--line);
+}
+.addbox-hint {
+  margin: 7px 2px 0;
+  font-weight: 600;
+}
 .board-cap {
   display: flex;
   align-items: center;
@@ -587,7 +596,7 @@ main {
   font-weight: 700;
   color: var(--muted);
 }
-.board-cap input {
+.board-cap input[type="number"] {
   width: 58px;
   border: 1.5px solid var(--line);
   border-radius: 9px;
@@ -597,6 +606,27 @@ main {
   font-weight: 800;
   color: var(--text);
   text-align: center;
+}
+.board-cap input[type="date"] {
+  border: 1.5px solid var(--primary);
+  border-radius: 9px;
+  padding: 5px 8px;
+  font-family: inherit;
+  font-size: 12.5px;
+  color: var(--text);
+}
+.board-cap .link {
+  border: none;
+  background: none;
+  padding: 2px 4px;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--primary-d);
+  cursor: pointer;
+}
+.board-cap .link:hover {
+  text-decoration: underline;
 }
 .repeat-pick {
   display: flex;

@@ -124,6 +124,8 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
   const [titleVal, setTitleVal] = useState(d.title);
   const [editGoalId, setEditGoalId] = useState("");
   const [goalVal, setGoalVal] = useState("");
+  const [editCap, setEditCap] = useState(false);
+  const [ddayOpen, setDdayOpen] = useState(false);
   const color = d.color || template(d.cat).color;
   const tpl = template(d.cat);
   const linked = state.todos.filter((t) => t.goalId && d.goals.some((g) => g.id === t.goalId));
@@ -133,10 +135,11 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
   const used = d.goals.map((g) => g.title);
   const sugg = (tpl.goals || []).filter((s) => !used.includes(s));
 
-  function addGoal(t: string) {
+  // 직접 입력은 선택한 종류(repeat)를 따르고, 추천/AI 칩은 대부분 한 번짜리라 'once' 기본.
+  function addGoal(t: string, rep: Repeat = repeat) {
     const v = t.trim();
     if (!v) return;
-    actions.addGoal(d.id, v, repeat);
+    actions.addGoal(d.id, v, rep);
     setGoalText("");
   }
 
@@ -188,14 +191,11 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
             </button>
           </>
         )}
-        {!editTitle && tpl.dday &&
-          (dd && d.targetDate ? (
-            <span className="muted" style={{ fontWeight: 800, color }}>
-              {tpl.ddayLabel} {dd}
-            </span>
-          ) : (
-            <input type="date" value={d.targetDate ?? ""} onChange={(e) => actions.setDday(d.id, e.target.value)} style={{ border: "1.5px dashed var(--line)", borderRadius: 9, padding: "4px 8px", fontSize: 11.5 }} />
-          ))}
+        {!editTitle && d.targetDate && (
+          <span className="muted" style={{ fontWeight: 800, color }}>
+            {(tpl.ddayLabel || "디데이") + " "}{dd}
+          </span>
+        )}
         {!editTitle && (
           <button className="x" aria-label="목표 삭제" onClick={() => confirm("이 목표와 할 일을 삭제할까요?") && actions.removeDream(d.id)}>
             ✕
@@ -213,17 +213,21 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
           <div className="board-cap">
             <span>🌳 칭찬판</span>
             {d.targetDate ? (
-              <b style={{ color }}>{boardCap(d)}칸 · 디데이까지 매일 채우기</b>
+              <>
+                <b style={{ color }}>{boardCap(d)}칸 · 디데이까지</b>
+                <button className="link" onClick={() => { actions.setDday(d.id, ""); setDdayOpen(false); }}>디데이 해제</button>
+              </>
+            ) : editCap ? (
+              <>
+                <input type="number" min={1} max={100} autoFocus value={boardCap(d)} onChange={(e) => actions.setBoardSize(d.id, Number(e.target.value))} onBlur={() => setEditCap(false)} />
+                <span>칸</span>
+              </>
+            ) : ddayOpen ? (
+              <input type="date" autoFocus value="" onChange={(e) => { actions.setDday(d.id, e.target.value); setDdayOpen(false); }} />
             ) : (
               <>
-                <input
-                  type="number"
-                  min={1}
-                  max={100}
-                  value={boardCap(d)}
-                  onChange={(e) => actions.setBoardSize(d.id, Number(e.target.value))}
-                />
-                <span>칸 채우면 도장 1개</span>
+                <button className="link" onClick={() => setEditCap(true)}>{boardCap(d)}칸 ✎</button>
+                <button className="link" onClick={() => setDdayOpen(true)}>＋디데이로 자동</button>
               </>
             )}
           </div>
@@ -247,12 +251,13 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
                     }}
                   />
                 ) : (
-                  <span className="g-t" onClick={() => { setEditGoalId(g.id); setGoalVal(g.title); }} title="눌러서 이름 수정">
-                    · {g.title}
-                  </span>
+                  <span className="g-t">· {g.title}</span>
                 )}
                 {editGoalId !== g.id && (
                   <>
+                    <button className="icon-btn" aria-label="할 일 이름 수정" onClick={() => { setEditGoalId(g.id); setGoalVal(g.title); }}>
+                      ✎
+                    </button>
                     <button className={"gt-badge" + (g.repeat === "daily" ? " daily" : "")} onClick={() => actions.toggleGoalRepeat(d.id, g.id)} title="눌러서 '한 번 ↔ 매일' 전환">
                       {g.repeat === "daily" ? "🔁 매일" : "✓ 한 번"}
                     </button>
@@ -277,7 +282,7 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
               <div className="muted" style={{ fontWeight: 700, marginBottom: 7 }}>추천</div>
               <div className="row-wrap">
                 {sugg.map((s) => (
-                  <span key={s} className="chip" onClick={() => addGoal(s)}>
+                  <span key={s} className="chip" onClick={() => addGoal(s, "once")}>
                     + {s}
                   </span>
                 ))}
@@ -290,7 +295,7 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
               <div className="muted" style={{ fontWeight: 700, marginBottom: 7 }}>AI 추천</div>
               <div className="row-wrap">
                 {aiTasks.map((s) => (
-                  <span key={s} className="chip" onClick={() => { addGoal(s); setAiTasks((p) => p.filter((x) => x !== s)); }}>
+                  <span key={s} className="chip" onClick={() => { addGoal(s, "once"); setAiTasks((p) => p.filter((x) => x !== s)); }}>
                     + {s}
                   </span>
                 ))}
