@@ -13,6 +13,9 @@ self.addEventListener("activate", (e) => {
       .keys()
       .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
+      // 새 워커가 잡히면, 열려 있는(옛 캐시로 떠 있던) 화면을 강제로 새로고침해 최신으로 교체.
+      .then(() => self.clients.matchAll({ type: "window" }))
+      .then((clients) => clients.forEach((c) => "navigate" in c && c.navigate(c.url)))
   );
 });
 
