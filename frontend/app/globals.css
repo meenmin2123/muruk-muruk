@@ -342,6 +342,12 @@ main {
   padding: 9px 0;
   border-top: 1px dashed var(--line);
 }
+.goal .check {
+  width: 22px;
+  height: 22px;
+  border-width: 2px;
+  font-size: 12px;
+}
 .goal .g-t {
   flex: 1;
   font-weight: 600;

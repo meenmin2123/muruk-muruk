@@ -15,9 +15,35 @@ import {
   removeSticker,
   streakCount,
   todayStr,
+  Todo,
   uid,
   Repeat,
 } from "./state";
+
+/** todo의 완료 상태를 토글하고 칭찬 스티커(목표 단위)를 적립/회수. 표시할 토스트/골드를 반환. */
+function applyToggle(s: AppState, t: Todo): { toast: string; gold: string | null } {
+  t.done = !t.done;
+  let toast = "";
+  let gold: string | null = null;
+  if (t.done) {
+    s.totalDone++;
+    toast = rand(CHEERS);
+    if (t.goalId) {
+      const found = findGoal(s, t.goalId);
+      if (found) {
+        toast = "🌟 칭찬 스티커를 받았어요!";
+        if (awardSticker(found.dream)) gold = found.dream.title;
+      }
+    }
+  } else {
+    s.totalDone = Math.max(0, s.totalDone - 1);
+    if (t.goalId) {
+      const found = findGoal(s, t.goalId);
+      if (found) removeSticker(found.dream);
+    }
+  }
+  return { toast, gold };
+}
 
 function normalize(data: unknown): AppState {
   const d = (data ?? {}) as Partial<AppState>;
@@ -47,6 +73,7 @@ export interface AppActions {
   addGoal(dreamId: string, title: string, repeat: Repeat): void;
   removeGoal(dreamId: string, goalId: string): void;
   toggleGoalRepeat(dreamId: string, goalId: string): void;
+  toggleGoalDone(goalId: string): void;
   goalToToday(goalId: string): "added" | "exists";
 }
 
@@ -144,24 +171,28 @@ export function useAppState() {
       mutate((s) => {
         const t = s.todos.find((x) => x.id === id);
         if (!t) return;
-        t.done = !t.done;
-        if (t.done) {
-          s.totalDone++;
-          toastMsg = rand(CHEERS);
-          if (t.goalId) {
-            const found = findGoal(s, t.goalId);
-            if (found) {
-              toastMsg = "🌟 칭찬 스티커를 받았어요!";
-              if (awardSticker(found.dream)) goldTitle = found.dream.title;
-            }
-          }
-        } else {
-          s.totalDone = Math.max(0, s.totalDone - 1);
-          if (t.goalId) {
-            const found = findGoal(s, t.goalId);
-            if (found) removeSticker(found.dream);
-          }
+        const r = applyToggle(s, t);
+        toastMsg = r.toast;
+        goldTitle = r.gold;
+      });
+      if (goldTitle) setGold(goldTitle);
+      else if (toastMsg) setToast(toastMsg);
+    },
+    toggleGoalDone(goalId) {
+      let toastMsg = "";
+      let goldTitle: string | null = null;
+      mutate((s) => {
+        const found = findGoal(s, goalId);
+        if (!found) return;
+        // 오늘 이 할 일의 todo가 없으면 만들어서 바로 완료 처리한다.
+        let t = s.todos.find((x) => x.goalId === goalId && x.date === todayStr());
+        if (!t) {
+          t = { id: uid(), text: found.goal.title, date: todayStr(), done: false, goalId };
+          s.todos.push(t);
         }
+        const r = applyToggle(s, t);
+        toastMsg = r.toast;
+        goldTitle = r.gold;
       });
       if (goldTitle) setGold(goldTitle);
       else if (toastMsg) setToast(toastMsg);

@@ -183,16 +183,24 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
 
           {d.goals.map((g) => {
             const added = state.todos.some((t) => t.goalId === g.id && t.date === todayStr());
-            const isDone = g.repeat === "once" && state.todos.some((t) => t.goalId === g.id && t.done);
+            const todayDone = state.todos.some((t) => t.goalId === g.id && t.date === todayStr() && t.done);
             return (
-              <div className={"goal" + (isDone ? " done" : "")} key={g.id}>
-                <span className="g-t">· {g.title}</span>
+              <div className={"goal" + (todayDone ? " done" : "")} key={g.id}>
+                <div
+                  className={"check" + (todayDone ? " done" : "")}
+                  style={!todayDone ? { borderColor: color } : undefined}
+                  onClick={() => actions.toggleGoalDone(g.id)}
+                  title={todayDone ? "완료 취소" : "오늘 완료"}
+                >
+                  {todayDone ? "✓" : ""}
+                </div>
+                <span className="g-t">{g.title}</span>
                 <button className={"gt-badge" + (g.repeat === "daily" ? " daily" : "")} onClick={() => actions.toggleGoalRepeat(d.id, g.id)}>
                   {g.repeat === "daily" ? "매일" : "한 번"}
                 </button>
-                {g.repeat !== "daily" && (
+                {g.repeat !== "daily" && !todayDone && (
                   <button className={"add-today" + (added ? " added" : "")} style={!added ? { background: color } : undefined} onClick={() => actions.goalToToday(g.id)}>
-                    {added ? "추가됨 ✓" : "+ 오늘"}
+                    {added ? "오늘에 있음" : "+ 오늘"}
                   </button>
                 )}
                 <button className="x" onClick={() => actions.removeGoal(d.id, g.id)}>
