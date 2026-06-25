@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { Icon, PICK_ICONS } from "./Icon";
 
 const EMOJIS = [
@@ -22,7 +23,8 @@ export function IconPicker({
   onClose: () => void;
 }) {
   const [tab, setTab] = useState<"icon" | "emoji">("icon");
-  return (
+  if (typeof document === "undefined") return null;
+  return createPortal(
     <div className="modal-bg" onClick={onClose}>
       <div className="iconpicker" onClick={(e) => e.stopPropagation()}>
         <div className="ipick-tabs">
@@ -50,6 +52,7 @@ export function IconPicker({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

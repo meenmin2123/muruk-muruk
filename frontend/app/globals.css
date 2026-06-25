@@ -978,9 +978,12 @@ main > section {
   overflow: hidden;
 }
 .seg button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   border: none;
   background: #fff;
-  padding: 7px 13px;
+  padding: 7px 12px;
   font-size: 13px;
   font-weight: 800;
   color: var(--muted);

@@ -365,8 +365,8 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
             </div>
             <div className="taskadd-opts">
               <div className="seg" role="group" aria-label="할 일 종류">
-                <button className={repeat === "once" ? "on" : ""} onClick={() => setRepeat("once")}>✓ 한 번</button>
-                <button className={repeat === "daily" ? "on" : ""} onClick={() => setRepeat("daily")}>🔁 매일</button>
+                <button className={repeat === "once" ? "on" : ""} onClick={() => setRepeat("once")}><Icon name="once" size={13} color="currentColor" /> 한 번</button>
+                <button className={repeat === "daily" ? "on" : ""} onClick={() => setRepeat("daily")}><Icon name="daily" size={13} color="currentColor" /> 매일</button>
               </div>
               <button className="ai-link" onClick={aiSuggest} disabled={aiLoading}>
                 {aiLoading ? "생각 중…" : <><Icon name="ai" size={14} color="var(--primary-d)" /> AI 추천</>}
