@@ -2,14 +2,17 @@
   --bg: #f3faf1;
   --primary: #46b97c;
   --primary-d: #2e9e63;
-  --primary-soft: #ddf3e4;
+  --primary-soft: #e2f2e8;
   --accent2: #bee89e;
-  --text: #2e3a2f;
-  --muted: #5f7c64;
+  --gold: #e7b53a;
+  --text: #283330;
+  --muted: #6c8470;
   --card: #fff;
-  --line: #e4efe0;
+  --line: #e9f1e6;
   --success: #3fb984;
-  --shadow-sm: 0 1px 2px rgba(46, 58, 47, 0.04), 0 5px 16px -8px rgba(46, 58, 47, 0.12);
+  --radius: 18px;
+  --shadow-sm: 0 1px 2px rgba(40, 58, 46, 0.05), 0 8px 22px -12px rgba(40, 58, 46, 0.16);
+  --shadow-md: 0 2px 8px rgba(40, 58, 46, 0.06), 0 18px 40px -18px rgba(40, 58, 46, 0.24);
 }
 * {
   box-sizing: border-box;
@@ -23,7 +26,10 @@ body {
   background-attachment: fixed;
   color: var(--text);
   line-height: 1.5;
-  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em;
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
 }
 .app {
   max-width: 480px;
@@ -33,9 +39,9 @@ body {
   position: relative;
 }
 header {
-  background: linear-gradient(160deg, #d6f0da 0%, #eaf8e8 60%, var(--bg) 100%);
-  padding: 22px 22px 18px;
-  border-radius: 0 0 30px 30px;
+  background: linear-gradient(165deg, #d3eed9 0%, #e7f5e6 52%, var(--bg) 100%);
+  padding: 24px 22px 20px;
+  border-radius: 0 0 28px 28px;
   position: relative;
 }
 .logo {
@@ -100,6 +106,24 @@ header {
 main {
   padding: 18px 16px 0;
 }
+main > section {
+  animation: fadeup 0.34s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes fadeup {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  main > section {
+    animation: none;
+  }
+}
 .sec-title {
   display: flex;
   align-items: baseline;
@@ -150,7 +174,7 @@ main {
 .btn,
 .addbar button {
   border: none;
-  background: linear-gradient(135deg, var(--primary), var(--primary-d));
+  background: linear-gradient(135deg, #4ec083, var(--primary-d));
   color: #fff;
   font-weight: 800;
   border-radius: 14px;
@@ -158,13 +182,21 @@ main {
   font-size: 15px;
   cursor: pointer;
   font-family: inherit;
+  box-shadow: 0 6px 15px -7px rgba(46, 158, 99, 0.65);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+}
+.btn:active,
+.addbar button:active {
+  transform: translateY(1px);
+  filter: brightness(0.97);
 }
 .btn {
   padding: 12px 18px;
 }
 .btn-soft {
-  background: #e3f1e6;
+  background: var(--primary-soft);
   color: var(--primary-d);
+  box-shadow: none;
 }
 .goalpick {
   width: 100%;
@@ -267,9 +299,9 @@ main {
   font-weight: 600;
 }
 .dream {
-  background: var(--card);
-  border-radius: 20px;
-  padding: 16px;
+  background: linear-gradient(180deg, #ffffff 0%, #fcfdfb 100%);
+  border-radius: 22px;
+  padding: 17px;
   margin-bottom: 14px;
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--line);
@@ -754,11 +786,16 @@ main {
   font-weight: 700;
   cursor: pointer;
   color: var(--text);
+  transition: transform 0.1s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.chip:active {
+  transform: scale(0.95);
 }
 .chip.on {
-  background: linear-gradient(135deg, var(--primary), var(--primary-d));
+  background: linear-gradient(135deg, #4ec083, var(--primary-d));
   color: #fff;
   border-color: transparent;
+  box-shadow: 0 5px 13px -6px rgba(46, 158, 99, 0.6);
 }
 .row-wrap {
   display: flex;
@@ -955,9 +992,9 @@ main {
 }
 .recard {
   flex: 1;
-  background: var(--card);
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdfa 100%);
   border-radius: 18px;
-  padding: 15px 12px;
+  padding: 16px 12px;
   text-align: center;
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--line);
@@ -1080,18 +1117,34 @@ nav button {
   cursor: pointer;
   color: var(--muted);
   font-family: inherit;
+  transition: color 0.18s ease;
 }
 nav button .ni {
-  font-size: 21px;
-  display: block;
+  font-size: 20px;
+  width: 46px;
+  height: 30px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 13px;
+  transition: background 0.2s ease, transform 0.2s ease;
 }
 nav button .nl {
   font-size: 11px;
   font-weight: 700;
-  margin-top: 2px;
+  margin-top: 3px;
+  transition: font-weight 0.15s ease;
 }
 nav button.on {
-  color: var(--primary);
+  color: var(--primary-d);
+}
+nav button.on .ni {
+  background: var(--primary-soft);
+  transform: translateY(-1px);
+}
+nav button.on .nl {
+  font-weight: 800;
 }
 .toast {
   position: fixed;
@@ -1159,9 +1212,10 @@ nav button.on {
 .card {
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: var(--radius);
   padding: 16px;
   margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
 }
 .sheet-bg {
   position: fixed;

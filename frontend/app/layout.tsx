@@ -25,6 +25,9 @@ export const viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
+      <head>
+        <link rel="stylesheet" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" />
+      </head>
       <body>
         {/* 구글 로그인(GIS) 스크립트 */}
         <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
