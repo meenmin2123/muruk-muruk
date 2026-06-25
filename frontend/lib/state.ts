@@ -18,6 +18,8 @@ export interface Dream {
   targetDate: string | null;
   collapsed?: boolean;
   goals: Goal[];
+  // 사용자가 직접 고른 아이콘(아이콘 이름) 또는 이모지. 없으면 카테고리 기본/emoji 사용.
+  icon?: string;
   // 칭찬판은 목표(꿈) 단위 — 이 목표의 할 일을 완료할 때마다 스티커가 쌓인다.
   stickers?: string[];
   earned?: number;

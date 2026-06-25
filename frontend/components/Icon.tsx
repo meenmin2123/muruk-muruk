@@ -42,7 +42,32 @@ const ICONS: Record<string, { filled?: boolean; render: (c: string) => string }>
   back: { render: () => `<polyline points="14,6 8,12 14,18" fill="none"/>` },
   flip: { render: () => `<path d="M18.5 12 A6.5 6.5 0 1 0 16.5 16.8" fill="none"/><polyline points="18.7,7.5 18.9,12 14.4,11.6" fill="none"/>` },
   calendar: { render: () => `<rect x="4" y="5.5" width="16" height="15" rx="2.6"/><line x1="4" y1="9.7" x2="20" y2="9.7"/><line x1="8" y1="3.5" x2="8" y2="6.6"/><line x1="16" y1="3.5" x2="16" y2="6.6"/>` },
+
+  // ── 추가 픽 가능 아이콘 (통통) ──
+  star: { filled: true, render: (c) => `<path d="M12 3 L14.6 9.2 L21.2 9.7 L16.2 14 L17.8 20.5 L12 16.9 L6.2 20.5 L7.8 14 L2.8 9.7 L9.4 9.2 Z" fill="${c}"/>` },
+  music: { filled: true, render: (c) => `<ellipse cx="8" cy="17" rx="3" ry="2.4" fill="${c}"/><rect x="10.4" y="5.5" width="2" height="11" fill="${c}"/><path d="M10.4 5.5 L18 3.8 V7 L12.4 8.4 Z" fill="${c}"/>` },
+  coffee: { filled: true, render: (c) => `<path d="M5 8.5 H16.5 V14 a4 4 0 0 1 -4 4 H9 a4 4 0 0 1 -4 -4 Z" fill="${c}"/><path d="M16.5 9.5 H18.5 a2 2 0 0 1 0 4 H16.5" fill="none" stroke="${c}" stroke-width="2"/><rect x="7" y="3.5" width="1.6" height="3" rx="0.8" fill="${c}"/><rect x="11" y="3.5" width="1.6" height="3" rx="0.8" fill="${c}"/><rect x="5" y="19" width="11.5" height="2" rx="1" fill="${c}"/>` },
+  dumbbell: { filled: true, render: (c) => `<rect x="2.4" y="9.4" width="3" height="5.2" rx="1" fill="${c}"/><rect x="5.4" y="10.8" width="2" height="2.4" fill="${c}"/><rect x="7.4" y="10.5" width="9.2" height="3" fill="${c}"/><rect x="16.6" y="10.8" width="2" height="2.4" fill="${c}"/><rect x="18.6" y="9.4" width="3" height="5.2" rx="1" fill="${c}"/>` },
+  gift: { filled: true, render: (c) => `<rect x="4" y="9.5" width="16" height="11" rx="1.6" fill="${c}"/><rect x="3" y="7" width="18" height="3.8" rx="1.2" fill="${c}"/><rect x="11" y="7" width="2" height="13.5" fill="#fff"/><path d="M12 7 C 9.5 3, 6 4.5, 8.5 7 Z M12 7 C 14.5 3, 18 4.5, 15.5 7 Z" fill="${c}"/>` },
+  home: { filled: true, render: (c) => `<path d="M3.5 11.5 L12 4 L20.5 11.5" fill="none" stroke="${c}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10 V20 H18 V10 L12 5 Z" fill="${c}"/><rect x="10.2" y="14" width="3.6" height="6" fill="#fff"/>` },
+  leaf: { filled: true, render: (c) => `<path d="M5 19 C 3.5 9.5, 11 4, 20 5 C 20.5 14.5, 14 20.5, 5 19 Z" fill="${c}"/><path d="M8.5 16 C 12 12, 15 10, 18.5 8.2" stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round"/>` },
+  moon: { filled: true, render: (c) => `<path d="M20.5 14.8 A8.7 8.7 0 1 1 9.8 4 A6.8 6.8 0 0 0 20.5 14.8 Z" fill="${c}"/>` },
+  bolt: { filled: true, render: (c) => `<path d="M13.2 2 L5 13 H11 L9.8 22 L19 9.5 H12.6 Z" fill="${c}"/>` },
+  pin: { filled: true, render: (c) => `<path d="M12 22 C 7 15, 5 12, 5 8.5 a7 7 0 0 1 14 0 C 19 12, 17 15, 12 22 Z" fill="${c}"/><circle cx="12" cy="8.5" r="2.6" fill="#fff"/>` },
+  camera: { filled: true, render: (c) => `<rect x="3" y="7.5" width="18" height="12" rx="2.6" fill="${c}"/><path d="M8.5 7.5 L9.8 5.4 H14.2 L15.5 7.5 Z" fill="${c}"/><circle cx="12" cy="13.6" r="3.4" fill="#fff"/><circle cx="12" cy="13.6" r="1.7" fill="${c}"/>` },
 };
+
+/** 아이콘 피커에 노출할 아이콘 목록. */
+export const PICK_ICONS = [
+  "goal", "sprout", "star", "cat_health", "cat_happy", "leaf",
+  "cat_travel", "cat_study", "cat_cert", "cat_job", "cat_career", "cat_free",
+  "streak", "best", "today", "moon", "bolt", "music",
+  "coffee", "dumbbell", "gift", "home", "pin", "camera",
+];
+
+export function hasIcon(name: string): boolean {
+  return Object.prototype.hasOwnProperty.call(ICONS, name);
+}
 
 /** 카테고리 키 → 아이콘 이름. 커스텀(또는 매핑 없음)이면 null → 이모지로 폴백. */
 export function catIconName(cat: string): string | null {

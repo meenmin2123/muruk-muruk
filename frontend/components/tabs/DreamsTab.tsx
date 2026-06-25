@@ -5,7 +5,8 @@ import { api } from "@/lib/api";
 import type { AppActions } from "@/lib/store";
 import { AppState, CAT_ORDER, Dream, PALETTE, Repeat, TEMPLATES, THEMES, boardCap, ddayText, template, todayStr } from "@/lib/state";
 import { boardSVG, gridBoardSVG, stampSVG } from "@/lib/trees";
-import { Icon, catIconName } from "../Icon";
+import { Icon, catIconName, hasIcon } from "../Icon";
+import { IconPicker } from "../IconPicker";
 
 interface CatMeta {
   key: string;
@@ -138,6 +139,7 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
   const [editGoalId, setEditGoalId] = useState("");
   const [goalVal, setGoalVal] = useState("");
   const [ddayOpen, setDdayOpen] = useState(false);
+  const [iconOpen, setIconOpen] = useState(false);
   const [flipped, setFlipped] = useState(false);
   const frontRef = useRef<HTMLDivElement>(null);
   const backRef = useRef<HTMLDivElement>(null);
@@ -207,9 +209,15 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
         <div className="flip-face flip-front" ref={frontRef} aria-hidden={flipped}>
           <div className="dream">
       <div className="dream-h">
-        <span className="dream-emoji" style={{ background: color + "22" }} onClick={() => actions.toggleCollapse(d.id)}>
-          {catIconName(d.cat) ? <Icon name={catIconName(d.cat)!} size={20} color={color} /> : d.emoji}
+        <span className="dream-emoji" style={{ background: color + "22" }} onClick={() => setIconOpen(true)} title="아이콘 변경">
+          {(() => {
+            const v = d.icon || catIconName(d.cat) || d.emoji || "🎯";
+            return hasIcon(v) ? <Icon name={v} size={20} color={color} /> : <span>{v}</span>;
+          })()}
         </span>
+        {iconOpen && (
+          <IconPicker color={color} onClose={() => setIconOpen(false)} onPick={(v) => { actions.setDreamIcon(d.id, v); setIconOpen(false); }} />
+        )}
         {editTitle ? (
           <input
             className="rename-input t"

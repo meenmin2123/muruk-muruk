@@ -451,6 +451,72 @@ main > section {
   word-break: break-all;
   margin: 0;
 }
+.iconpicker {
+  background: #fff;
+  border-radius: 22px;
+  width: 100%;
+  max-width: 360px;
+  max-height: 72vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+.ipick-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+}
+.ipick-tabs button {
+  border: none;
+  background: none;
+  font-weight: 800;
+  font-size: 14.5px;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: inherit;
+  padding: 5px 10px;
+  border-radius: 10px;
+}
+.ipick-tabs button.on {
+  color: var(--primary-d);
+  background: var(--primary-soft);
+}
+.ipick-x {
+  margin-left: auto;
+  display: inline-flex;
+  color: var(--muted);
+}
+.ipick-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+  padding: 14px;
+  overflow-y: auto;
+}
+.ipick-grid.emoji {
+  grid-template-columns: repeat(7, 1fr);
+}
+.ipick-cell {
+  aspect-ratio: 1;
+  border: none;
+  background: #f5faf3;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 20px;
+  transition: background 0.12s ease, transform 0.1s ease;
+}
+.ipick-cell:hover {
+  background: var(--primary-soft);
+}
+.ipick-cell:active {
+  transform: scale(0.92);
+}
 .errwrap {
   max-width: 480px;
   margin: 0 auto;

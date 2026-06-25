@@ -73,6 +73,7 @@ export interface AppActions {
   replaceState(s: AppState): void;
   toggleCollapse(id: string): void;
   setDday(id: string, date: string | null): void;
+  setDreamIcon(id: string, icon: string): void;
   addGoal(dreamId: string, title: string, repeat: Repeat): void;
   removeGoal(dreamId: string, goalId: string): void;
   toggleGoalRepeat(dreamId: string, goalId: string): void;
@@ -278,6 +279,12 @@ export function useAppState() {
         d.targetDate = date || null;
         // 디데이가 있으면 남은 날짜 수를 칭찬판 칸 수로 자동 설정(설정 시점 기준 고정).
         if (d.targetDate) d.boardSize = Math.min(100, Math.max(1, daysUntil(d.targetDate)));
+      });
+    },
+    setDreamIcon(id, icon) {
+      mutate((s) => {
+        const d = s.dreams.find((x) => x.id === id);
+        if (d) d.icon = icon;
       });
     },
     addGoal(dreamId, title, repeat) {
