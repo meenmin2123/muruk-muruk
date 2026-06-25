@@ -4,16 +4,26 @@ import type { StickerBoard } from "./state";
 type Goal = StickerBoard;
 const stk = (g: Goal) => g.stickers ?? [];
 
+const TREE_SCENE = `<rect width="304" height="250" fill="#CDEAF8"/><rect x="0" y="214" width="304" height="36" fill="#A6D67E"/><ellipse cx="152" cy="214" rx="118" ry="13" fill="#93C96A"/><rect x="140" y="160" width="24" height="60" rx="10" fill="#A06E45" stroke="#6E4A2C" stroke-width="2"/><circle cx="100" cy="100" r="42" fill="#6FBF74"/><circle cx="204" cy="100" r="42" fill="#6FBF74"/><circle cx="126" cy="64" r="38" fill="#7ECB82"/><circle cx="178" cy="64" r="38" fill="#7ECB82"/><circle cx="152" cy="104" r="62" fill="#74C57A"/><circle cx="90" cy="132" r="5.5" fill="#E0463E"/><circle cx="216" cy="120" r="5.5" fill="#E0463E"/>`;
+const TREE_SLOTS = [[120, 72], [152, 68], [184, 72], [104, 108], [136, 106], [168, 106], [200, 108], [120, 144], [152, 148], [184, 144]];
+
 export function treeSVG(g: Goal): string {
   const s = stk(g);
-  const slots = [[120, 72], [152, 68], [184, 72], [104, 108], [136, 106], [168, 106], [200, 108], [120, 144], [152, 148], [184, 144]];
-  const fill = slots
-    .map((p, i) => {
-      const e = s[i];
-      return `<circle cx="${p[0]}" cy="${p[1]}" r="15.5" fill="#fff" stroke="#BFE0A8" stroke-width="2"/>` + (e ? `<text x="${p[0]}" y="${p[1] + 6}" text-anchor="middle" font-size="18">${e}</text>` : "");
-    })
+  const fill = TREE_SLOTS.map((p, i) => {
+    const e = s[i];
+    return `<circle cx="${p[0]}" cy="${p[1]}" r="15.5" fill="#fff" stroke="#BFE0A8" stroke-width="2"/>` + (e ? `<text x="${p[0]}" y="${p[1] + 6}" text-anchor="middle" font-size="18">${e}</text>` : "");
+  }).join("");
+  return `<svg viewBox="0 0 304 250" style="width:100%;display:block">${TREE_SCENE}${fill}</svg>`;
+}
+
+/** 오늘의 나무 — 오늘 할 일 개수(total)만큼만 칸을 그리고 완료한(done)만큼 🍎로 채운다. total 0이면 칸 없이 나무만. */
+export function todayTreeSVG(done: number, total: number): string {
+  const n = Math.min(10, Math.max(0, total));
+  const filled = Math.min(Math.max(0, done), n);
+  const fill = TREE_SLOTS.slice(0, n)
+    .map((p, i) => `<circle cx="${p[0]}" cy="${p[1]}" r="15.5" fill="#fff" stroke="#BFE0A8" stroke-width="2"/>` + (i < filled ? `<text x="${p[0]}" y="${p[1] + 6}" text-anchor="middle" font-size="18">🍎</text>` : ""))
     .join("");
-  return `<svg viewBox="0 0 304 250" style="width:100%;display:block"><rect width="304" height="250" fill="#CDEAF8"/><rect x="0" y="214" width="304" height="36" fill="#A6D67E"/><ellipse cx="152" cy="214" rx="118" ry="13" fill="#93C96A"/><rect x="140" y="160" width="24" height="60" rx="10" fill="#A06E45" stroke="#6E4A2C" stroke-width="2"/><circle cx="100" cy="100" r="42" fill="#6FBF74"/><circle cx="204" cy="100" r="42" fill="#6FBF74"/><circle cx="126" cy="64" r="38" fill="#7ECB82"/><circle cx="178" cy="64" r="38" fill="#7ECB82"/><circle cx="152" cy="104" r="62" fill="#74C57A"/><circle cx="90" cy="132" r="5.5" fill="#E0463E"/><circle cx="216" cy="120" r="5.5" fill="#E0463E"/>${fill}</svg>`;
+  return `<svg viewBox="0 0 304 250" style="width:100%;display:block">${TREE_SCENE}${fill}</svg>`;
 }
 
 function starPts(cx: number, cy: number, r: number): string {

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { api } from "@/lib/api";
 import type { AppActions } from "@/lib/store";
 import { AppState, daysSinceLastDone, findGoal, todayStr } from "@/lib/state";
-import { treeSVG } from "@/lib/trees";
+import { todayTreeSVG } from "@/lib/trees";
 
 export function TodayTab({ state, actions }: { state: AppState; actions: AppActions }) {
   const [text, setText] = useState("");
@@ -94,7 +94,7 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
       )}
 
       <div className="today-tree">
-        <div dangerouslySetInnerHTML={{ __html: treeSVG({ stickers: Array.from({ length: Math.min(done, 10) }, () => "🍎") }) }} />
+        <div dangerouslySetInnerHTML={{ __html: todayTreeSVG(done, all.length) }} />
         <div className="today-tree-cap">
           {all.length === 0
             ? "오늘의 나무 · 할 일을 더하면 자라기 시작해요"
