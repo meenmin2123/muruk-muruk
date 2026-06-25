@@ -3,7 +3,7 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import type { AppActions } from "@/lib/store";
-import { AppState, CAT_ORDER, Dream, PALETTE, Repeat, TEMPLATES, THEMES, boardCap, ddayText, template, todayStr } from "@/lib/state";
+import { AppState, CAT_ORDER, Dream, PALETTE, Repeat, TEMPLATES, THEMES, boardCap, dateStr, ddayText, template, todayStr } from "@/lib/state";
 import { boardSVG, gridBoardSVG, stampSVG } from "@/lib/trees";
 import { Icon, catIconName, hasIcon } from "../Icon";
 import { IconPicker } from "../IconPicker";
@@ -153,6 +153,14 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
   const used = d.goals.map((g) => g.title);
   const sugg = (tpl.goals || []).filter((s) => !used.includes(s));
 
+  // 날짜별 완료 스트립(최근 7일)
+  const WD = ["일", "월", "화", "수", "목", "금", "토"];
+  const last7 = Array.from({ length: 7 }, (_, i) => {
+    const dt = new Date();
+    dt.setDate(dt.getDate() - (6 - i));
+    return dt;
+  });
+
   // 뒤집힌 면(칭찬판) 렌더 정보
   const cap = boardCap(d);
   const boardLen = d.stickers?.length ?? 0;
@@ -277,53 +285,76 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
             ) : (
               <>
                 <b style={{ color }}>{boardCap(d)}칸</b>
-                <span>· 할 일 추가할 때마다 한 칸씩</span>
+                <span>· 완료할 때마다 한 칸씩</span>
                 <button className="link" onClick={() => setDdayOpen(true)}>＋디데이로 자동</button>
               </>
             )}
           </div>
 
           {d.goals.map((g) => {
-            const added = state.todos.some((t) => t.goalId === g.id && t.date === todayStr());
-            const isDone = g.repeat === "once" && state.todos.some((t) => t.goalId === g.id && t.done);
+            const onceDone = state.todos.some((t) => t.goalId === g.id && t.done);
             return (
-              <div className={"goal" + (isDone ? " done" : "")} key={g.id}>
-                {editGoalId === g.id ? (
-                  <input
-                    className="rename-input g-t"
-                    value={goalVal}
-                    autoFocus
-                    maxLength={40}
-                    onChange={(e) => setGoalVal(e.target.value)}
-                    onBlur={() => { actions.renameGoal(d.id, g.id, goalVal); setEditGoalId(""); }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.nativeEvent.isComposing) { actions.renameGoal(d.id, g.id, goalVal); setEditGoalId(""); }
-                      if (e.key === "Escape") setEditGoalId("");
-                    }}
-                  />
-                ) : (
-                  <span className="g-t">· {g.title}</span>
-                )}
-                {editGoalId !== g.id && (
-                  <>
-                    <button className="icon-btn" aria-label="할 일 이름 수정" onClick={() => { setEditGoalId(g.id); setGoalVal(g.title); }}>
-                      <Icon name="edit" size={14} />
-                    </button>
-                    <button className={"gt-badge" + (g.repeat === "daily" ? " daily" : "")} onClick={() => actions.toggleGoalRepeat(d.id, g.id)} title="눌러서 '한 번 ↔ 매일' 전환">
-                      <Icon name={g.repeat === "daily" ? "daily" : "once"} size={13} color="currentColor" /> {g.repeat === "daily" ? "매일" : "한 번"}
-                    </button>
-                    {g.repeat === "daily" ? (
-                      <span className="add-today added" style={{ cursor: "default" }}>오늘에 있음</span>
-                    ) : (
-                      <button className={"add-today" + (added ? " added" : "")} style={!added ? { background: color } : undefined} onClick={() => actions.goalToToday(g.id)}>
-                        {added ? "오늘에 있음" : "+ 오늘"}
+              <div className="goalblock" key={g.id}>
+                <div className={"goal" + (g.repeat === "once" && onceDone ? " done" : "")}>
+                  {editGoalId === g.id ? (
+                    <input
+                      className="rename-input g-t"
+                      value={goalVal}
+                      autoFocus
+                      maxLength={40}
+                      onChange={(e) => setGoalVal(e.target.value)}
+                      onBlur={() => { actions.renameGoal(d.id, g.id, goalVal); setEditGoalId(""); }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.nativeEvent.isComposing) { actions.renameGoal(d.id, g.id, goalVal); setEditGoalId(""); }
+                        if (e.key === "Escape") setEditGoalId("");
+                      }}
+                    />
+                  ) : (
+                    <span className="g-t">· {g.title}</span>
+                  )}
+                  {editGoalId !== g.id && (
+                    <>
+                      <button className="icon-btn" aria-label="할 일 이름 수정" onClick={() => { setEditGoalId(g.id); setGoalVal(g.title); }}>
+                        <Icon name="edit" size={14} />
                       </button>
-                    )}
-                    <button className="x" aria-label="할 일 삭제" onClick={() => actions.removeGoal(d.id, g.id)}>
-                      <Icon name="close" size={14} />
-                    </button>
-                  </>
-                )}
+                      <button className={"gt-badge" + (g.repeat === "daily" ? " daily" : "")} onClick={() => actions.toggleGoalRepeat(d.id, g.id)} title="눌러서 '한 번 ↔ 매일' 전환">
+                        <Icon name={g.repeat === "daily" ? "daily" : "once"} size={13} color="currentColor" /> {g.repeat === "daily" ? "매일" : "한 번"}
+                      </button>
+                      <button className="x" aria-label="할 일 삭제" onClick={() => actions.removeGoal(d.id, g.id)}>
+                        <Icon name="close" size={14} />
+                      </button>
+                    </>
+                  )}
+                </div>
+                {editGoalId !== g.id && (g.repeat === "daily" ? (
+                  <div className="goal-week">
+                    {last7.map((dt) => {
+                      const ds = dateStr(dt);
+                      const done = state.todos.some((t) => t.goalId === g.id && t.date === ds && t.done);
+                      const isToday = ds === todayStr();
+                      return (
+                        <button
+                          key={ds}
+                          className={"daydot" + (done ? " on" : "") + (isToday ? " today" : "")}
+                          style={done ? { background: color, borderColor: color } : undefined}
+                          onClick={() => actions.toggleGoalDay(g.id, ds)}
+                          aria-label={`${ds} ${done ? "완료 취소" : "완료"}`}
+                        >
+                          <span className="dd-w">{WD[dt.getDay()]}</span>
+                          <span className="dd-n">{dt.getDate()}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <button
+                    className={"goal-onecheck" + (onceDone ? " on" : "")}
+                    style={onceDone ? { background: color, borderColor: color } : undefined}
+                    onClick={() => actions.toggleGoalDay(g.id, todayStr())}
+                  >
+                    {onceDone ? <><Icon name="check" size={14} color="#fff" /> 완료함</> : "완료하기"}
+                  </button>
+                ))}
               </div>
             );
           })}

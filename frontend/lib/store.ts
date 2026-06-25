@@ -80,7 +80,7 @@ export interface AppActions {
   renameDream(dreamId: string, title: string): void;
   renameGoal(dreamId: string, goalId: string, title: string): void;
   updateSettings(patch: Record<string, unknown>): void;
-  goalToToday(goalId: string): "added" | "exists";
+  toggleGoalDay(goalId: string, date: string): void;
 }
 
 export function useAppState() {
@@ -343,15 +343,23 @@ export function useAppState() {
         s.settings = { ...s.settings, ...patch };
       });
     },
-    goalToToday(goalId) {
-      const cur = stateRef.current;
-      if (cur && cur.todos.some((t) => t.goalId === goalId && t.date === todayStr())) return "exists";
+    toggleGoalDay(goalId, date) {
+      let toastMsg = "";
+      let goldTitle: string | null = null;
       mutate((s) => {
         const found = findGoal(s, goalId);
-        if (found) s.todos.push({ id: uid(), text: found.goal.title, date: todayStr(), done: false, goalId });
+        if (!found) return;
+        let t = s.todos.find((x) => x.goalId === goalId && x.date === date);
+        if (!t) {
+          t = { id: uid(), text: found.goal.title, date, done: false, goalId };
+          s.todos.push(t);
+        }
+        const r = applyToggle(s, t);
+        toastMsg = r.toast;
+        goldTitle = r.gold;
       });
-      setToast("오늘 할 일에 추가했어요 ☀️");
-      return "added";
+      if (goldTitle) setGold(goldTitle);
+      else if (toastMsg) setToast(toastMsg);
     },
   };
 
