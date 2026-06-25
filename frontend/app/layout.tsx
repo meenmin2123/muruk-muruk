@@ -4,7 +4,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "무럭무럭",
-  description: "작심삼일도, 꾸준히 하면 됩니다 🌿",
+  description: "목표와 할 일을 관리하는 습관 앱",
   manifest: "/manifest.json",
   appleWebApp: { capable: true, statusBarStyle: "default", title: "무럭무럭" },
   icons: {

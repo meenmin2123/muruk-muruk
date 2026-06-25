@@ -47,9 +47,8 @@ export function LoginGate({ onLogin }: { onLogin: () => void }) {
       <h1 className="login-title">
         무럭무럭<span style={{ color: "var(--primary)" }}>.</span>
       </h1>
-      <p className="login-tagline">작심삼일도, 꾸준히 하면 됩니다 🌿</p>
 
-      <div className="login-features">
+      <div className="login-features" style={{ marginTop: 14 }}>
         <span>🌱 작은 목표</span>
         <span>✅ 매일 체크</span>
         <span>🌳 자라는 나무</span>
