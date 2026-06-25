@@ -57,9 +57,6 @@ export function DreamsTab({ state, actions }: { state: AppState; actions: AppAct
       <div className="sec-title">
         <h2>나의 목표</h2>
       </div>
-      <p className="muted" style={{ margin: "-4px 2px 12px", fontSize: 12.5, lineHeight: 1.5 }}>
-        큰 목표와 할 일을 <b>계획</b>하는 곳이에요. 오늘 할 건 <b>+오늘</b>으로 담고, 완료 체크는 <b>오늘 할 일</b> 탭에서 해요.
-      </p>
 
       <button className="newdream-btn" onClick={() => setOpen((o) => !o)}>
         {open ? "닫기" : <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Icon name="add" size={16} color="var(--primary-d)" /> 새 목표</span>}
@@ -249,11 +246,6 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
             </button>
           </>
         )}
-        {!editTitle && d.targetDate && (
-          <span className="muted" style={{ fontWeight: 800, color }}>
-            {(tpl.ddayLabel || "디데이") + " "}{dd}
-          </span>
-        )}
         {!editTitle && (
           <button className="icon-btn flipbtn" aria-label="칭찬판 보기" onClick={() => setFlipped(true)}>
             <Icon name="flip" size={17} />
@@ -273,23 +265,20 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
           </div>
           <div className="progress-l">{linked.length ? `${doneN}/${linked.length} · ${pct}%` : ""}</div>
 
-          <div className="board-cap">
-            <span>🌳 칭찬판</span>
-            {d.targetDate ? (
-              <>
-                <b style={{ color }}>{boardCap(d)}칸 · 디데이까지</b>
-                <button className="link" onClick={() => actions.setDday(d.id, "")}>디데이 해제</button>
-              </>
-            ) : ddayOpen ? (
+          {d.targetDate ? (
+            <div className="dday-line">
+              <Icon name="calendar" size={13} color={color} />
+              <b style={{ color }}>{(tpl.ddayLabel || "디데이")} {dd}</b>
+              <button className="link" onClick={() => actions.setDday(d.id, "")}>해제</button>
+            </div>
+          ) : ddayOpen ? (
+            <div className="dday-line">
               <input type="date" autoFocus value="" onChange={(e) => { actions.setDday(d.id, e.target.value); setDdayOpen(false); }} />
-            ) : (
-              <>
-                <b style={{ color }}>{boardCap(d)}칸</b>
-                <span>· 완료할 때마다 한 칸씩</span>
-                <button className="link" onClick={() => setDdayOpen(true)}>＋디데이로 자동</button>
-              </>
-            )}
-          </div>
+              <button className="link" onClick={() => setDdayOpen(false)}>취소</button>
+            </div>
+          ) : (
+            <button className="link dday-add" onClick={() => setDdayOpen(true)}>＋ 디데이 설정</button>
+          )}
 
           {d.goals.map((g) => {
             const onceDone = state.todos.some((t) => t.goalId === g.id && t.done);
@@ -310,13 +299,10 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
                       }}
                     />
                   ) : (
-                    <span className="g-t">· {g.title}</span>
+                    <span className="g-t" onClick={() => { setEditGoalId(g.id); setGoalVal(g.title); }} title="눌러서 이름 수정">{g.title}</span>
                   )}
                   {editGoalId !== g.id && (
                     <>
-                      <button className="icon-btn" aria-label="할 일 이름 수정" onClick={() => { setEditGoalId(g.id); setGoalVal(g.title); }}>
-                        <Icon name="edit" size={14} />
-                      </button>
                       <button className={"gt-badge" + (g.repeat === "daily" ? " daily" : "")} onClick={() => actions.toggleGoalRepeat(d.id, g.id)} title="눌러서 '한 번 ↔ 매일' 전환">
                         <Icon name={g.repeat === "daily" ? "daily" : "once"} size={13} color="currentColor" /> {g.repeat === "daily" ? "매일" : "한 번"}
                       </button>
@@ -403,7 +389,6 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
                 {aiLoading ? "생각 중…" : <><Icon name="ai" size={14} color="var(--primary-d)" /> AI 추천</>}
               </button>
             </div>
-            <div className="taskadd-help">한 번 = 하면 끝 · 매일 = 매일 자동으로 떠요</div>
           </div>
         </>
       )}
