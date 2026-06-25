@@ -7,9 +7,10 @@ const stk = (g: Goal) => g.stickers ?? [];
 const TREE_SCENE = `<rect width="304" height="250" fill="#CDEAF8"/><rect x="0" y="214" width="304" height="36" fill="#A6D67E"/><ellipse cx="152" cy="214" rx="118" ry="13" fill="#93C96A"/><rect x="140" y="160" width="24" height="60" rx="10" fill="#A06E45" stroke="#6E4A2C" stroke-width="2"/><circle cx="100" cy="100" r="42" fill="#6FBF74"/><circle cx="204" cy="100" r="42" fill="#6FBF74"/><circle cx="126" cy="64" r="38" fill="#7ECB82"/><circle cx="178" cy="64" r="38" fill="#7ECB82"/><circle cx="152" cy="104" r="62" fill="#74C57A"/><circle cx="90" cy="132" r="5.5" fill="#E0463E"/><circle cx="216" cy="120" r="5.5" fill="#E0463E"/>`;
 const TREE_SLOTS = [[120, 72], [152, 68], [184, 72], [104, 108], [136, 106], [168, 106], [200, 108], [120, 144], [152, 148], [184, 144]];
 
-export function treeSVG(g: Goal): string {
+export function treeSVG(g: Goal, cap = 10): string {
   const s = stk(g);
-  const fill = TREE_SLOTS.map((p, i) => {
+  const c = Math.min(10, Math.max(1, Math.round(cap)));
+  const fill = TREE_SLOTS.slice(0, c).map((p, i) => {
     const e = s[i];
     return `<circle cx="${p[0]}" cy="${p[1]}" r="15.5" fill="#fff" stroke="#BFE0A8" stroke-width="2"/>` + (e ? `<text x="${p[0]}" y="${p[1] + 6}" text-anchor="middle" font-size="18">${e}</text>` : "");
   }).join("");
@@ -36,9 +37,10 @@ function starPts(cx: number, cy: number, r: number): string {
   return d + "Z";
 }
 
-export function grapeSVG(g: Goal): string {
+export function grapeSVG(g: Goal, cap = 10): string {
   const n = stk(g).length;
-  const pos = [[104, 92], [138, 92], [172, 92], [206, 92], [121, 122], [155, 122], [189, 122], [138, 152], [172, 152], [155, 182]];
+  const c = Math.min(10, Math.max(1, Math.round(cap)));
+  const pos = [[104, 92], [138, 92], [172, 92], [206, 92], [121, 122], [155, 122], [189, 122], [138, 152], [172, 152], [155, 182]].slice(0, c);
   const grapes = pos
     .map((p, i) => {
       const f = i < n;
@@ -48,16 +50,18 @@ export function grapeSVG(g: Goal): string {
   return `<svg viewBox="0 0 304 220" style="width:100%;display:block"><rect width="304" height="220" fill="#F2ECFB"/><path d="M155,74 C150,58 150,50 158,44" fill="none" stroke="#7A5B36" stroke-width="4" stroke-linecap="round"/><ellipse cx="176" cy="50" rx="16" ry="9" fill="#6FB46F" stroke="#4E9D5E" stroke-width="2" transform="rotate(20 176 50)"/>${grapes}</svg>`;
 }
 
-export function starSVG(g: Goal): string {
+export function starSVG(g: Goal, cap = 10): string {
   const n = stk(g).length;
-  const pos = [[52, 82], [108, 82], [164, 82], [220, 82], [276, 82], [276, 166], [220, 166], [164, 166], [108, 166], [52, 166]];
+  const c = Math.min(10, Math.max(1, Math.round(cap)));
+  const pos = [[52, 82], [108, 82], [164, 82], [220, 82], [276, 82], [276, 166], [220, 166], [164, 166], [108, 166], [52, 166]].slice(0, c);
   const stars = pos.map((p, i) => `<path d="${starPts(p[0], p[1], 16)}" fill="${i < n ? "#FFC83D" : "#fff"}" stroke="${i < n ? "#E0A11F" : "#E3D6C2"}" stroke-width="2" stroke-linejoin="round"/>`).join("");
   return `<svg viewBox="0 0 304 210" style="width:100%;display:block"><rect width="304" height="210" fill="#FFF7EC"/><path d="M52,82 H276 V166 H52" fill="none" stroke="#EAD9C2" stroke-width="3" stroke-dasharray="5 7" stroke-linecap="round"/>${stars}<text x="52" y="56" text-anchor="middle" font-size="11" font-weight="800" fill="#C2922E">시작</text><text x="52" y="196" text-anchor="middle" font-size="11" font-weight="800" fill="#C2922E">완성!</text></svg>`;
 }
 
-export function flowerSVG(g: Goal): string {
+export function flowerSVG(g: Goal, cap = 10): string {
   const s = stk(g);
-  const slots = [[104, 84], [152, 78], [200, 84], [78, 124], [127, 118], [177, 118], [226, 124], [104, 160], [152, 166], [200, 160]];
+  const c = Math.min(10, Math.max(1, Math.round(cap)));
+  const slots = [[104, 84], [152, 78], [200, 84], [78, 124], [127, 118], [177, 118], [226, 124], [104, 160], [152, 166], [200, 160]].slice(0, c);
   const cells = slots
     .map((p, i) => {
       const f = s[i];
@@ -71,10 +75,11 @@ export function flowerSVG(g: Goal): string {
   return `<svg viewBox="0 0 304 214" style="width:100%;display:block"><rect width="304" height="214" fill="#FBF0F6"/><rect x="0" y="180" width="304" height="34" fill="#A6D67E"/><circle cx="40" cy="40" r="15" fill="#FFE08A"/>${cells}</svg>`;
 }
 
-export function balloonSVG(g: Goal): string {
+export function balloonSVG(g: Goal, cap = 10): string {
   const n = stk(g).length;
+  const c = Math.min(10, Math.max(1, Math.round(cap)));
   const COL = ["#FF8FA3", "#7FB0F0", "#8FD08C", "#FFC861", "#C9A0E8", "#FF8FA3", "#7FB0F0", "#8FD08C", "#FFC861", "#C9A0E8"];
-  const slots = [[104, 68], [152, 62], [200, 68], [80, 102], [128, 96], [176, 96], [224, 102], [120, 132], [184, 132], [152, 158]];
+  const slots = [[104, 68], [152, 62], [200, 68], [80, 102], [128, 96], [176, 96], [224, 102], [120, 132], [184, 132], [152, 158]].slice(0, c);
   const tieX = 152, tieY = 200;
   const strings = slots.map((p) => `<path d="M${p[0]},${p[1] + 18} Q${(((p[0] + tieX) / 2) | 0)},${(((p[1] + tieY) / 2) | 0)} ${tieX},${tieY}" fill="none" stroke="#CBB89A" stroke-width="1"/>`).join("");
   const balloons = slots
@@ -86,8 +91,9 @@ export function balloonSVG(g: Goal): string {
   return `<svg viewBox="0 0 304 214" style="width:100%;display:block"><rect width="304" height="214" fill="#F3F7FC"/>${strings}${balloons}<circle cx="${tieX}" cy="${tieY}" r="3" fill="#9A8463"/></svg>`;
 }
 
-export function rainbowSVG(g: Goal): string {
+export function rainbowSVG(g: Goal, cap = 10): string {
   const n = stk(g).length;
+  const cc = Math.min(10, Math.max(1, Math.round(cap)));
   const COL = ["#FF6B6B", "#FF9F43", "#FFC233", "#3FC58A", "#36C5D8", "#5B8DEF", "#9B7BE8", "#FF6B8A", "#FFA94D", "#63C97A"];
   const cx = 152, cy = 206;
   let arcs = "";
@@ -97,8 +103,8 @@ export function rainbowSVG(g: Goal): string {
   });
   const sr = 124;
   const slots: number[][] = [];
-  for (let i = 0; i < 10; i++) {
-    const a = Math.PI - (i / 9) * Math.PI;
+  for (let i = 0; i < cc; i++) {
+    const a = Math.PI - (i / (cc > 1 ? cc - 1 : 1)) * Math.PI;
     slots.push([cx + Math.cos(a) * sr, cy - Math.sin(a) * sr]);
   }
   const cells = slots
@@ -134,14 +140,14 @@ export function gridBoardSVG(holder: Goal, cap: number, accent: string, fillEmoj
   return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;display:block"><rect width="${w}" height="${h}" rx="18" fill="#f6fbf4"/>${cells}</svg>`;
 }
 
-export function boardSVG(g: Goal, theme: string): string {
+export function boardSVG(g: Goal, theme: string, cap = 10): string {
   switch (theme) {
-    case "grape": return grapeSVG(g);
-    case "star": return starSVG(g);
-    case "flower": return flowerSVG(g);
-    case "balloon": return balloonSVG(g);
-    case "rainbow": return rainbowSVG(g);
-    default: return treeSVG(g);
+    case "grape": return grapeSVG(g, cap);
+    case "star": return starSVG(g, cap);
+    case "flower": return flowerSVG(g, cap);
+    case "balloon": return balloonSVG(g, cap);
+    case "rainbow": return rainbowSVG(g, cap);
+    default: return treeSVG(g, cap);
   }
 }
 

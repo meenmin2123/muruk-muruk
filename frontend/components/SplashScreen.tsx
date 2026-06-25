@@ -8,7 +8,7 @@ export function SplashScreen() {
     <div className="splash">
       <div className="stamp-hero" aria-hidden dangerouslySetInnerHTML={{ __html: stampSVG(150) }} />
       <div className="splash-logo">
-        무럽무럽<span style={{ color: "var(--primary)" }}>.</span>
+        무럭무럭<span style={{ color: "#eafaec" }}>.</span>
       </div>
       <div className="splash-hint">잠시만요…</div>
     </div>

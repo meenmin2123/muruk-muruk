@@ -11,17 +11,17 @@ function fire(body: string) {
   const opts: NotificationOptions = { body, icon: "/icon.svg", badge: "/icon.svg", tag: "muruk-daily" };
   if (navigator.serviceWorker?.ready) {
     navigator.serviceWorker.ready
-      .then((reg) => reg.showNotification("무럽무럽", opts))
+      .then((reg) => reg.showNotification("무럭무럭", opts))
       .catch(() => {
         try {
-          new Notification("무럽무럽", opts);
+          new Notification("무럭무럭", opts);
         } catch {
           /* ignore */
         }
       });
   } else {
     try {
-      new Notification("무럽무럽", opts);
+      new Notification("무럭무럭", opts);
     } catch {
       /* ignore */
     }

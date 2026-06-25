@@ -132,7 +132,6 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
   const [titleVal, setTitleVal] = useState(d.title);
   const [editGoalId, setEditGoalId] = useState("");
   const [goalVal, setGoalVal] = useState("");
-  const [editCap, setEditCap] = useState(false);
   const [ddayOpen, setDdayOpen] = useState(false);
   const [flipped, setFlipped] = useState(false);
   const frontRef = useRef<HTMLDivElement>(null);
@@ -152,7 +151,7 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
   const boardLen = d.stickers?.length ?? 0;
   const boardGold = boardLen >= cap;
   const themeEmoji = THEMES.find((t) => t.key === d.theme)?.emoji || "🌳";
-  const boardHtml = cap === 10 ? boardSVG(d, d.theme || "tree") : gridBoardSVG(d, cap, color, themeEmoji);
+  const boardHtml = cap <= 10 ? boardSVG(d, d.theme || "tree", cap) : gridBoardSVG(d, cap, color, themeEmoji);
 
   // 카드 높이를 현재 보이는 면에 맞춰 부드럽게 조절(앞/뒷면 높이가 달라도 자연스럽게).
   useLayoutEffect(() => {
@@ -258,18 +257,14 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
             {d.targetDate ? (
               <>
                 <b style={{ color }}>{boardCap(d)}칸 · 디데이까지</b>
-                <button className="link" onClick={() => { actions.setDday(d.id, ""); setDdayOpen(false); }}>디데이 해제</button>
-              </>
-            ) : editCap ? (
-              <>
-                <input type="number" min={1} max={100} autoFocus value={boardCap(d)} onChange={(e) => actions.setBoardSize(d.id, Number(e.target.value))} onBlur={() => setEditCap(false)} />
-                <span>칸</span>
+                <button className="link" onClick={() => actions.setDday(d.id, "")}>디데이 해제</button>
               </>
             ) : ddayOpen ? (
               <input type="date" autoFocus value="" onChange={(e) => { actions.setDday(d.id, e.target.value); setDdayOpen(false); }} />
             ) : (
               <>
-                <button className="link" onClick={() => setEditCap(true)}>{boardCap(d)}칸 ✎</button>
+                <b style={{ color }}>{boardCap(d)}칸</b>
+                <span>· 할 일 추가할 때마다 한 칸씩</span>
                 <button className="link" onClick={() => setDdayOpen(true)}>＋디데이로 자동</button>
               </>
             )}

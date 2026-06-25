@@ -70,7 +70,7 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/icon.svg" alt="" className="logo-ic" />
           <span>
-            무럽무럽<span className="dot">.</span>
+            무럭무럭<span className="dot">.</span>
           </span>
         </div>
         {syncing && <div className="tagline">저장 중…</div>}
@@ -251,7 +251,7 @@ function SettingsSheet({
     setNotif(p);
     if (p === "granted") {
       actions.updateSettings({ reminderEnabled: true, reminderTime: remindTime });
-      new Notification("무럽무럽", { body: `매일 ${remindTime}에 알려드릴게요! 오늘도 한 걸음 🌿` });
+      new Notification("무럭무럭", { body: `매일 ${remindTime}에 알려드릴게요! 오늘도 한 걸음 🌿` });
     }
   }
 
