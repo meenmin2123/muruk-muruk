@@ -12,6 +12,7 @@ import { useDailyReminder, DEFAULT_REMINDER_TIME } from "@/lib/reminder";
 import { TodayTab } from "./tabs/TodayTab";
 import { DreamsTab } from "./tabs/DreamsTab";
 import { RecordsTab } from "./tabs/RecordsTab";
+import { Icon } from "./Icon";
 
 type Tab = "dreams" | "today" | "records";
 
@@ -64,7 +65,7 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
     <div className="app">
       <header>
         <button className="gear" onClick={() => setSettings(true)} aria-label="설정">
-          ⚙️
+          <Icon name="settings" size={18} />
         </button>
         <div className="logo">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -83,9 +84,9 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
       </main>
 
       <nav>
-        <NavBtn icon="🌱" label="목표" active={tab === "dreams"} onClick={() => setTab("dreams")} />
-        <NavBtn icon="☀️" label="오늘" active={tab === "today"} onClick={() => setTab("today")} />
-        <NavBtn icon="📈" label="기록" active={tab === "records"} onClick={() => setTab("records")} />
+        <NavBtn icon="goal" label="목표" active={tab === "dreams"} onClick={() => setTab("dreams")} />
+        <NavBtn icon="today" label="오늘" active={tab === "today"} onClick={() => setTab("today")} />
+        <NavBtn icon="records" label="기록" active={tab === "records"} onClick={() => setTab("records")} />
       </nav>
 
       <div className={"toast" + (toast && !undoLabel ? " show" : "")}>{toast}</div>
@@ -131,7 +132,9 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
 function NavBtn({ icon, label, active, onClick }: { icon: string; label: string; active: boolean; onClick: () => void }) {
   return (
     <button className={active ? "on" : ""} onClick={onClick}>
-      <span className="ni">{icon}</span>
+      <span className="ni">
+        <Icon name={icon} size={23} />
+      </span>
       <span className="nl">{label}</span>
     </button>
   );
@@ -259,9 +262,11 @@ function SettingsSheet({
     <div className="sheet-bg" onClick={onClose}>
       <div className="sheet" onClick={(e) => e.stopPropagation()}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-          <b style={{ fontSize: 17 }}>⚙️ 설정</b>
+          <b style={{ fontSize: 17, display: "flex", alignItems: "center", gap: 7 }}>
+            <Icon name="settings" size={18} color="var(--primary-d)" /> 설정
+          </b>
           <button className="x" aria-label="설정 닫기" onClick={onClose}>
-            ✕
+            <Icon name="close" size={16} />
           </button>
         </div>
 

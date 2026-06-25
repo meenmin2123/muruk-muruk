@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { GOOGLE_CLIENT_ID, saveToken, whenGoogleReady } from "@/lib/auth";
 import { treeSVG } from "@/lib/trees";
+import { Icon } from "./Icon";
 
 export function LoginGate({ onLogin }: { onLogin: () => void }) {
   const btnRef = useRef<HTMLDivElement>(null);
@@ -49,9 +50,9 @@ export function LoginGate({ onLogin }: { onLogin: () => void }) {
       </h1>
 
       <div className="login-features" style={{ marginTop: 14 }}>
-        <span>🌱 작은 목표</span>
-        <span>✅ 매일 체크</span>
-        <span>🌳 자라는 나무</span>
+        <span><Icon name="goal" size={15} color="var(--primary-d)" /> 작은 목표</span>
+        <span><Icon name="check" size={15} color="var(--primary-d)" /> 매일 체크</span>
+        <span><Icon name="sprout" size={15} color="var(--primary-d)" /> 자라는 나무</span>
       </div>
 
       <div ref={btnRef} className="login-btn" />

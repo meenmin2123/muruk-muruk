@@ -5,6 +5,7 @@ import { api } from "@/lib/api";
 import type { AppActions } from "@/lib/store";
 import { AppState, CAT_ORDER, Dream, PALETTE, Repeat, TEMPLATES, THEMES, boardCap, ddayText, template, todayStr } from "@/lib/state";
 import { boardSVG, gridBoardSVG, stampSVG } from "@/lib/trees";
+import { Icon, catIconName } from "../Icon";
 
 interface CatMeta {
   key: string;
@@ -60,18 +61,22 @@ export function DreamsTab({ state, actions }: { state: AppState; actions: AppAct
       </p>
 
       <button className="newdream-btn" onClick={() => setOpen((o) => !o)}>
-        {open ? "닫기" : "＋ 새 목표"}
+        {open ? "닫기" : <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Icon name="add" size={16} color="var(--primary-d)" /> 새 목표</span>}
       </button>
 
       {open && (
         <div className="card newdream">
           <div className="field-label">어떤 목표예요?</div>
           <div className="row-wrap">
-            {allCats.map((c) => (
-              <div key={c.key} className={"chip" + (c.key === cat ? " on" : "")} onClick={() => pickCat(c)}>
-                {c.emoji} {c.label}
-              </div>
-            ))}
+            {allCats.map((c) => {
+              const ic = catIconName(c.key);
+              const on = c.key === cat;
+              return (
+                <div key={c.key} className={"chip" + (on ? " on" : "")} onClick={() => pickCat(c)}>
+                  {ic ? <Icon name={ic} size={15} color={on ? "#fff" : c.color} /> : <span>{c.emoji}</span>} {c.label}
+                </div>
+              );
+            })}
             <div className="chip" onClick={() => setCatOpen((o) => !o)}>
               ＋ 직접
             </div>
@@ -203,7 +208,7 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
           <div className="dream">
       <div className="dream-h">
         <span className="dream-emoji" style={{ background: color + "22" }} onClick={() => actions.toggleCollapse(d.id)}>
-          {d.emoji}
+          {catIconName(d.cat) ? <Icon name={catIconName(d.cat)!} size={20} color={color} /> : d.emoji}
         </span>
         {editTitle ? (
           <input
@@ -224,7 +229,7 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
               {d.title}
             </span>
             <button className="icon-btn" aria-label="목표 이름 수정" onClick={() => { setTitleVal(d.title); setEditTitle(true); }}>
-              ✎
+              <Icon name="edit" size={15} />
             </button>
           </>
         )}
@@ -235,12 +240,12 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
         )}
         {!editTitle && (
           <button className="icon-btn flipbtn" aria-label="칭찬판 보기" onClick={() => setFlipped(true)}>
-            🌳
+            <Icon name="flip" size={17} />
           </button>
         )}
         {!editTitle && (
           <button className="x" aria-label="목표 삭제" onClick={() => confirm("이 목표와 할 일을 삭제할까요?") && actions.removeDream(d.id)}>
-            ✕
+            <Icon name="close" size={15} />
           </button>
         )}
       </div>
@@ -294,10 +299,10 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
                 {editGoalId !== g.id && (
                   <>
                     <button className="icon-btn" aria-label="할 일 이름 수정" onClick={() => { setEditGoalId(g.id); setGoalVal(g.title); }}>
-                      ✎
+                      <Icon name="edit" size={14} />
                     </button>
                     <button className={"gt-badge" + (g.repeat === "daily" ? " daily" : "")} onClick={() => actions.toggleGoalRepeat(d.id, g.id)} title="눌러서 '한 번 ↔ 매일' 전환">
-                      {g.repeat === "daily" ? "🔁 매일" : "✓ 한 번"}
+                      <Icon name={g.repeat === "daily" ? "daily" : "once"} size={13} color="currentColor" /> {g.repeat === "daily" ? "매일" : "한 번"}
                     </button>
                     {g.repeat === "daily" ? (
                       <span className="add-today added" style={{ cursor: "default" }}>오늘에 있음</span>
@@ -307,7 +312,7 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
                       </button>
                     )}
                     <button className="x" aria-label="할 일 삭제" onClick={() => actions.removeGoal(d.id, g.id)}>
-                      ✕
+                      <Icon name="close" size={14} />
                     </button>
                   </>
                 )}
@@ -356,7 +361,7 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
                 <button className={repeat === "daily" ? "on" : ""} onClick={() => setRepeat("daily")}>🔁 매일</button>
               </div>
               <button className="ai-link" onClick={aiSuggest} disabled={aiLoading}>
-                {aiLoading ? "생각 중…" : "✨ AI 추천"}
+                {aiLoading ? "생각 중…" : <><Icon name="ai" size={14} color="var(--primary-d)" /> AI 추천</>}
               </button>
             </div>
             <div className="taskadd-help">한 번 = 하면 끝 · 매일 = 매일 자동으로 떠요</div>
@@ -372,7 +377,7 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
               <span className="dream-emoji" style={{ background: color + "22" }}>{d.emoji}</span>
               <span className="t">{d.title}</span>
               <span className="muted" style={{ fontWeight: 800, color }}>{boardGold ? "완성 🎉" : `${boardLen}/${cap}`}</span>
-              <button className="icon-btn" aria-label="목표로 돌아가기" onClick={() => setFlipped(false)}>↩</button>
+              <button className="icon-btn" aria-label="목표로 돌아가기" onClick={() => setFlipped(false)}><Icon name="back" size={17} /></button>
             </div>
             <div className="board-back-art">
               <div dangerouslySetInnerHTML={{ __html: boardHtml }} />

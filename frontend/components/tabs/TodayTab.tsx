@@ -5,6 +5,7 @@ import { api } from "@/lib/api";
 import type { AppActions } from "@/lib/store";
 import { AppState, daysSinceLastDone, findGoal, todayStr } from "@/lib/state";
 import { todayTreeSVG } from "@/lib/trees";
+import { Icon } from "../Icon";
 
 export function TodayTab({ state, actions }: { state: AppState; actions: AppActions }) {
   const [text, setText] = useState("");
@@ -52,7 +53,7 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
             aria-pressed={t.done}
             aria-label={(t.done ? "완료 취소: " : "완료: ") + t.text}
           >
-            {t.done ? "✓" : ""}
+            {t.done && <Icon name="check" size={15} color="#fff" />}
           </button>
           <div className="body">
             <div className="txt">{t.text}</div>
@@ -69,7 +70,7 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
             </button>
           )}
           <button className="x" aria-label="할 일 삭제" onClick={() => actions.removeTodo(t.id)}>
-            ✕
+            <Icon name="close" size={14} />
           </button>
         </div>
       );

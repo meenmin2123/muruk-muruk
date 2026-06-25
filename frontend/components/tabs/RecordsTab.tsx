@@ -1,6 +1,7 @@
 "use client";
 
 import { AppState, dateStr, streakCount, todayStr } from "@/lib/state";
+import { Icon } from "../Icon";
 
 export function RecordsTab({ state }: { state: AppState }) {
   const streak = streakCount(state);
@@ -28,17 +29,17 @@ export function RecordsTab({ state }: { state: AppState }) {
       </div>
       <div className="recards">
         <div className="recard">
-          <div className="ic">🔥</div>
+          <div className="ic"><Icon name="streak" size={26} color="#FF8A3D" /></div>
           <div className="v">{streak}</div>
           <div className="l">연속 일수</div>
         </div>
         <div className="recard">
-          <div className="ic">🏆</div>
+          <div className="ic"><Icon name="best" size={26} color="#E7B53A" /></div>
           <div className="v">{Math.max(state.bestStreak, streak)}</div>
           <div className="l">최고 기록</div>
         </div>
         <div className="recard">
-          <div className="ic">✅</div>
+          <div className="ic"><Icon name="total" size={26} color="var(--primary)" /></div>
           <div className="v">{state.totalDone}</div>
           <div className="l">누적 완료</div>
         </div>

@@ -284,6 +284,9 @@ main > section {
   cursor: pointer;
 }
 .x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: var(--muted);
   font-size: 18px;
   padding: 4px 6px;
@@ -574,6 +577,9 @@ main > section {
   margin-bottom: 28px;
 }
 .login-features span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   background: var(--primary-soft);
   color: var(--primary-d);
   font-weight: 800;
@@ -674,6 +680,9 @@ main > section {
   opacity: 0.5;
 }
 .icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: none;
   background: none;
   color: var(--muted);
@@ -740,6 +749,9 @@ main > section {
   color: var(--success);
 }
 .gt-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   border: 1.5px solid var(--line);
   background: #fff;
   color: var(--muted);
@@ -779,6 +791,9 @@ main > section {
   cursor: pointer;
 }
 .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   border: 1.5px solid var(--line);
   background: #fff;
   border-radius: 20px;
@@ -914,6 +929,9 @@ main > section {
   color: #fff;
 }
 .ai-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   border: 1.5px dashed var(--accent2);
   background: #f6fbf4;
   color: var(--primary-d);
@@ -1002,6 +1020,10 @@ main > section {
 }
 .recard .ic {
   font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
 }
 .recard .v {
   font-size: 20px;
