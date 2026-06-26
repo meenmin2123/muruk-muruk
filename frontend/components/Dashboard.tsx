@@ -17,7 +17,7 @@ import { Icon } from "./Icon";
 type Tab = "dreams" | "today" | "records";
 
 export function Dashboard({ onLogout }: { onLogout: () => void }) {
-  const { state, syncing, toast, gold, clearGold, undoLabel, runUndo, actions } = useAppState();
+  const { state, toast, gold, clearGold, undoLabel, runUndo, actions } = useAppState();
   const [tab, setTab] = useState<Tab>("today");
   const [settings, setSettings] = useState(false);
   const [celebrate, setCelebrate] = useState("");
@@ -74,7 +74,6 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
             무럭무럭<span className="dot">.</span>
           </span>
         </div>
-        {syncing && <div className="tagline">저장 중…</div>}
       </header>
 
       <main>
