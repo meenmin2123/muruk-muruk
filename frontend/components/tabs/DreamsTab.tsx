@@ -88,8 +88,6 @@ export function DreamsTab({ state, actions }: { state: AppState; actions: AppAct
             </div>
           )}
 
-          <input className="newdream-title" value={title} placeholder={meta.ph} maxLength={40} onChange={(e) => setTitle(e.target.value)} onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && create()} />
-
           <button className="link deco-toggle" onClick={() => setDeco((o) => !o)}>
             {deco ? "꾸미기 닫기 ▴" : "🎨 색·칭찬판 모양 바꾸기 ▾"}
           </button>
@@ -112,7 +110,10 @@ export function DreamsTab({ state, actions }: { state: AppState; actions: AppAct
             </>
           )}
 
-          <button className="btn newdream-create" onClick={create}>＋ 목표 추가</button>
+          <div className="goal-add">
+            <input value={title} placeholder={meta.ph} maxLength={40} onChange={(e) => setTitle(e.target.value)} onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && create()} />
+            <button onClick={create}>추가</button>
+          </div>
         </div>
       )}
 
