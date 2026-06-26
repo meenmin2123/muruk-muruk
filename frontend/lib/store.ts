@@ -16,7 +16,6 @@ import {
   streakCount,
   todayStr,
   dateStr,
-  daysUntil,
   boardCap,
   Todo,
   uid,
@@ -275,10 +274,7 @@ export function useAppState() {
     setDday(id, date) {
       mutate((s) => {
         const d = s.dreams.find((x) => x.id === id);
-        if (!d) return;
-        d.targetDate = date || null;
-        // 디데이가 있으면 남은 날짜 수를 칭찬판 칸 수로 자동 설정(설정 시점 기준 고정).
-        if (d.targetDate) d.boardSize = Math.min(100, Math.max(1, daysUntil(d.targetDate)));
+        if (d) d.targetDate = date || null; // 디데이는 카운트다운 표시용(칭찬판 칸 수와 무관)
       });
     },
     setDreamIcon(id, icon) {

@@ -159,10 +159,9 @@ export function daysUntil(date: string): number {
   return Math.round((+new Date(date) - +new Date(todayStr())) / 86400000);
 }
 
-/** 목표의 칭찬판 칸 수 (1~100). 디데이 있으면 그 날짜 수, 없으면 기본 10칸(누적). */
+/** 목표의 칭찬판 칸 수 = 그 목표의 할 일(세부목표) 개수. 할 일을 추가하면 칸이 늘어난다. 디데이는 카운트다운 표시 전용. */
 export function boardCap(d: Dream): number {
-  const raw = d.targetDate ? (d.boardSize ?? BOARD) : BOARD;
-  return Math.min(100, Math.max(1, Math.round(raw)));
+  return Math.min(100, Math.max(1, d.goals.length));
 }
 
 export function ddayText(date: string | null): string | null {

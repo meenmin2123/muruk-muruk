@@ -398,21 +398,23 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
         <div className="flip-face flip-back" ref={backRef} aria-hidden={!flipped}>
           <div className="dream board-back">
             <div className="dream-h">
-              <span className="dream-emoji" style={{ background: color + "22" }}>{d.emoji}</span>
+              <span className="dream-emoji" style={{ background: color + "22" }}>
+                {(() => {
+                  const v = d.icon || catIconName(d.cat) || d.emoji || "🎯";
+                  return hasIcon(v) ? <Icon name={v} size={20} color={color} /> : <span>{v}</span>;
+                })()}
+              </span>
               <span className="t">{d.title}</span>
-              <span className="muted" style={{ fontWeight: 800, color }}>{boardGold ? "완성 🎉" : `${boardLen}/${cap}`}</span>
+              <span className="muted" style={{ fontWeight: 800, color }}>{boardGold ? "완성!" : `${boardLen}/${cap}`}</span>
               <button className="icon-btn" aria-label="목표로 돌아가기" onClick={() => setFlipped(false)}><Icon name="back" size={17} /></button>
             </div>
             <div className="board-back-art">
               <div dangerouslySetInnerHTML={{ __html: boardHtml }} />
-              {boardGold && (
-                <div className="board-stamp"><div dangerouslySetInnerHTML={{ __html: stampSVG(140) }} /></div>
-              )}
+              {boardGold && <div className="board-stamp" dangerouslySetInnerHTML={{ __html: stampSVG(62) }} />}
             </div>
             <div className="muted board-back-foot">
               {d.stamps ? `도장 ${d.stamps}개 · ` : ""}
               {boardLen === 0 ? "할 일을 완료하면 스티커가 쌓여요" : `스티커 ${d.earned ?? boardLen}개`}
-              {d.targetDate ? " · 디데이까지" : ""}
             </div>
           </div>
         </div>
