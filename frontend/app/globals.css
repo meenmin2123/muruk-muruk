@@ -443,6 +443,14 @@ main > section {
   border-top: 1px dashed var(--line);
   font-size: 13px;
 }
+.admin-goals {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  font-size: 12.5px;
+}
+.admin-goals li {
+  margin: 1px 0;
+}
 .admin-raw {
   margin-top: 8px;
 }

@@ -347,30 +347,41 @@ function SettingsSheet({
               <div style={{ marginTop: 12 }}>
                 <div className="muted" style={{ fontWeight: 800, marginBottom: 8 }}>사용자 {adminData.length}명</div>
                 {adminData.map((u) => {
-                  const dreamsArr = (Array.isArray(u.data?.dreams) ? u.data!.dreams! : []) as Array<{ title?: string; emoji?: string; goals?: Array<{ title?: string; repeat?: string }> }>;
-                  const todos = Array.isArray(u.data?.todos) ? u.data!.todos!.length : 0;
-                  const done = typeof u.data?.totalDone === "number" ? u.data!.totalDone : 0;
+                  const dreamsArr = (Array.isArray(u.data?.dreams) ? u.data!.dreams! : []) as Array<{ title?: string; targetDate?: string | null; goals?: Array<{ title?: string; repeat?: string }> }>;
+                  const todosArr = (Array.isArray(u.data?.todos) ? u.data!.todos! : []) as Array<{ text?: string; date?: string; done?: boolean }>;
+                  const doneTodos = todosArr.filter((t) => t.done).length;
+                  const totalDone = typeof u.data?.totalDone === "number" ? u.data!.totalDone : 0;
+                  const bestStreak = typeof u.data?.bestStreak === "number" ? u.data!.bestStreak : 0;
                   return (
                     <details key={u.userId} className="admin-row">
                       <summary>
                         <b>{u.name}</b> <span className="muted">{u.email}</span>
-                        <span className="admin-counts">목표 {dreamsArr.length} · 할일 {todos} · 완료 {done}</span>
+                        <span className="admin-counts">목표 {dreamsArr.length} · 할일 {todosArr.length} · 완료 {totalDone}</span>
                       </summary>
-                      <div className="muted" style={{ fontSize: 11.5, margin: "4px 0 8px" }}>
-                        최근접속 {u.lastSeenAt?.slice(0, 10) ?? "-"} · 저장 {u.updatedAt?.slice(0, 10) ?? "-"} · v{u.version}
+                      <div className="muted" style={{ fontSize: 11.5, margin: "4px 0 6px" }}>
+                        최근접속 {u.lastSeenAt?.slice(0, 10) ?? "-"} · 저장 {u.updatedAt?.slice(0, 10) ?? "-"} · v{u.version} · 누적완료 {totalDone} · 최고연속 {bestStreak}
                       </div>
                       {dreamsArr.length === 0 ? (
                         <div className="muted" style={{ fontSize: 12 }}>저장된 목표 없음</div>
                       ) : (
                         dreamsArr.map((dr, i) => (
                           <div key={i} className="admin-dream">
-                            <div style={{ fontWeight: 700 }}>🎯 {dr.title || "(제목 없음)"} <span className="muted">· 할일 {dr.goals?.length ?? 0}</span></div>
+                            <div style={{ fontWeight: 700 }}>
+                              🎯 {dr.title || "(제목 없음)"}
+                              {dr.targetDate ? <span className="muted"> · D-day {dr.targetDate}</span> : null}
+                              <span className="muted"> · 할일 {dr.goals?.length ?? 0}</span>
+                            </div>
                             {dr.goals && dr.goals.length > 0 && (
-                              <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>{dr.goals.map((g) => g.title).join(", ")}</div>
+                              <ul className="admin-goals">
+                                {dr.goals.map((g, j) => (
+                                  <li key={j}>{g.title} <span className="muted">({g.repeat === "daily" ? "매일" : "한 번"})</span></li>
+                                ))}
+                              </ul>
                             )}
                           </div>
                         ))
                       )}
+                      <div className="muted" style={{ fontSize: 12, marginTop: 6 }}>할 일 기록: 총 {todosArr.length}개 · 완료 {doneTodos}개</div>
                       <details className="admin-raw">
                         <summary>원본 JSON</summary>
                         <pre className="admin-json">{JSON.stringify(u.data, null, 2)}</pre>
