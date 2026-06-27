@@ -5,12 +5,14 @@ import { api } from "./api";
 import {
   AppState,
   CHEERS,
+  CELEBRATE_FALLBACK,
   CustomCat,
   Dream,
   awardSticker,
   defaultState,
   ensureDailyTodos,
   findGoal,
+  isDreamFulfilled,
   rand,
   removeSticker,
   streakCount,
@@ -21,6 +23,32 @@ import {
   uid,
   Repeat,
 } from "./state";
+
+/**
+ * '한 번' 할일로만 된 목표가 모두 완료되면 자동으로 달성 처리(보관)하고,
+ * 다시 미완료가 되면 자동 해제한다. (습관형·수동 보관은 건드리지 않음.)
+ * 새로 달성됐으면 그 목표 제목을 반환(축하용), 아니면 null.
+ */
+function syncDreamDone(s: AppState, dreamId: string | null): string | null {
+  if (!dreamId) return null;
+  const d = s.dreams.find((x) => x.id === dreamId);
+  if (!d) return null;
+  const onlyOnce = d.goals.length > 0 && d.goals.every((g) => g.repeat === "once");
+  if (!onlyOnce) return null; // 습관형(매일 포함)은 자동 완성 대상 아님
+  const fulfilled = isDreamFulfilled(d, s.todos);
+  if (fulfilled && !d.done) {
+    d.done = true;
+    d.completedAt = todayStr();
+    d.collapsed = true;
+    return d.title;
+  }
+  if (!fulfilled && d.done) {
+    // 한 번-목표는 수동 보관 경로가 없으므로, 미완료로 돌아가면 자동 해제(되살림).
+    d.done = false;
+    d.completedAt = undefined;
+  }
+  return null;
+}
 
 /** todo의 완료 상태를 토글하고 칭찬 스티커(목표 단위)를 적립/회수. 표시할 토스트/골드를 반환. */
 function applyToggle(s: AppState, t: Todo): { toast: string; gold: string | null } {
@@ -81,6 +109,8 @@ export interface AppActions {
   updateSettings(patch: Record<string, unknown>): void;
   toggleGoalDay(goalId: string, date: string): void;
   toggleGoalDone(goalId: string): void;
+  completeDream(id: string): void;
+  restoreDream(id: string): void;
 }
 
 export function useAppState() {
@@ -216,14 +246,20 @@ export function useAppState() {
     toggleTodo(id) {
       let toastMsg = "";
       let goldTitle: string | null = null;
+      let achieved: string | null = null;
       mutate((s) => {
         const t = s.todos.find((x) => x.id === id);
         if (!t) return;
         const r = applyToggle(s, t);
         toastMsg = r.toast;
         goldTitle = r.gold;
+        if (t.goalId) {
+          const found = findGoal(s, t.goalId);
+          if (found) achieved = syncDreamDone(s, found.dream.id);
+        }
       });
-      if (goldTitle) setGold(goldTitle);
+      if (achieved) setToast(`🎉 ‘${achieved}’ 목표를 이뤘어요! 기록에 보관했어요`);
+      else if (goldTitle) setGold(goldTitle);
       else if (toastMsg) setToast(toastMsg);
     },
     removeTodo(id) {
@@ -287,6 +323,7 @@ export function useAppState() {
     toggleGoalDone(goalId) {
       let toastMsg = "";
       let goldTitle: string | null = null;
+      let achieved: string | null = null;
       mutate((s) => {
         const found = findGoal(s, goalId);
         if (!found) return;
@@ -303,8 +340,10 @@ export function useAppState() {
         const r = applyToggle(s, t);
         toastMsg = r.toast;
         goldTitle = r.gold;
+        achieved = syncDreamDone(s, found.dream.id);
       });
-      if (goldTitle) setGold(goldTitle);
+      if (achieved) setToast(`🎉 ‘${achieved}’ 목표를 이뤘어요! 기록에 보관했어요`);
+      else if (goldTitle) setGold(goldTitle);
       else if (toastMsg) setToast(toastMsg);
     },
     setDreamIcon(id, icon) {
@@ -386,6 +425,29 @@ export function useAppState() {
       });
       if (goldTitle) setGold(goldTitle);
       else if (toastMsg) setToast(toastMsg);
+    },
+    completeDream(id) {
+      armUndo("목표를 보관했어요");
+      let title = "";
+      mutate((s) => {
+        const d = s.dreams.find((x) => x.id === id);
+        if (!d) return;
+        d.done = true;
+        d.completedAt = todayStr();
+        d.collapsed = true;
+        title = d.title;
+      });
+      setToast(title ? `🎉 ‘${title}’ ${rand(CELEBRATE_FALLBACK)}` : rand(CELEBRATE_FALLBACK));
+    },
+    restoreDream(id) {
+      mutate((s) => {
+        const d = s.dreams.find((x) => x.id === id);
+        if (!d) return;
+        d.done = false;
+        d.completedAt = undefined;
+        d.collapsed = false;
+      });
+      setToast("목표를 다시 진행해요 🌱");
     },
   };
 

@@ -1,9 +1,12 @@
 "use client";
 
-import { AppState, dateStr, streakCount, todayStr } from "@/lib/state";
-import { Icon } from "../Icon";
+import { useState } from "react";
+import { AppState, Dream, THEMES, boardCap, dateStr, streakCount, template, todayStr } from "@/lib/state";
+import type { AppActions } from "@/lib/store";
+import { boardSVG, gridBoardSVG, stampSVG } from "@/lib/trees";
+import { Icon, catIconName, hasIcon } from "../Icon";
 
-export function RecordsTab({ state }: { state: AppState }) {
+export function RecordsTab({ state, actions }: { state: AppState; actions: AppActions }) {
   const streak = streakCount(state);
   const counts: Record<string, number> = {};
   state.todos.filter((t) => t.done).forEach((t) => (counts[t.date] = (counts[t.date] ?? 0) + 1));
@@ -21,6 +24,11 @@ export function RecordsTab({ state }: { state: AppState }) {
       </div>,
     );
   }
+
+  // 이룬 목표(보관) — 최근 달성 순
+  const archived = state.dreams
+    .filter((d) => d.done)
+    .sort((a, b) => (b.completedAt ?? "").localeCompare(a.completedAt ?? ""));
 
   return (
     <section>
@@ -48,6 +56,79 @@ export function RecordsTab({ state }: { state: AppState }) {
         <h3 style={{ margin: "0 0 12px", fontSize: 15 }}>최근 2주</h3>
         <div className="grass">{cells}</div>
       </div>
+
+      <div className="sec-title" style={{ marginTop: 22 }}>
+        <h3 style={{ margin: 0, fontSize: 16, display: "inline-flex", alignItems: "center", gap: 7 }}>
+          <Icon name="best" size={18} color="#E7B53A" /> 이룬 목표 {archived.length > 0 && <span className="muted" style={{ fontWeight: 800 }}>{archived.length}</span>}
+        </h3>
+      </div>
+      {archived.length === 0 ? (
+        <div className="empty">아직 이룬 목표가 없어요. 목표의 할 일을 모두 완료하면 여기에 모여요.</div>
+      ) : (
+        archived.map((d) => <ArchivedCard key={d.id} dream={d} state={state} actions={actions} />)
+      )}
     </section>
+  );
+}
+
+/** 보관된 목표 — 읽기 전용(수정·삭제 불가). 목표·할일·다 모은 칭찬판을 그대로 보여준다. */
+function ArchivedCard({ dream: d, state, actions }: { dream: Dream; state: AppState; actions: AppActions }) {
+  const [open, setOpen] = useState(false);
+  const color = d.color || template(d.cat).color;
+  const cap = boardCap(d);
+  const boardLen = d.stickers?.length ?? 0;
+  const boardGold = boardLen >= cap;
+  const themeEmoji = THEMES.find((t) => t.key === d.theme)?.emoji || "🌳";
+  const boardHtml = cap <= 10 ? boardSVG(d, d.theme || "tree", cap) : gridBoardSVG(d, cap, color, themeEmoji);
+  const md = (s?: string) => {
+    if (!s) return "";
+    const p = s.split("-");
+    return p.length === 3 ? `${+p[0]}.${+p[1]}.${+p[2]}` : s;
+  };
+
+  return (
+    <div className="arch-card" style={{ borderColor: color + "44" }}>
+      <div className="arch-h" onClick={() => setOpen((o) => !o)}>
+        <span className="dream-emoji sm" style={{ background: color + "22" }}>
+          {(() => {
+            const v = d.icon || catIconName(d.cat) || d.emoji || "🎯";
+            return hasIcon(v) ? <Icon name={v} size={18} color={color} /> : <span>{v}</span>;
+          })()}
+        </span>
+        <div className="arch-h-txt">
+          <div className="arch-title">{d.title}</div>
+          <div className="muted arch-date">{d.completedAt ? `${md(d.completedAt)} 달성` : "달성"}</div>
+        </div>
+        <span className="arch-badge" style={{ background: color + "1f", color }}>
+          {d.stamps ? `도장 ${d.stamps} · ` : ""}스티커 {d.earned ?? boardLen}
+        </span>
+        <Icon name="back" size={16} className="arch-caret" style={{ transform: open ? "rotate(-90deg)" : "rotate(0deg)" }} />
+      </div>
+
+      {open && (
+        <div className="arch-body">
+          <div className="arch-board">
+            <div dangerouslySetInnerHTML={{ __html: boardHtml }} />
+            {boardGold && <div className="board-stamp" dangerouslySetInnerHTML={{ __html: stampSVG(54) }} />}
+          </div>
+          <div className="arch-tasks">
+            {d.goals.map((g) => {
+              const done = state.todos.some((t) => t.goalId === g.id && t.done);
+              return (
+                <div className="arch-task" key={g.id}>
+                  <Icon name="check" size={13} color={done ? color : "var(--line)"} />
+                  <span style={done ? undefined : { color: "var(--muted)" }}>{g.title}</span>
+                  <span className={"gt-badge mini" + (g.repeat === "daily" ? " daily" : "")}>{g.repeat === "daily" ? "매일" : "한 번"}</span>
+                </div>
+              );
+            })}
+            {d.goals.length === 0 && <div className="muted" style={{ fontSize: 13 }}>등록된 할 일이 없어요.</div>}
+          </div>
+          <button className="link arch-restore" onClick={() => confirm(`‘${d.title}’을(를) 다시 진행할까요?`) && actions.restoreDream(d.id)}>
+            다시 진행하기
+          </button>
+        </div>
+      )}
+    </div>
   );
 }

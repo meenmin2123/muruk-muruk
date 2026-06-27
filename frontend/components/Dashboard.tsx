@@ -79,7 +79,7 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
       <main>
         {tab === "today" && <TodayTab state={state} actions={actions} />}
         {tab === "dreams" && <DreamsTab state={state} actions={actions} />}
-        {tab === "records" && <RecordsTab state={state} />}
+        {tab === "records" && <RecordsTab state={state} actions={actions} />}
       </main>
 
       <nav>

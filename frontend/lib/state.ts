@@ -27,6 +27,20 @@ export interface Dream {
   stamps?: number;
   // 칭찬판 칸 수. 디데이 있으면 날짜로 자동 설정, 없으면 사용자가 직접 지정. 없으면 BOARD(10).
   boardSize?: number;
+  // 목표 달성 → 보관(읽기 전용). done이면 메인 목록에서 빠지고 '이룬 목표'에 모인다.
+  done?: boolean;
+  completedAt?: string; // 보관(완료)한 날짜 YYYY-MM-DD
+}
+
+/** 매일(반복) 할일이 하나라도 있으면 '습관형' 목표 — 자동완성하지 않고 수동으로 마친다. */
+export function isHabitDream(d: Dream): boolean {
+  return d.goals.some((g) => g.repeat === "daily");
+}
+
+/** '한 번' 할일로만 이뤄졌고, 모든 할 일이 완료됐는지(=자동 완성 대상). 할 일이 없으면 false. */
+export function isDreamFulfilled(d: Dream, todos: Todo[]): boolean {
+  if (d.goals.length === 0 || isHabitDream(d)) return false;
+  return d.goals.every((g) => todos.some((t) => t.goalId === g.id && t.done));
 }
 
 /** 스티커판을 가진 대상(목표). */
@@ -232,7 +246,8 @@ export function removeSticker(b: StickerBoard, cap: number = BOARD): void {
 export function ensureDailyTodos(s: AppState): AppState {
   const today = todayStr();
   const todos = s.todos.map((t) => ({ ...t }));
-  s.dreams.forEach((d) =>
+  s.dreams.forEach((d) => {
+    if (d.done) return; // 보관(완료)된 목표는 새 할일 생성·이월 안 함
     d.goals.forEach((g) => {
       const mine = todos.filter((t) => t.goalId === g.id);
       if (g.repeat === "daily") {
@@ -256,7 +271,7 @@ export function ensureDailyTodos(s: AppState): AppState {
           if (idx >= 0) todos.splice(idx, 1);
         });
       }
-    }),
-  );
+    });
+  });
   return { ...s, todos };
 }

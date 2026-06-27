@@ -963,6 +963,110 @@ main > section {
   cursor: pointer;
   font-family: inherit;
 }
+/* 목표 마치기(보관) 버튼 — 습관형 목표 헤더에 */
+.achieve {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+  border: 1.5px solid #f0d98a;
+  background: #fff9e8;
+  color: #a9821f;
+  border-radius: 11px;
+  padding: 4px 9px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+}
+.achieve:active {
+  transform: scale(0.96);
+}
+
+/* ── 이룬 목표(보관) — 읽기 전용 ── */
+.dream-emoji.sm {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  font-size: 17px;
+}
+.arch-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 12px 13px;
+  margin-bottom: 10px;
+  box-shadow: var(--shadow-sm);
+}
+.arch-h {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  cursor: pointer;
+}
+.arch-h-txt {
+  flex: 1;
+  min-width: 0;
+}
+.arch-title {
+  font-weight: 800;
+  font-size: 15px;
+  word-break: break-word;
+}
+.arch-date {
+  font-size: 11.5px;
+  font-weight: 700;
+  margin-top: 1px;
+}
+.arch-badge {
+  flex: none;
+  font-size: 11px;
+  font-weight: 800;
+  border-radius: 9px;
+  padding: 3px 8px;
+}
+.arch-caret {
+  flex: none;
+  transition: transform 0.2s ease;
+}
+.arch-body {
+  margin-top: 12px;
+}
+.arch-board {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  line-height: 0;
+}
+.arch-tasks {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.arch-task {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 14px;
+  font-weight: 700;
+}
+.arch-task > span:first-of-type {
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+}
+.gt-badge.mini {
+  flex: none;
+  padding: 2px 7px;
+  font-size: 10px;
+  font-weight: 800;
+}
+.arch-restore {
+  display: block;
+  margin: 14px auto 2px;
+  font-size: 12.5px;
+}
 .goal-week {
   display: flex;
   gap: 5px;

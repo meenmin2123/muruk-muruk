@@ -3,7 +3,7 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import type { AppActions } from "@/lib/store";
-import { AppState, CAT_ORDER, Dream, PALETTE, Repeat, TEMPLATES, THEMES, boardCap, dateStr, ddayText, template, todayStr } from "@/lib/state";
+import { AppState, CAT_ORDER, Dream, PALETTE, Repeat, TEMPLATES, THEMES, boardCap, dateStr, ddayText, isHabitDream, template, todayStr } from "@/lib/state";
 import { boardSVG, gridBoardSVG, stampSVG } from "@/lib/trees";
 import { Icon, catIconName, hasIcon } from "../Icon";
 import { IconPicker } from "../IconPicker";
@@ -117,11 +117,17 @@ export function DreamsTab({ state, actions }: { state: AppState; actions: AppAct
         </div>
       )}
 
-      {state.dreams.length === 0 ? (
-        <div className="empty">목표를 하나 세워보세요.</div>
-      ) : (
-        state.dreams.map((d) => <DreamCard key={d.id} dream={d} state={state} actions={actions} />)
-      )}
+      {(() => {
+        const active = state.dreams.filter((d) => !d.done);
+        if (active.length === 0) {
+          return (
+            <div className="empty">
+              {state.dreams.length === 0 ? "목표를 하나 세워보세요." : "진행 중인 목표가 없어요. 기록 탭에서 이룬 목표를 볼 수 있어요."}
+            </div>
+          );
+        }
+        return active.map((d) => <DreamCard key={d.id} dream={d} state={state} actions={actions} />);
+      })()}
     </section>
   );
 }
@@ -256,6 +262,16 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
         {!editTitle && (
           <button className="boardflip" aria-label="칭찬판 보기" style={{ background: color + "1f", color }} onClick={() => setFlipped(true)}>
             <Icon name="tree" size={16} color={color} /> 칭찬판
+          </button>
+        )}
+        {!editTitle && isHabitDream(d) && (
+          <button
+            className="achieve"
+            aria-label="목표 마치기"
+            title="이 목표를 달성으로 보관해요"
+            onClick={() => confirm(`‘${d.title}’을(를) 달성으로 보관할까요?\n보관하면 기록 탭에서 볼 수 있어요.`) && actions.completeDream(d.id)}
+          >
+            <Icon name="best" size={15} color="#caa12e" /> 마치기
           </button>
         )}
         {!editTitle && (
