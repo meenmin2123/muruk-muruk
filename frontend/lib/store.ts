@@ -440,14 +440,25 @@ export function useAppState() {
       setToast(title ? `🎉 ‘${title}’ ${rand(CELEBRATE_FALLBACK)}` : rand(CELEBRATE_FALLBACK));
     },
     restoreDream(id) {
+      let reopened = false;
       mutate((s) => {
         const d = s.dreams.find((x) => x.id === id);
         if (!d) return;
         d.done = false;
         d.completedAt = undefined;
         d.collapsed = false;
+        // 한 번-목표는 다 체크된 채라 손대면 즉시 재보관됨 → 완료 할일 하나를 다시 열어둔다.
+        const onlyOnce = d.goals.length > 0 && d.goals.every((g) => g.repeat === "once");
+        if (onlyOnce) {
+          const doneTodos = s.todos.filter((t) => t.done && d.goals.some((g) => g.id === t.goalId));
+          if (doneTodos.length > 0) {
+            doneTodos.sort((a, b) => b.date.localeCompare(a.date));
+            applyToggle(s, doneTodos[0]); // done 해제 + 스티커 회수
+            reopened = true;
+          }
+        }
       });
-      setToast("목표를 다시 진행해요 🌱");
+      setToast(reopened ? "다시 진행해요 🌱 할 일 하나를 열어뒀어요" : "목표를 다시 진행해요 🌱");
     },
   };
 
