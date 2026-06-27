@@ -221,6 +221,24 @@ main > section {
   margin-bottom: 10px;
   box-shadow: var(--shadow-sm);
 }
+/* 목표에 딸린 할일 — 그 목표(꿈)의 색으로 구분 */
+.task.goal {
+  border-left: 5px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 7%, var(--card));
+}
+.task.goal .check {
+  border-color: color-mix(in srgb, var(--accent) 55%, #fff);
+}
+.task.goal .check.done {
+  background: var(--accent);
+}
+.task.goal .meta {
+  color: var(--accent);
+}
+.task.goal .meta-tag {
+  color: #fff;
+  background: var(--accent);
+}
 .check {
   width: 30px;
   height: 30px;

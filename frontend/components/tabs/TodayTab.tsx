@@ -44,8 +44,13 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
   const rows = (list: typeof all) =>
     list.map((t) => {
       const fg = t.goalId ? findGoal(state, t.goalId) : null;
+      const color = fg?.dream.color;
       return (
-        <div className={"task" + (t.done ? " done" : "")} key={t.id}>
+        <div
+          className={"task" + (t.done ? " done" : "") + (fg ? " goal" : "")}
+          key={t.id}
+          style={color ? ({ "--accent": color } as React.CSSProperties) : undefined}
+        >
           <button
             type="button"
             className={"check" + (t.done ? " done" : "")}
@@ -60,7 +65,7 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
             {fg && (
               <div className="meta">
                 {fg.goal.title} · {fg.dream.title}
-                {fg.goal.repeat === "daily" && <span className="meta-tag">매일</span>}
+                <span className="meta-tag">{fg.goal.repeat === "daily" ? "매일" : "한 번"}</span>
               </div>
             )}
           </div>
