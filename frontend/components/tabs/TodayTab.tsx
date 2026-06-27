@@ -66,7 +66,7 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
               </div>
             )}
           </div>
-          {!t.done && (
+          {!t.done && !(fg && fg.goal.repeat === "daily") && (
             <button className="later" onClick={() => actions.tomorrow(t.id)}>
               내일로
             </button>
@@ -113,7 +113,7 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
         <div className="empty">
           오늘 할 일이 없어요.
           <br />
-          아래에서 바로 추가하거나 ‘나의 목표’에서 <b>+오늘</b>으로 담아요.
+          아래에서 바로 추가하거나 ‘나의 목표’에서 할 일을 더해요.
         </div>
       ) : (
         rows(all)

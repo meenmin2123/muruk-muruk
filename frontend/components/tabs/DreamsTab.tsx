@@ -149,9 +149,15 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
   const [faceH, setFaceH] = useState<number>();
   const color = d.color || template(d.cat).color;
   const tpl = template(d.cat);
-  const linked = state.todos.filter((t) => t.goalId && d.goals.some((g) => g.id === t.goalId));
-  const doneN = linked.filter((t) => t.done).length;
-  const pct = linked.length ? Math.round((doneN / linked.length) * 100) : 0;
+  // 진행도: 분모는 '할 일 개수'. 매일 할일은 '오늘 완료'로, 한 번 할일은 '완료한 적 있으면'으로 판정.
+  const goalDone = (g: { id: string; repeat: Repeat }) =>
+    g.repeat === "daily"
+      ? state.todos.some((t) => t.goalId === g.id && t.date === todayStr() && t.done)
+      : state.todos.some((t) => t.goalId === g.id && t.done);
+  const total = d.goals.length;
+  const doneN = d.goals.filter(goalDone).length;
+  const pct = total ? Math.round((doneN / total) * 100) : 0;
+  const habit = isHabitDream(d);
   const dd = ddayText(d.targetDate);
   const used = d.goals.map((g) => g.title);
   const sugg = (tpl.goals || []).filter((s) => !used.includes(s));
@@ -286,7 +292,7 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
           <div className="progress">
             <i style={{ width: pct + "%", background: `linear-gradient(90deg, ${color}88, ${color})` }} />
           </div>
-          <div className="progress-l">{linked.length ? `${doneN}/${linked.length} · ${pct}%` : ""}</div>
+          <div className="progress-l">{total ? `${habit ? "오늘 " : ""}${doneN}/${total} · ${pct}%` : ""}</div>
 
           {d.targetDate ? (
             <div className="dday-line">
