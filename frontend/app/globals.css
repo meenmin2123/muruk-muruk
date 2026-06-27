@@ -1239,6 +1239,29 @@ main > section {
   padding-top: 14px;
   border-top: 1px dashed var(--line);
 }
+/* 오늘 탭: 입력칸을 목록 위로 올리고 상단에 고정 */
+.today-add {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  margin-top: 14px;
+  padding: 8px 0 10px;
+  border-top: none;
+  background: var(--bg);
+}
+.today-add::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 10px;
+  background: linear-gradient(rgba(0, 0, 0, 0.05), transparent);
+  pointer-events: none;
+}
+.today-add .addbar {
+  margin: 0;
+}
 .board-cap {
   display: flex;
   align-items: center;

@@ -109,17 +109,7 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
         </div>
       </div>
 
-      {all.length === 0 ? (
-        <div className="empty">
-          오늘 할 일이 없어요.
-          <br />
-          아래에서 바로 추가하거나 ‘나의 목표’에서 할 일을 더해요.
-        </div>
-      ) : (
-        rows(all)
-      )}
-
-      <div className="addbox">
+      <div className="addbox today-add">
         <div className="addbar">
           <input
             value={text}
@@ -133,6 +123,16 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
           <button onClick={add}>추가</button>
         </div>
       </div>
+
+      {all.length === 0 ? (
+        <div className="empty">
+          오늘 할 일이 없어요.
+          <br />
+          위 입력칸에 바로 적거나 ‘나의 목표’에서 할 일을 더해요.
+        </div>
+      ) : (
+        rows(all)
+      )}
     </section>
   );
 }
