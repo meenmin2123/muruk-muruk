@@ -223,14 +223,38 @@ export function removeSticker(b: StickerBoard, cap: number = BOARD): void {
   b.earned = Math.max(0, (b.earned ?? 0) - 1);
 }
 
-/** 매일 반복 할일을 오늘 자동 생성 (없으면). */
+/**
+ * 할일을 오늘 기준으로 정리한다.
+ * - 매일(daily): 오늘 할일이 없으면 새로 생성한다. 어제 못한 건 이월되지 않는다(매일 새로 시작).
+ * - 한 번(once): 아직 완료하지 않았다면 미완료 할일을 오늘로 이월(같은 할일이 날짜만 이동 → 중복 없음).
+ *   완료한 적이 없고 할일도 없으면 오늘 새로 만든다.
+ */
 export function ensureDailyTodos(s: AppState): AppState {
   const today = todayStr();
-  const todos = [...s.todos];
+  const todos = s.todos.map((t) => ({ ...t }));
   s.dreams.forEach((d) =>
     d.goals.forEach((g) => {
-      if (g.repeat === "daily" && !todos.some((t) => t.goalId === g.id && t.date === today)) {
+      const mine = todos.filter((t) => t.goalId === g.id);
+      if (g.repeat === "daily") {
+        if (!mine.some((t) => t.date === today)) {
+          todos.push({ id: uid(), text: g.title, date: today, done: false, goalId: g.id });
+        }
+        return;
+      }
+      // 한 번(once): 이미 완료한 적이 있으면 그대로 둔다.
+      if (mine.some((t) => t.done)) return;
+      const incomplete = mine.filter((t) => !t.done).sort((a, b) => a.date.localeCompare(b.date));
+      if (incomplete.length === 0) {
+        // 아직 할일이 없으면 오늘 만든다.
         todos.push({ id: uid(), text: g.title, date: today, done: false, goalId: g.id });
+      } else {
+        // 미완료 할일 하나를 오늘로 이월(과거 날짜면 오늘로 당김). 중복은 제거.
+        const keep = incomplete[0];
+        if (keep.date < today) keep.date = today;
+        incomplete.slice(1).forEach((dup) => {
+          const idx = todos.indexOf(dup);
+          if (idx >= 0) todos.splice(idx, 1);
+        });
       }
     }),
   );

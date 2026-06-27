@@ -385,17 +385,17 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
           )}
 
           <div className="taskadd">
-            <div className="goal-add">
+            <div className="taskadd-row">
               <button className={"type-toggle" + (repeat === "daily" ? " daily" : "")} onClick={() => setRepeat(repeat === "once" ? "daily" : "once")} title="한 번 ↔ 매일 전환">
-                <Icon name={repeat === "daily" ? "daily" : "once"} size={13} color="currentColor" /> {repeat === "daily" ? "매일" : "한 번"}
+                <Icon name={repeat === "daily" ? "daily" : "once"} size={12} color="currentColor" /> {repeat === "daily" ? "매일" : "한 번"}
               </button>
-              <input value={goalText} placeholder="할 일 추가" maxLength={40} onChange={(e) => setGoalText(e.target.value)} onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && addGoal(goalText)} />
-              <button onClick={() => addGoal(goalText)}>추가</button>
-            </div>
-            <div style={{ textAlign: "right", marginTop: 6 }}>
-              <button className="ai-link" onClick={aiSuggest} disabled={aiLoading}>
-                {aiLoading ? "생각 중…" : <><Icon name="ai" size={14} color="var(--primary-d)" /> AI 추천</>}
-              </button>
+              <div className="ta-input">
+                <input value={goalText} placeholder="할 일 추가" maxLength={40} onChange={(e) => setGoalText(e.target.value)} onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && addGoal(goalText)} />
+                <button className="ta-ai" onClick={aiSuggest} disabled={aiLoading} aria-label="AI 추천" title="AI로 할 일 추천">
+                  <Icon name="ai" size={17} color="var(--primary-d)" />
+                </button>
+              </div>
+              <button className="ta-add" onClick={() => addGoal(goalText)}>추가</button>
             </div>
           </div>
         </>
