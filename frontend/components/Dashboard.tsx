@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { clearToken, getUser, isAdminEmail } from "@/lib/auth";
-import { AppState, defaultState, streakCount, totalStickers } from "@/lib/state";
+import { AppState, defaultState, rand, streakCount, totalStickers, ENCOURAGE_FALLBACK, REVIEW_FALLBACK, CELEBRATE_FALLBACK } from "@/lib/state";
 import type { AppActions } from "@/lib/store";
 import type { AdminUserState } from "@/lib/types";
 import { stampSVG } from "@/lib/trees";
@@ -43,8 +43,8 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
     let alive = true;
     api
       .coach("celebrate", JSON.stringify({ 완성한목표: gold, 누적완료: state?.totalDone ?? 0 }))
-      .then((r) => alive && setCelebrate(r.message))
-      .catch(() => {});
+      .then((r) => alive && setCelebrate(r.message && !r.message.includes("ANTHROPIC_API_KEY") ? r.message : rand(CELEBRATE_FALLBACK)))
+      .catch(() => alive && setCelebrate(rand(CELEBRATE_FALLBACK)));
     return () => {
       alive = false;
     };
@@ -195,9 +195,9 @@ function SettingsSheet({
     setCoach("");
     try {
       const { message } = await api.coach("encourage", context);
-      setCoach(message);
-    } catch (e) {
-      setCoach("코칭을 불러오지 못했어요: " + String((e as Error).message));
+      setCoach(!message || message.includes("ANTHROPIC_API_KEY") ? rand(ENCOURAGE_FALLBACK) : message);
+    } catch {
+      setCoach(rand(ENCOURAGE_FALLBACK));
     } finally {
       setLoading(false);
     }
@@ -208,9 +208,9 @@ function SettingsSheet({
     setReview("");
     try {
       const { message } = await api.coach("weeklyReview", context);
-      setReview(message);
+      setReview(!message || message.includes("ANTHROPIC_API_KEY") ? rand(REVIEW_FALLBACK) : message);
     } catch {
-      setReview("회고를 불러오지 못했어요.");
+      setReview(rand(REVIEW_FALLBACK));
     } finally {
       setReviewLoading(false);
     }

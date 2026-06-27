@@ -136,7 +136,6 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
   const [titleVal, setTitleVal] = useState(d.title);
   const [editGoalId, setEditGoalId] = useState("");
   const [goalVal, setGoalVal] = useState("");
-  const [ddayOpen, setDdayOpen] = useState(false);
   const [iconOpen, setIconOpen] = useState(false);
   const [flipped, setFlipped] = useState(false);
   const frontRef = useRef<HTMLDivElement>(null);
@@ -272,13 +271,12 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
               <b style={{ color }}>{(tpl.ddayLabel || "디데이")} {dd}</b>
               <button className="link" onClick={() => actions.setDday(d.id, "")}>해제</button>
             </div>
-          ) : ddayOpen ? (
-            <div className="dday-line">
-              <input type="date" autoFocus value="" onChange={(e) => { actions.setDday(d.id, e.target.value); setDdayOpen(false); }} />
-              <button className="link" onClick={() => setDdayOpen(false)}>취소</button>
-            </div>
           ) : (
-            <button className="link dday-add" onClick={() => setDdayOpen(true)}>＋ 디데이 설정</button>
+            <div className="dday-line">
+              <Icon name="calendar" size={13} color="var(--muted)" />
+              <span className="muted">디데이</span>
+              <input type="date" className="dday-input" aria-label="디데이 설정" onChange={(e) => e.target.value && actions.setDday(d.id, e.target.value)} />
+            </div>
           )}
 
           {d.goals.map((g) => {

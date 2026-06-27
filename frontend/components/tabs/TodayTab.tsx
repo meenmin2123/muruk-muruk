@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { api } from "@/lib/api";
 import type { AppActions } from "@/lib/store";
-import { AppState, daysSinceLastDone, findGoal, todayStr } from "@/lib/state";
+import { AppState, daysSinceLastDone, findGoal, rand, todayStr, SLUMP_FALLBACK } from "@/lib/state";
 import { todayTreeSVG } from "@/lib/trees";
 import { Icon } from "../Icon";
 
@@ -21,9 +21,9 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
     try {
       const ctx = JSON.stringify({ 마지막완료로부터일수: gap, 누적완료: state.totalDone, 목표수: state.dreams.length });
       const { message } = await api.coach("slumpCare", ctx);
-      setSlump(message);
+      setSlump(!message || message.includes("ANTHROPIC_API_KEY") ? rand(SLUMP_FALLBACK) : message);
     } catch {
-      setSlump("괜찮아요. 오늘 아주 작은 것 하나만 다시 시작해봐요 🤍");
+      setSlump(rand(SLUMP_FALLBACK));
     } finally {
       setSlumpLoading(false);
     }
