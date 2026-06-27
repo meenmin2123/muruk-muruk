@@ -7,6 +7,7 @@ import { AppState, CAT_ORDER, Dream, PALETTE, Repeat, TEMPLATES, THEMES, boardCa
 import { boardSVG, gridBoardSVG, stampSVG } from "@/lib/trees";
 import { Icon, catIconName, hasIcon } from "../Icon";
 import { IconPicker } from "../IconPicker";
+import { Calendar } from "../Calendar";
 
 interface CatMeta {
   key: string;
@@ -143,6 +144,7 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
   const [editGoalId, setEditGoalId] = useState("");
   const [goalVal, setGoalVal] = useState("");
   const [iconOpen, setIconOpen] = useState(false);
+  const [calOpen, setCalOpen] = useState(false);
   const [flipped, setFlipped] = useState(false);
   const frontRef = useRef<HTMLDivElement>(null);
   const backRef = useRef<HTMLDivElement>(null);
@@ -297,7 +299,9 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
           {d.targetDate ? (
             <div className="dday-line">
               <Icon name="calendar" size={13} color={color} />
-              <span className="muted">{d.ddayStart ? `${md(d.ddayStart)} 시작 · ` : ""}{(tpl.ddayLabel || "디데이")} {md(d.targetDate)}</span>
+              <button className="dday-pick" onClick={() => setCalOpen(true)} title="날짜 변경">
+                {d.ddayStart ? `${md(d.ddayStart)} 시작 · ` : ""}{(tpl.ddayLabel || "디데이")} {md(d.targetDate)}
+              </button>
               <b style={{ color }}>{dd}</b>
               <button className="link" onClick={() => actions.setDday(d.id, "")}>해제</button>
             </div>
@@ -305,8 +309,16 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
             <div className="dday-line">
               <Icon name="calendar" size={13} color="var(--muted)" />
               <span className="muted">디데이</span>
-              <input type="date" className="dday-input" aria-label="디데이 설정" onChange={(e) => e.target.value && actions.setDday(d.id, e.target.value)} />
+              <button className="dday-pick" onClick={() => setCalOpen(true)}>날짜 선택</button>
             </div>
+          )}
+          {calOpen && (
+            <Calendar
+              value={d.targetDate}
+              color={color}
+              onPick={(ds) => { actions.setDday(d.id, ds); setCalOpen(false); }}
+              onClose={() => setCalOpen(false)}
+            />
           )}
 
           {d.goals.map((g) => {
