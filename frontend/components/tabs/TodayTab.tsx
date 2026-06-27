@@ -9,7 +9,6 @@ import { Icon } from "../Icon";
 
 export function TodayTab({ state, actions }: { state: AppState; actions: AppActions }) {
   const [text, setText] = useState("");
-  const [goalId, setGoalId] = useState("");
   const [slump, setSlump] = useState("");
   const [slumpLoading, setSlumpLoading] = useState(false);
 
@@ -32,12 +31,10 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
   const all = state.todos.filter((t) => t.date === todayStr());
   const done = all.filter((t) => t.done).length;
 
-  const dreamsWithGoals = state.dreams.filter((d) => d.goals.length);
-
   function add() {
     const v = text.trim();
     if (!v) return;
-    actions.addTodo(v, goalId || null);
+    actions.addTodo(v, null);
     setText("");
   }
 
@@ -135,18 +132,6 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
           />
           <button onClick={add}>추가</button>
         </div>
-        <select className="goalpick" value={goalId} onChange={(e) => setGoalId(e.target.value)} aria-label="연결할 목표">
-          <option value="">🌳 목표 연결 안 함</option>
-          {dreamsWithGoals.map((d) => (
-            <optgroup key={d.id} label={`${d.emoji} ${d.title}`}>
-              {d.goals.map((g) => (
-                <option key={g.id} value={g.id}>
-                  {g.title}
-                </option>
-              ))}
-            </optgroup>
-          ))}
-        </select>
       </div>
     </section>
   );
