@@ -31,7 +31,14 @@ const ICONS: Record<string, { filled?: boolean; render: (c: string) => string }>
   sprout: { filled: true, render: (c) => `<path d="M12 21 V11" stroke="${c}" stroke-width="2.2" stroke-linecap="round" fill="none"/><path d="M12 13.2 C 7.8 13.2, 5.8 10, 6.4 7.3 C 10.2 7.6, 12 10.5, 12 13.2 Z" fill="${c}"/><path d="M12 11 C 15.6 11, 17.4 8.6, 16.9 6.1 C 13.6 6.4, 12 8.8, 12 11 Z" fill="${c}"/>` },
 
   // ── 조작 (라인) ──
-  settings: { render: () => `<line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/><circle cx="15" cy="7" r="2.4" fill="#fff"/><circle cx="9" cy="12" r="2.4" fill="#fff"/><circle cx="15" cy="17" r="2.4" fill="#fff"/>` },
+  settings: {
+    filled: true,
+    render: (c) => {
+      let t = "";
+      for (let i = 0; i < 8; i++) t += `<rect x="10.7" y="1.6" width="2.6" height="4.1" rx="1" transform="rotate(${i * 45} 12 12)" fill="${c}"/>`;
+      return t + `<circle cx="12" cy="12" r="6.3" fill="${c}"/><circle cx="12" cy="12" r="2.7" fill="#fff"/>`;
+    },
+  },
   add: { render: () => `<line x1="12" y1="5.5" x2="12" y2="18.5"/><line x1="5.5" y1="12" x2="18.5" y2="12"/>` },
   edit: { render: () => `<path d="M4.5 19.5 L4.5 15.7 L14.8 5.4 L18.6 9.2 L8.3 19.5 Z"/><line x1="13" y1="7.2" x2="16.8" y2="11"/>` },
   close: { render: () => `<line x1="6.5" y1="6.5" x2="17.5" y2="17.5"/><line x1="17.5" y1="6.5" x2="6.5" y2="17.5"/>` },

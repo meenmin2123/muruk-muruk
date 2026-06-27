@@ -438,6 +438,19 @@ main > section {
   font-weight: 800;
   color: var(--primary-d);
 }
+.admin-dream {
+  padding: 6px 0;
+  border-top: 1px dashed var(--line);
+  font-size: 13px;
+}
+.admin-raw {
+  margin-top: 8px;
+}
+.admin-raw summary {
+  font-size: 11.5px;
+  color: var(--muted);
+  cursor: pointer;
+}
 .admin-json {
   max-height: 240px;
   overflow: auto;
