@@ -16,6 +16,7 @@ export interface Dream {
   color: string;
   theme: string;
   targetDate: string | null;
+  ddayStart?: string; // 디데이를 설정한 날(시작일)
   collapsed?: boolean;
   goals: Goal[];
   // 사용자가 직접 고른 아이콘(아이콘 이름) 또는 이모지. 없으면 카테고리 기본/emoji 사용.

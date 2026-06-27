@@ -80,6 +80,7 @@ export interface AppActions {
   renameGoal(dreamId: string, goalId: string, title: string): void;
   updateSettings(patch: Record<string, unknown>): void;
   toggleGoalDay(goalId: string, date: string): void;
+  toggleGoalDone(goalId: string): void;
 }
 
 export function useAppState() {
@@ -274,8 +275,37 @@ export function useAppState() {
     setDday(id, date) {
       mutate((s) => {
         const d = s.dreams.find((x) => x.id === id);
-        if (d) d.targetDate = date || null; // 디데이는 카운트다운 표시용(칭찬판 칸 수와 무관)
+        if (!d) return;
+        d.targetDate = date || null; // 디데이는 카운트다운 표시용(칭찬판 칸 수와 무관)
+        if (d.targetDate) {
+          if (!d.ddayStart) d.ddayStart = todayStr(); // 처음 설정한 날을 시작일로 기록
+        } else {
+          d.ddayStart = undefined;
+        }
       });
+    },
+    toggleGoalDone(goalId) {
+      let toastMsg = "";
+      let goldTitle: string | null = null;
+      mutate((s) => {
+        const found = findGoal(s, goalId);
+        if (!found) return;
+        // 한 번 할 일: 이미 완료(아무 날짜)면 그걸 해제, 아니면 오늘 완료 처리.
+        const existingDone = s.todos.find((t) => t.goalId === goalId && t.done);
+        let t = existingDone;
+        if (!t) {
+          t = s.todos.find((x) => x.goalId === goalId && x.date === todayStr());
+          if (!t) {
+            t = { id: uid(), text: found.goal.title, date: todayStr(), done: false, goalId };
+            s.todos.push(t);
+          }
+        }
+        const r = applyToggle(s, t);
+        toastMsg = r.toast;
+        goldTitle = r.gold;
+      });
+      if (goldTitle) setGold(goldTitle);
+      else if (toastMsg) setToast(toastMsg);
     },
     setDreamIcon(id, icon) {
       mutate((s) => {

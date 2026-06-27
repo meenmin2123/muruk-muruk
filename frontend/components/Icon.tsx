@@ -62,6 +62,7 @@ const ICONS: Record<string, { filled?: boolean; render: (c: string) => string }>
   bolt: { filled: true, render: (c) => `<path d="M13.2 2 L5 13 H11 L9.8 22 L19 9.5 H12.6 Z" fill="${c}"/>` },
   pin: { filled: true, render: (c) => `<path d="M12 22 C 7 15, 5 12, 5 8.5 a7 7 0 0 1 14 0 C 19 12, 17 15, 12 22 Z" fill="${c}"/><circle cx="12" cy="8.5" r="2.6" fill="#fff"/>` },
   camera: { filled: true, render: (c) => `<rect x="3" y="7.5" width="18" height="12" rx="2.6" fill="${c}"/><path d="M8.5 7.5 L9.8 5.4 H14.2 L15.5 7.5 Z" fill="${c}"/><circle cx="12" cy="13.6" r="3.4" fill="#fff"/><circle cx="12" cy="13.6" r="1.7" fill="${c}"/>` },
+  tree: { filled: true, render: (c) => `<rect x="10.8" y="13" width="2.4" height="8" rx="1.1" fill="${c}"/><circle cx="12" cy="8.5" r="5.6" fill="${c}"/><circle cx="7.7" cy="11.5" r="4" fill="${c}"/><circle cx="16.3" cy="11.5" r="4" fill="${c}"/>` },
 };
 
 /** 아이콘 피커에 노출할 아이콘 목록. */

@@ -150,6 +150,13 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
   const used = d.goals.map((g) => g.title);
   const sugg = (tpl.goals || []).filter((s) => !used.includes(s));
 
+  // 'YYYY-MM-DD' → 'M/D'
+  const md = (s?: string | null) => {
+    if (!s) return "";
+    const p = s.split("-");
+    return p.length === 3 ? `${+p[1]}/${+p[2]}` : s;
+  };
+
   // 날짜별 완료 스트립(최근 7일)
   const WD = ["일", "월", "화", "수", "목", "금", "토"];
   const last7 = Array.from({ length: 7 }, (_, i) => {
@@ -247,8 +254,8 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
           </>
         )}
         {!editTitle && (
-          <button className="icon-btn flipbtn" aria-label="칭찬판 보기" onClick={() => setFlipped(true)}>
-            <Icon name="flip" size={17} />
+          <button className="boardflip" aria-label="칭찬판 보기" style={{ background: color + "1f", color }} onClick={() => setFlipped(true)}>
+            <Icon name="tree" size={16} color={color} /> 칭찬판
           </button>
         )}
         {!editTitle && (
@@ -268,7 +275,8 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
           {d.targetDate ? (
             <div className="dday-line">
               <Icon name="calendar" size={13} color={color} />
-              <b style={{ color }}>{(tpl.ddayLabel || "디데이")} {dd}</b>
+              <span className="muted">{d.ddayStart ? `${md(d.ddayStart)} 시작 · ` : ""}{(tpl.ddayLabel || "디데이")} {md(d.targetDate)}</span>
+              <b style={{ color }}>{dd}</b>
               <button className="link" onClick={() => actions.setDday(d.id, "")}>해제</button>
             </div>
           ) : (
@@ -284,6 +292,16 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
             return (
               <div className="goalblock" key={g.id}>
                 <div className={"goal" + (g.repeat === "once" && onceDone ? " done" : "")}>
+                  {g.repeat === "once" && editGoalId !== g.id && (
+                    <button
+                      className={"g-check" + (onceDone ? " on" : "")}
+                      style={onceDone ? { background: color, borderColor: color } : undefined}
+                      onClick={() => actions.toggleGoalDone(g.id)}
+                      aria-label={onceDone ? "완료 취소" : "완료"}
+                    >
+                      {onceDone && <Icon name="check" size={12} color="#fff" />}
+                    </button>
+                  )}
                   {editGoalId === g.id ? (
                     <input
                       className="rename-input g-t"
@@ -311,7 +329,7 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
                     </>
                   )}
                 </div>
-                {editGoalId !== g.id && (g.repeat === "daily" ? (
+                {editGoalId !== g.id && g.repeat === "daily" && (
                   <div className="goal-week">
                     {last7.map((dt) => {
                       const ds = dateStr(dt);
@@ -331,15 +349,7 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
                       );
                     })}
                   </div>
-                ) : (
-                  <button
-                    className={"goal-onecheck" + (onceDone ? " on" : "")}
-                    style={onceDone ? { background: color, borderColor: color } : undefined}
-                    onClick={() => actions.toggleGoalDay(g.id, todayStr())}
-                  >
-                    {onceDone ? <><Icon name="check" size={14} color="#fff" /> 완료함</> : "완료하기"}
-                  </button>
-                ))}
+                )}
               </div>
             );
           })}
@@ -376,14 +386,13 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
 
           <div className="taskadd">
             <div className="goal-add">
+              <button className={"type-toggle" + (repeat === "daily" ? " daily" : "")} onClick={() => setRepeat(repeat === "once" ? "daily" : "once")} title="한 번 ↔ 매일 전환">
+                <Icon name={repeat === "daily" ? "daily" : "once"} size={13} color="currentColor" /> {repeat === "daily" ? "매일" : "한 번"}
+              </button>
               <input value={goalText} placeholder="할 일 추가" maxLength={40} onChange={(e) => setGoalText(e.target.value)} onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && addGoal(goalText)} />
               <button onClick={() => addGoal(goalText)}>추가</button>
             </div>
-            <div className="taskadd-opts">
-              <div className="seg" role="group" aria-label="할 일 종류">
-                <button className={repeat === "once" ? "on" : ""} onClick={() => setRepeat("once")}><Icon name="once" size={13} color="currentColor" /> 한 번</button>
-                <button className={repeat === "daily" ? "on" : ""} onClick={() => setRepeat("daily")}><Icon name="daily" size={13} color="currentColor" /> 매일</button>
-              </div>
+            <div style={{ textAlign: "right", marginTop: 6 }}>
               <button className="ai-link" onClick={aiSuggest} disabled={aiLoading}>
                 {aiLoading ? "생각 중…" : <><Icon name="ai" size={14} color="var(--primary-d)" /> AI 추천</>}
               </button>
