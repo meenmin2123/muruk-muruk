@@ -1,55 +1,30 @@
-// 무럭무럭 서비스워커.
-// 핵심: HTML 문서는 "네트워크 우선" — 새 배포가 즉시 반영되도록.
-// (캐시 우선으로 옛 HTML을 서빙하면, 바뀐 JS 청크 파일명을 못 찾아 앱이 크래시함)
-const CACHE = "muruk-v4";
-
-self.addEventListener("install", () => {
-  self.skipWaiting();
-});
+// 무럭무럭 서비스워커 — kill-switch.
+// 개발 중 캐시로 옛 버전이 박히는 문제 때문에 SW 캐싱을 비활성화한다.
+// 이미 설치된(옛) SW가 이 파일로 갱신되면: 모든 캐시를 비우고, 자기 자신을 등록 해제하고,
+// 열린 화면을 한 번 새로고침해 최신본으로 교체한다. fetch 가로채기 없음 → 항상 네트워크.
+self.addEventListener("install", () => self.skipWaiting());
 
 self.addEventListener("activate", (e) => {
   e.waitUntil(
-    caches
-      .keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
-      .then(() => self.clients.claim())
-      // 새 워커가 잡히면, 열려 있는(옛 캐시로 떠 있던) 화면을 강제로 새로고침해 최신으로 교체.
-      .then(() => self.clients.matchAll({ type: "window" }))
-      .then((clients) => clients.forEach((c) => "navigate" in c && c.navigate(c.url)))
-  );
-});
-
-self.addEventListener("fetch", (e) => {
-  const { request } = e;
-  if (request.method !== "GET" || request.url.includes("/api/")) return;
-
-  // HTML 문서(페이지 이동): 네트워크 우선 → 항상 최신, 오프라인이면 캐시 폴백.
-  if (request.mode === "navigate" || request.destination === "document") {
-    e.respondWith(
-      fetch(request)
-        .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(request, copy)).catch(() => {});
-          return res;
-        })
-        .catch(() => caches.match(request).then((c) => c || caches.match("/")))
-    );
-    return;
-  }
-
-  // 그 외(_next 해시 자산, 이미지 등): 캐시 우선(내용이 바뀌면 파일명이 바뀌므로 안전).
-  e.respondWith(
-    caches.match(request).then(
-      (cached) =>
-        cached ||
-        fetch(request)
-          .then((res) => {
-            const copy = res.clone();
-            caches.open(CACHE).then((c) => c.put(request, copy)).catch(() => {});
-            return res;
-          })
-          .catch(() => cached)
-    )
+    (async () => {
+      try {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((k) => caches.delete(k)));
+      } catch {
+        /* ignore */
+      }
+      try {
+        await self.registration.unregister();
+      } catch {
+        /* ignore */
+      }
+      try {
+        const clients = await self.clients.matchAll({ type: "window" });
+        clients.forEach((c) => "navigate" in c && c.navigate(c.url));
+      } catch {
+        /* ignore */
+      }
+    })(),
   );
 });
 
@@ -62,6 +37,6 @@ self.addEventListener("notificationclick", (e) => {
         if ("focus" in c) return c.focus();
       }
       if (self.clients.openWindow) return self.clients.openWindow("/");
-    })
+    }),
   );
 });

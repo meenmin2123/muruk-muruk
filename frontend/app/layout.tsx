@@ -31,9 +31,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         {/* 구글 로그인(GIS) 스크립트 */}
         <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
-        {/* PWA 서비스워커 등록 + 새 버전 활성화 시 자동 새로고침 */}
-        <Script id="sw-register" strategy="afterInteractive">
-          {`if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').then(function(reg){try{reg.update()}catch(e){}}).catch(function(){});var r=false;navigator.serviceWorker.addEventListener('controllerchange',function(){if(r)return;r=true;window.location.reload()});});}`}
+        {/* 서비스워커 비활성화: 개발 중 캐시로 옛 버전이 박히는 문제 방지.
+            기존에 설치된 SW를 해제하고 모든 캐시를 비워 항상 네트워크 최신본을 받는다. */}
+        <Script id="sw-unregister" strategy="afterInteractive">
+          {`if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister()})}).catch(function(){})}if(window.caches&&caches.keys){caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k)})}).catch(function(){})}`}
         </Script>
         {children}
       </body>

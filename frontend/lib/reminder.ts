@@ -9,7 +9,8 @@ export const DEFAULT_REMINDER_TIME = "21:00";
 /** 알림을 띄운다. 서비스워커가 있으면 그쪽으로(백그라운드 탭에서도 동작), 없으면 일반 Notification. */
 function fire(body: string) {
   const opts: NotificationOptions = { body, icon: "/icon.svg", badge: "/icon.svg", tag: "muruk-daily" };
-  if (navigator.serviceWorker?.ready) {
+  // SW가 실제로 페이지를 제어 중일 때만 SW 알림 사용(없으면 ready가 영영 안 풀림) → 아니면 일반 Notification.
+  if (navigator.serviceWorker?.controller) {
     navigator.serviceWorker.ready
       .then((reg) => reg.showNotification("무럭무럭", opts))
       .catch(() => {
