@@ -1,10 +1,11 @@
-// 칭찬판 SVG 렌더러 (index.html에서 이식). 문자열을 반환 → dangerouslySetInnerHTML로 렌더.
+// 칭찬판 SVG 렌더러. 문자열 반환 → dangerouslySetInnerHTML로 렌더.
+// 모든 테마: 플랫 일러스트 + 개수-적응형 슬롯(할 일 개수만큼 자동 배치) + 커스텀 스티커.
 import type { StickerBoard } from "./state";
 
 type Goal = StickerBoard;
 const stk = (g: Goal) => g.stickers ?? [];
 
-// ── 커스텀 스티커(얼굴 없음, 100x100 기준) ──
+// ── 커스텀 스티커(얼굴 없음, 100x100) ──
 const STK: Record<string, string> = {
   star: `<path d="M50 12 L60 38.3 L88 39.6 L66.2 57.3 L73.5 84.4 L50 69 L26.5 84.4 L33.8 57.3 L12 39.6 L40 38.3 Z" fill="#FFD23E" stroke="#E8A300" stroke-width="3.4" stroke-linejoin="round"/>`,
   heart: `<path d="M50 84 C 18 62 16 38 31 29 C 43 22 50 33 50 38 C 50 33 57 22 69 29 C 84 38 82 62 50 84 Z" fill="#FF8FA3" stroke="#E96A85" stroke-width="3.4" stroke-linejoin="round"/>`,
@@ -19,7 +20,7 @@ const FILL = ["star", "heart", "sprout", "clover", "strawberry", "rainbow", "chi
 const sticker = (name: string, cx: number, cy: number, size: number) =>
   `<g transform="translate(${(cx - size / 2).toFixed(1)} ${(cy - size / 2).toFixed(1)}) scale(${(size / 100).toFixed(3)})">${STK[name]}</g>`;
 
-// 개수-적응형 슬롯 배치 → [x, y, r]
+// ── 공통 헬퍼 ──
 function packSlots(n: number, ax: number, ay: number, aw: number, ah: number): [number, number, number][] {
   const cols = Math.min(5, Math.max(1, Math.ceil(Math.sqrt(n * 1.45))));
   const rows = Math.ceil(n / cols) || 1;
@@ -32,8 +33,6 @@ function packSlots(n: number, ax: number, ay: number, aw: number, ah: number): [
   }
   return pos;
 }
-
-// 매끈한 덤불 실루엣(플랫, 단일 패스)
 function cloudPath(cx: number, cy: number, rx: number, ry: number, m = 11, bulge = 1.12): string {
   const pts: [number, number][] = [];
   for (let i = 0; i < m; i++) {
@@ -49,159 +48,87 @@ function cloudPath(cx: number, cy: number, rx: number, ry: number, m = 11, bulge
   }
   return d + " Z";
 }
+const leaf = (x: number, y: number, rot: number, s: number, c = "#86c869") =>
+  `<path transform="translate(${x} ${y}) rotate(${rot}) scale(${s})" d="M0 0 C 16 -3 25 -15 22 -28 C 7 -25 -2 -12 0 0 Z" fill="${c}" stroke="#5da64a" stroke-width="2.6" stroke-linejoin="round"/>`;
+const sparkle = (x: number, y: number, s: number, c = "#FFD23E") =>
+  `<path transform="translate(${x} ${y}) scale(${s})" d="M0 -7 L1.8 -1.8 L7 0 L1.8 1.8 L0 7 L-1.8 1.8 L-7 0 L-1.8 -1.8 Z" fill="${c}"/>`;
 
-// 플랫 일러스트 나무 + 개수-적응형 슬롯 (n칸 중 filledCount칸을 스티커로 채움)
-function renderTree(n: number, filledCount: number): string {
-  const W = 320, H = 300;
-  const ax = 42, ay = 64, aw = W - 84, ah = H - 132;
-  const slots = packSlots(Math.max(0, n), ax, ay, aw, ah);
-  const ecx = W / 2, ecy = ay + ah / 2, rx = aw / 2 + 28, ry = ah / 2 + 26;
-  const canopy = cloudPath(ecx, ecy, rx, ry, 11);
-  const baseY = H - 24, half = 15, topY = ecy + ry * 0.5, midY = (topY + baseY) / 2;
-  const trunk = `<path d="M${ecx - half} ${topY} C ${ecx - half - 1} ${midY}, ${ecx - half - 4} ${baseY - 20}, ${ecx - half - 13} ${baseY} L ${ecx - half - 2} ${baseY} C ${ecx - 3} ${baseY - 14}, ${ecx - 3} ${baseY - 13}, ${ecx} ${baseY - 13} C ${ecx + 3} ${baseY - 13}, ${ecx + 3} ${baseY - 14}, ${ecx + half + 2} ${baseY} L ${ecx + half + 13} ${baseY} C ${ecx + half + 4} ${baseY - 20}, ${ecx + half + 1} ${midY}, ${ecx + half} ${topY} Z" fill="#B5895C" stroke="#8a5d38" stroke-width="2.6" stroke-linejoin="round"/>`;
-  const shadow = `<ellipse cx="${ecx}" cy="${baseY + 6}" rx="${half + 24}" ry="8" fill="#3a5a40" opacity="0.09"/>`;
-  const body = `<path d="${canopy}" fill="#9AD27C" stroke="#5da64a" stroke-width="3" stroke-linejoin="round"/>`;
+const ACCENT: Record<string, string> = { tree: "#4E9E45", grape: "#8E6FC0", star: "#5B8DEF", flower: "#FF7DA3", balloon: "#5C9BE0", rainbow: "#5B8DEF" };
+
+/** 테마별 칭찬판 SVG. n칸 중 filled칸을 커스텀 스티커로 채우고, 빈칸은 점선 동그라미. */
+function renderBoard(theme: string, n: number, filled: number): string {
+  const W = 300, H = 300, cx = W / 2;
+  const accent = ACCENT[theme] || ACCENT.tree;
+  let area = { ax: 34, ay: 74, aw: W - 68, ah: H - 138 };
+  if (theme === "tree") area = { ax: 42, ay: 70, aw: W - 84, ah: H - 140 };
+  if (theme === "flower") area = { ax: 40, ay: 70, aw: W - 80, ah: H - 150 };
+  if (theme === "rainbow") area = { ax: 40, ay: 110, aw: W - 80, ah: H - 168 };
+  const slots = packSlots(Math.max(0, n), area.ax, area.ay, area.aw, area.ah);
+
+  let bg = `<rect width="${W}" height="${H}" rx="20" fill="#fbfdfa"/>`;
+  let scene = "";
+
+  if (theme === "tree") {
+    const ecx = cx, ecy = area.ay + area.ah / 2, rx = area.aw / 2 + 28, ry = area.ah / 2 + 26;
+    const baseY = H - 22, half = 15, topY = ecy + ry * 0.5, midY = (topY + baseY) / 2;
+    bg = `<rect width="${W}" height="${H}" rx="20" fill="#f4faf0"/>`;
+    scene = `<ellipse cx="${ecx}" cy="${baseY + 6}" rx="40" ry="8" fill="#3a5a40" opacity="0.09"/>
+      <path d="M${ecx - half} ${topY} C ${ecx - half - 1} ${midY}, ${ecx - half - 4} ${baseY - 20}, ${ecx - half - 13} ${baseY} L ${ecx - half - 2} ${baseY} C ${ecx - 3} ${baseY - 14}, ${ecx - 3} ${baseY - 13}, ${ecx} ${baseY - 13} C ${ecx + 3} ${baseY - 13}, ${ecx + 3} ${baseY - 14}, ${ecx + half + 2} ${baseY} L ${ecx + half + 13} ${baseY} C ${ecx + half + 4} ${baseY - 20}, ${ecx + half + 1} ${midY}, ${ecx + half} ${topY} Z" fill="#B5895C" stroke="#8a5d38" stroke-width="2.6" stroke-linejoin="round"/>
+      <path d="${cloudPath(ecx, ecy, rx, ry, 11)}" fill="#9AD27C" stroke="#5da64a" stroke-width="3" stroke-linejoin="round"/>`;
+  } else if (theme === "grape") {
+    bg = `<rect width="${W}" height="${H}" rx="20" fill="#f7f2fc"/>`;
+    const ecx = cx, ecy = area.ay + area.ah / 2;
+    scene = `<ellipse cx="${ecx}" cy="${ecy + 6}" rx="${area.aw / 2 + 6}" ry="${area.ah / 2 + 14}" fill="#ece2f8"/>
+      <path d="M30 50 Q${cx} 26 ${W - 30} 46" fill="none" stroke="#7CB342" stroke-width="6" stroke-linecap="round"/>
+      <path d="M${W - 36} 46 q14 -10 22 2 q-9 7 -22 -2 Z" fill="#8ED27A" stroke="#4E9E45" stroke-width="2.4"/>
+      ${leaf(70, 52, 165, 0.8)}${leaf(cx + 6, 40, 185, 0.85)}${leaf(W - 72, 54, 205, 0.8)}`;
+  } else if (theme === "star") {
+    bg = `<rect width="${W}" height="${H}" rx="20" fill="#eef1ff"/>`;
+    scene = `<circle cx="52" cy="58" r="17" fill="#FFE066" stroke="#F2C200" stroke-width="2.6"/><circle cx="59" cy="53" r="14" fill="#eef1ff"/>
+      ${sparkle(W - 60, 58, 1.1)}${sparkle(W - 36, 80, 0.8)}${sparkle(W - 30, 50, 0.7)}${sparkle(40, H - 46, 0.8)}${sparkle(W - 54, H - 40, 1)}
+      <ellipse cx="${W - 56}" cy="${H - 60}" rx="22" ry="11" fill="#fff" opacity="0.75"/>`;
+  } else if (theme === "flower") {
+    bg = `<rect width="${W}" height="${H}" rx="20" fill="#fdf0f7"/>`;
+    const fl = (x: number, y: number, c: string) =>
+      `<g transform="translate(${x} ${y})"><rect x="-2.5" y="0" width="5" height="46" rx="2.5" fill="#7DC56A"/>${leaf(-2, 26, 205, 0.55)}${[0, 60, 120, 180, 240, 300].map((a) => `<circle cx="${(11 * Math.cos((a * Math.PI) / 180)).toFixed(1)}" cy="${(11 * Math.sin((a * Math.PI) / 180)).toFixed(1)}" r="8" fill="${c}" stroke="#e58aa6" stroke-width="2"/>`).join("")}<circle cx="0" cy="0" r="7.5" fill="#FFD23E" stroke="#E8A300" stroke-width="2"/></g>`;
+    scene = `<rect x="14" y="${H - 32}" width="${W - 28}" height="16" rx="8" fill="#bfe6a8" stroke="#9ED584" stroke-width="2"/>
+      ${fl(36, H - 72, "#FF9DB6")}${fl(W - 36, H - 76, "#FFC06A")}${leaf(22, 66, 150, 0.6)}${leaf(W - 22, 62, 210, 0.6)}`;
+  } else if (theme === "balloon") {
+    bg = `<rect width="${W}" height="${H}" rx="20" fill="#f1f7fd"/>`;
+    const knotX = cx, knotY = H - 18;
+    scene = slots.map(([x, y, r]) => `<path d="M${x.toFixed(1)} ${(y + r).toFixed(1)} Q ${((x + knotX) / 2).toFixed(1)} ${((y + knotY) / 2).toFixed(1)} ${knotX} ${knotY}" fill="none" stroke="#bcd0e6" stroke-width="1.4"/>`).join("") +
+      `<circle cx="${knotX}" cy="${knotY}" r="3.5" fill="#9bb4cd"/><ellipse cx="48" cy="64" rx="22" ry="11" fill="#fff" opacity="0.8"/><ellipse cx="${W - 50}" cy="84" rx="18" ry="9" fill="#fff" opacity="0.7"/>`;
+  } else if (theme === "rainbow") {
+    bg = `<rect width="${W}" height="${H}" rx="20" fill="#eaf5fd"/>`;
+    const rcx = cx, rcy = 118;
+    scene = ["#FF8A8A", "#FFC06A", "#FFE08A", "#9BD67E", "#86C0F0"].map((c, k) => { const rr = 92 - k * 13; return `<path d="M${rcx - rr} ${rcy} A${rr} ${rr} 0 0 1 ${rcx + rr} ${rcy}" fill="none" stroke="${c}" stroke-width="11"/>`; }).join("") +
+      `<ellipse cx="${rcx - 92}" cy="${rcy}" rx="26" ry="13" fill="#fff" stroke="#dbe6f0" stroke-width="2"/><ellipse cx="${rcx + 92}" cy="${rcy}" rx="26" ry="13" fill="#fff" stroke="#dbe6f0" stroke-width="2"/>`;
+  }
+
   const slotSvg = slots.map(([x, y, r], i) =>
-    i < filledCount
+    i < filled
       ? `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(r + 2.5).toFixed(1)}" fill="#fff"/>${sticker(FILL[i % FILL.length], x, y, r * 1.95)}`
-      : `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" fill="#ffffff" stroke="#4E9E45" stroke-width="2.2" stroke-dasharray="3.5 3.5" opacity="0.85"/>`
+      : `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" fill="#ffffff" stroke="${accent}" stroke-width="2.2" stroke-dasharray="3.5 3.5" opacity="0.85"/>`
   ).join("");
-  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;display:block"><rect width="${W}" height="${H}" fill="#f4faf0"/>${shadow}${trunk}${body}${slotSvg}</svg>`;
+
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;display:block">${bg}${scene}${slotSvg}</svg>`;
+}
+
+// 4번째 인자(accent)는 하위호환용 — 테마별 고정 색을 쓰므로 무시한다.
+export function boardSVG(g: Goal, theme: string, cap = 10, _accent?: string): string {
+  void _accent;
+  const n = Math.min(60, Math.max(1, Math.round(cap)));
+  return renderBoard(theme || "tree", n, Math.min(stk(g).length, n));
 }
 
 export function treeSVG(g: Goal, cap = 10): string {
-  const n = Math.min(60, Math.max(1, Math.round(cap)));
-  return renderTree(n, Math.min(stk(g).length, n));
+  return boardSVG(g, "tree", cap);
 }
 
 /** 오늘의 나무 — 오늘 할 일 개수(total)만큼 칸을 그리고 완료한(done)만큼 스티커로 채운다. */
 export function todayTreeSVG(done: number, total: number): string {
   const n = Math.min(60, Math.max(0, total));
-  return renderTree(n, Math.min(Math.max(0, done), n));
-}
-
-function starPts(cx: number, cy: number, r: number): string {
-  let d = "";
-  for (let i = 0; i < 10; i++) {
-    const rr = i % 2 ? r * 0.42 : r;
-    const a = ((-90 + i * 36) * Math.PI) / 180;
-    d += (i ? "L" : "M") + (cx + Math.cos(a) * rr).toFixed(1) + "," + (cy + Math.sin(a) * rr).toFixed(1);
-  }
-  return d + "Z";
-}
-
-export function grapeSVG(g: Goal, cap = 10): string {
-  const n = stk(g).length;
-  const c = Math.min(10, Math.max(1, Math.round(cap)));
-  const pos = [[104, 92], [138, 92], [172, 92], [206, 92], [121, 122], [155, 122], [189, 122], [138, 152], [172, 152], [155, 182]].slice(0, c);
-  const grapes = pos
-    .map((p, i) => {
-      const f = i < n;
-      return `<circle cx="${p[0]}" cy="${p[1]}" r="17" fill="${f ? "#9B6FD6" : "#fff"}" stroke="${f ? "#7A4FB8" : "#DDCBEF"}" stroke-width="2"/>` + (f ? `<circle cx="${p[0] - 5}" cy="${p[1] - 6}" r="3" fill="#fff" opacity=".5"/>` : "");
-    })
-    .join("");
-  return `<svg viewBox="0 0 304 220" style="width:100%;display:block"><rect width="304" height="220" fill="#F2ECFB"/><path d="M155,74 C150,58 150,50 158,44" fill="none" stroke="#7A5B36" stroke-width="4" stroke-linecap="round"/><ellipse cx="176" cy="50" rx="16" ry="9" fill="#6FB46F" stroke="#4E9D5E" stroke-width="2" transform="rotate(20 176 50)"/>${grapes}</svg>`;
-}
-
-export function starSVG(g: Goal, cap = 10): string {
-  const n = stk(g).length;
-  const c = Math.min(10, Math.max(1, Math.round(cap)));
-  const pos = [[52, 82], [108, 82], [164, 82], [220, 82], [276, 82], [276, 166], [220, 166], [164, 166], [108, 166], [52, 166]].slice(0, c);
-  const stars = pos.map((p, i) => `<path d="${starPts(p[0], p[1], 16)}" fill="${i < n ? "#FFC83D" : "#fff"}" stroke="${i < n ? "#E0A11F" : "#E3D6C2"}" stroke-width="2" stroke-linejoin="round"/>`).join("");
-  return `<svg viewBox="0 0 304 210" style="width:100%;display:block"><rect width="304" height="210" fill="#FFF7EC"/><path d="M52,82 H276 V166 H52" fill="none" stroke="#EAD9C2" stroke-width="3" stroke-dasharray="5 7" stroke-linecap="round"/>${stars}<text x="52" y="56" text-anchor="middle" font-size="11" font-weight="800" fill="#C2922E">시작</text><text x="52" y="196" text-anchor="middle" font-size="11" font-weight="800" fill="#C2922E">완성!</text></svg>`;
-}
-
-export function flowerSVG(g: Goal, cap = 10): string {
-  const s = stk(g);
-  const c = Math.min(10, Math.max(1, Math.round(cap)));
-  const slots = [[104, 84], [152, 78], [200, 84], [78, 124], [127, 118], [177, 118], [226, 124], [104, 160], [152, 166], [200, 160]].slice(0, c);
-  const cells = slots
-    .map((p, i) => {
-      const f = s[i];
-      const petals = [0, 1, 2, 3, 4].map((k) => {
-        const a = (k / 5) * 6.283 - 1.57;
-        return `<circle cx="${(p[0] + Math.cos(a) * 14).toFixed(1)}" cy="${(p[1] + Math.sin(a) * 14).toFixed(1)}" r="9" fill="${f ? "#FF9FC0" : "#ECDDE6"}"/>`;
-      }).join("");
-      return petals + `<circle cx="${p[0]}" cy="${p[1]}" r="12.5" fill="#fff"/>` + (f ? `<text x="${p[0]}" y="${p[1] + 5}" text-anchor="middle" font-size="15">${f}</text>` : `<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="#F0D7E2"/>`);
-    })
-    .join("");
-  return `<svg viewBox="0 0 304 214" style="width:100%;display:block"><rect width="304" height="214" fill="#FBF0F6"/><rect x="0" y="180" width="304" height="34" fill="#A6D67E"/><circle cx="40" cy="40" r="15" fill="#FFE08A"/>${cells}</svg>`;
-}
-
-export function balloonSVG(g: Goal, cap = 10): string {
-  const n = stk(g).length;
-  const c = Math.min(10, Math.max(1, Math.round(cap)));
-  const COL = ["#FF8FA3", "#7FB0F0", "#8FD08C", "#FFC861", "#C9A0E8", "#FF8FA3", "#7FB0F0", "#8FD08C", "#FFC861", "#C9A0E8"];
-  const slots = [[104, 68], [152, 62], [200, 68], [80, 102], [128, 96], [176, 96], [224, 102], [120, 132], [184, 132], [152, 158]].slice(0, c);
-  const tieX = 152, tieY = 200;
-  const strings = slots.map((p) => `<path d="M${p[0]},${p[1] + 18} Q${(((p[0] + tieX) / 2) | 0)},${(((p[1] + tieY) / 2) | 0)} ${tieX},${tieY}" fill="none" stroke="#CBB89A" stroke-width="1"/>`).join("");
-  const balloons = slots
-    .map((p, i) => {
-      const f = i < n;
-      return `<path d="M${p[0] - 3},${p[1] + 16} L${p[0] + 3},${p[1] + 16} L${p[0]},${p[1] + 21} Z" fill="${f ? COL[i] : "#E2DAE8"}"/>` + `<ellipse cx="${p[0]}" cy="${p[1]}" rx="15" ry="18" fill="${f ? COL[i] : "#fff"}" stroke="${f ? "rgba(0,0,0,.06)" : "#E2DAE8"}" stroke-width="2"/>` + (f ? `<ellipse cx="${p[0] - 5}" cy="${p[1] - 6}" rx="3" ry="4.5" fill="#fff" opacity=".55"/>` : "");
-    })
-    .join("");
-  return `<svg viewBox="0 0 304 214" style="width:100%;display:block"><rect width="304" height="214" fill="#F3F7FC"/>${strings}${balloons}<circle cx="${tieX}" cy="${tieY}" r="3" fill="#9A8463"/></svg>`;
-}
-
-export function rainbowSVG(g: Goal, cap = 10): string {
-  const n = stk(g).length;
-  const cc = Math.min(10, Math.max(1, Math.round(cap)));
-  const COL = ["#FF6B6B", "#FF9F43", "#FFC233", "#3FC58A", "#36C5D8", "#5B8DEF", "#9B7BE8", "#FF6B8A", "#FFA94D", "#63C97A"];
-  const cx = 152, cy = 206;
-  let arcs = "";
-  ["#FF8FA3", "#FFC861", "#8FD08C", "#7FB0F0", "#C9A0E8"].forEach((c, k) => {
-    const r = 96 + k * 14;
-    arcs += `<path d="M${cx - r},${cy} A${r},${r} 0 0 1 ${cx + r},${cy}" fill="none" stroke="${c}" stroke-width="11" opacity=".45"/>`;
-  });
-  const sr = 124;
-  const slots: number[][] = [];
-  for (let i = 0; i < cc; i++) {
-    const a = Math.PI - (i / (cc > 1 ? cc - 1 : 1)) * Math.PI;
-    slots.push([cx + Math.cos(a) * sr, cy - Math.sin(a) * sr]);
-  }
-  const cells = slots
-    .map((p, i) => {
-      const f = i < n;
-      return `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="13" fill="${f ? COL[i] : "#fff"}" stroke="${f ? "rgba(0,0,0,.06)" : "#D9E4F0"}" stroke-width="2"/>` + (f ? `<circle cx="${(p[0] - 4).toFixed(1)}" cy="${(p[1] - 5).toFixed(1)}" r="2.6" fill="#fff" opacity=".5"/>` : "");
-    })
-    .join("");
-  return `<svg viewBox="0 0 304 224" style="width:100%;display:block"><rect width="304" height="224" fill="#EAF4FD"/>${arcs}${cells}<ellipse cx="46" cy="190" rx="30" ry="15" fill="#fff"/><ellipse cx="258" cy="190" rx="30" ry="15" fill="#fff"/></svg>`;
-}
-
-/** 임의의 칸 수(cap)를 격자(도장 카드)로 그린다. 채운 칸은 테마 이모지로 채운다. */
-export function gridBoardSVG(holder: Goal, cap: number, accent: string, fillEmoji: string): string {
-  const filled = stk(holder).length;
-  const n = Math.min(100, Math.max(1, Math.round(cap)));
-  // 칸이 많아지면 열을 늘려 세로로 너무 길어지지 않게 (최대 ~8줄 목표).
-  const cols = Math.min(n, Math.max(7, Math.ceil(n / 8)));
-  const rows = Math.ceil(n / cols);
-  const cell = 42;
-  const pad = 16;
-  const r = 16;
-  const w = pad * 2 + cols * cell;
-  const h = pad * 2 + rows * cell;
-  let cells = "";
-  for (let i = 0; i < n; i++) {
-    const cx = pad + (i % cols) * cell + cell / 2;
-    const cy = pad + Math.floor(i / cols) * cell + cell / 2;
-    const on = i < filled;
-    cells +=
-      `<circle cx="${cx}" cy="${cy.toFixed(1)}" r="${r}" fill="#fff" stroke="${on ? accent : "#dfe9da"}" stroke-width="2.5"/>` +
-      (on ? `<text x="${cx}" y="${(cy + 6).toFixed(1)}" text-anchor="middle" font-size="19">${fillEmoji}</text>` : "");
-  }
-  return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;display:block"><rect width="${w}" height="${h}" rx="18" fill="#f6fbf4"/>${cells}</svg>`;
-}
-
-export function boardSVG(g: Goal, theme: string, cap = 10, accent = "#46B97C"): string {
-  switch (theme) {
-    case "grape": return cap <= 10 ? grapeSVG(g, cap) : gridBoardSVG(g, cap, accent, "🍇");
-    case "star": return cap <= 10 ? starSVG(g, cap) : gridBoardSVG(g, cap, accent, "⭐");
-    case "flower": return cap <= 10 ? flowerSVG(g, cap) : gridBoardSVG(g, cap, accent, "🌸");
-    case "balloon": return cap <= 10 ? balloonSVG(g, cap) : gridBoardSVG(g, cap, accent, "🎈");
-    case "rainbow": return cap <= 10 ? rainbowSVG(g, cap) : gridBoardSVG(g, cap, accent, "🌈");
-    default: return treeSVG(g, cap); // 나무: 개수-적응형 일러스트(어떤 칸 수든 OK)
-  }
+  return renderBoard("tree", n, Math.min(Math.max(0, done), n));
 }
 
 export function stampSVG(px: number): string {
