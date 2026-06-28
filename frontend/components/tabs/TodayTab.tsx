@@ -58,7 +58,7 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
       const color = fg?.dream.color;
       return (
         <div
-          className={"task" + (t.done ? " done" : "") + (fg ? " goal" : "")}
+          className={"task" + (t.done ? " done" : "") + (fg ? " gtask" : "")}
           key={t.id}
           style={color ? ({ "--accent": color } as React.CSSProperties) : undefined}
         >

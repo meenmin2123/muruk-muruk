@@ -232,11 +232,11 @@ main > section {
   box-shadow: var(--shadow-sm);
 }
 /* 목표에 딸린 할일 — 단독 할일과 완전히 동일한 카드(흰 배경·테두리·그림자·크기).
-   color-mix 같은 신문법 없이, 완료 체크 동그라미 색만 그 목표색으로 구분(어디서나 안전). */
-.task.goal .check {
+   클래스 이름은 'gtask'(목표 화면의 .goal 규칙과 충돌 방지). 완료 체크 링 색만 목표색으로 구분. */
+.task.gtask .check {
   border-color: var(--accent);
 }
-.task.goal .check.done {
+.task.gtask .check.done {
   background: var(--accent);
   border-color: var(--accent);
 }
