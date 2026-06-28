@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { api } from "./api";
+import { api, flushState as apiFlushState } from "./api";
 import {
   AppState,
   ADD_CHEER,
@@ -140,10 +140,27 @@ export function useAppState() {
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const undoSnap = useRef<AppState | null>(null);
   const undoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const dirty = useRef(false); // 마지막 push 이후 변경 있음 → 언로드 시 flush 대상
 
   useEffect(() => {
     stateRef.current = state;
   }, [state]);
+
+  // 페이지가 사라지기 직전(탭 닫기·SW 강제 새로고침 등) 미저장 변경을 keepalive로 마저 보낸다.
+  useEffect(() => {
+    const flush = () => {
+      if (!loaded.current || !dirty.current || !stateRef.current) return;
+      apiFlushState(stateRef.current, versionRef.current);
+      dirty.current = false;
+    };
+    const onHide = () => document.visibilityState === "hidden" && flush();
+    window.addEventListener("pagehide", flush);
+    document.addEventListener("visibilitychange", onHide);
+    return () => {
+      window.removeEventListener("pagehide", flush);
+      document.removeEventListener("visibilitychange", onHide);
+    };
+  }, []);
 
   const setToast = useCallback((msg: string) => {
     setToastRaw(msg);
@@ -216,11 +233,13 @@ export function useAppState() {
   useEffect(() => {
     if (!loaded.current || !state) return;
     if (timer.current) clearTimeout(timer.current);
+    dirty.current = true; // 이 상태가 아직 서버에 안 올라감
     timer.current = setTimeout(async () => {
       setSyncing(true);
       try {
         const res = await api.pushState(state, versionRef.current);
         versionRef.current = res.version;
+        dirty.current = false;
       } catch (e) {
         if ((e as Error).message === "CONFLICT") {
           // 다른 기기에서 먼저 변경됨 → 서버 최신 상태로 동기화(로컬 덮어쓰기 방지).

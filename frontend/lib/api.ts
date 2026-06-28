@@ -46,6 +46,24 @@ export const api = {
 };
 
 /**
+ * 페이지가 사라지기 직전(pagehide/SW 강제 새로고침 등)에 최신 상태를 보낸다.
+ * keepalive:true 라 언로드 후에도 요청이 살아남아 미저장 편집 유실을 막는다.
+ */
+export function flushState(state: AppState, baseVersion: number): void {
+  const token = getToken();
+  try {
+    fetch(`${API_BASE}/api/state`, {
+      method: "PUT",
+      keepalive: true,
+      headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      body: JSON.stringify({ data: state, baseVersion }),
+    }).catch(() => {});
+  } catch {
+    /* ignore */
+  }
+}
+
+/**
  * AI 코칭 응답이 '진짜 코칭'이 아니라 에러/비정상으로 보이면 true.
  * (키 미설정·서버 에러·HTML·과도하게 긴 덤프 등 — 사용자에게 그대로 노출되면 안 됨)
  */

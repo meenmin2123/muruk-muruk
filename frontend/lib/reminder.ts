@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { AppState, todayStr } from "./state";
 
 const LS_LAST_NOTIFIED = "muruk_last_notified";
@@ -34,12 +34,17 @@ function fire(body: string) {
  * (완전 종료 상태의 푸시는 별도 Web Push 인프라가 필요 — 여기선 다루지 않음)
  */
 export function useDailyReminder(state: AppState | null) {
+  // 항상 최신 state를 ref로 보관 → 타이머/포커스가 옛 스냅샷을 보지 않게.
+  const ref = useRef(state);
+  ref.current = state;
+
   useEffect(() => {
-    if (!state) return;
     if (typeof Notification === "undefined") return;
 
     const check = () => {
-      const s = state.settings || {};
+      const st = ref.current;
+      if (!st) return;
+      const s = st.settings || {};
       if (!s.reminderEnabled) return;
       if (Notification.permission !== "granted") return;
 
@@ -52,7 +57,7 @@ export function useDailyReminder(state: AppState | null) {
       const today = todayStr();
       if (localStorage.getItem(LS_LAST_NOTIFIED) === today) return;
 
-      const incomplete = state.todos.filter((t) => t.date === today && !t.done).length;
+      const incomplete = st.todos.filter((t) => t.date === today && !t.done).length;
       if (incomplete === 0) return; // 남은 할 일이 없으면 알리지 않음
 
       localStorage.setItem(LS_LAST_NOTIFIED, today);
@@ -69,5 +74,5 @@ export function useDailyReminder(state: AppState | null) {
       window.removeEventListener("focus", onFocus);
       document.removeEventListener("visibilitychange", onFocus);
     };
-  }, [state]);
+  }, []);
 }
