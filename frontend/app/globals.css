@@ -807,6 +807,59 @@ main > section {
   color: var(--text);
   outline: none;
 }
+/* 날짜 네비게이터(오늘 탭 상단) */
+.datenav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 2px 0 14px;
+}
+.dn-arrow {
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: #fff;
+  color: var(--primary-d);
+  border-radius: 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+.dn-arrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.dn-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: #fff;
+  border-radius: 13px;
+  padding: 8px 16px;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  font-family: inherit;
+}
+.dn-md {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+}
+.dn-wd {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+}
+.dn-wd.today {
+  color: var(--primary-d);
+  background: var(--primary-soft);
+  border-radius: 7px;
+  padding: 1px 7px;
+}
 .today-tree {
   max-width: 250px;
   margin: 6px auto 18px;

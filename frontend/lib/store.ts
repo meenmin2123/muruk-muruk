@@ -104,7 +104,7 @@ function normalize(data: unknown): AppState {
 }
 
 export interface AppActions {
-  addTodo(text: string, goalId: string | null): void;
+  addTodo(text: string, goalId: string | null, date?: string): void;
   toggleTodo(id: string): void;
   removeTodo(id: string): void;
   tomorrow(id: string): void;
@@ -274,9 +274,9 @@ export function useAppState() {
   }, []);
 
   const actions: AppActions = {
-    addTodo(text, goalId) {
+    addTodo(text, goalId, date) {
       mutate((s) => {
-        s.todos.push({ id: uid(), text, date: todayStr(), done: false, goalId });
+        s.todos.push({ id: uid(), text, date: date || todayStr(), done: false, goalId });
       });
       setToast(rand(ADD_CHEER));
     },
