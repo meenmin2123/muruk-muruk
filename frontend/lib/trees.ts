@@ -132,36 +132,37 @@ export function todayTreeSVG(done: number, total: number): string {
 }
 
 // ── 완성 도장(칭찬판을 가득 채우면 찍힌다) ──
+// 아이콘은 (50,38) 기준으로 축소 래핑 → 항상 가운데 + 테두리 안쪽 여유.
+const stampShrink = (inner: string, s = 0.78) => `<g transform="translate(50 38) scale(${s}) translate(-50 -38)">${inner}</g>`;
 const stampThumb = (c: string) =>
-  `<g transform="translate(30 18) scale(1.7)" fill="${c}"><rect x="0" y="9" width="4.4" height="12" rx="1.4"/><path d="M23 10c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.6 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></g>`;
+  stampShrink(`<g fill="${c}"><rect x="30" y="27" width="7.5" height="20.4" rx="2.4"/><path transform="translate(30 18) scale(1.7)" d="M23 10c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.6 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></g>`);
 const stampCrown = (c: string) =>
-  `<g fill="${c}"><path d="M30 52 L26 30 L39 40 L50 24 L61 40 L74 30 L70 52 Z" stroke="${c}" stroke-width="2" stroke-linejoin="round"/><circle cx="26" cy="28" r="3.4"/><circle cx="50" cy="21" r="3.8"/><circle cx="74" cy="28" r="3.4"/><rect x="30" y="50" width="40" height="5" rx="2.5"/></g>`;
+  stampShrink(`<g fill="${c}"><path d="M30 52 L26 30 L39 40 L50 24 L61 40 L74 30 L70 52 Z" stroke="${c}" stroke-width="2" stroke-linejoin="round"/><circle cx="26" cy="28" r="3.4"/><circle cx="50" cy="21" r="3.8"/><circle cx="74" cy="28" r="3.4"/><rect x="30" y="50" width="40" height="5" rx="2.5"/></g>`);
 const stampStars = (c: string) =>
-  `<g fill="${c}">${[24, 37, 50, 63, 76].map((x, i) => `<path transform="translate(${x} ${38 + (i === 2 ? -3 : i === 1 || i === 3 ? -1 : 0)}) scale(0.42)" d="M0 -16 L4.7 -5 L16 -4.2 L7.5 3.4 L10 14.8 L0 8.8 L-10 14.8 L-7.5 3.4 L-16 -4.2 L-4.7 -5 Z"/>`).join("")}</g>`;
+  stampShrink(`<g fill="${c}">${[24, 37, 50, 63, 76].map((x, i) => `<path transform="translate(${x} ${38 + (i === 2 ? -3 : i === 1 || i === 3 ? -1 : 0)}) scale(0.42)" d="M0 -16 L4.7 -5 L16 -4.2 L7.5 3.4 L10 14.8 L0 8.8 L-10 14.8 L-7.5 3.4 L-16 -4.2 L-4.7 -5 Z"/>`).join("")}</g>`, 0.86);
 const stampBigStar = (c: string) =>
-  `<g fill="${c}"><path transform="translate(50 38) scale(1.05)" d="M0 -16 L4.7 -5 L16 -4.2 L7.5 3.4 L10 14.8 L0 8.8 L-10 14.8 L-7.5 3.4 L-16 -4.2 L-4.7 -5 Z"/></g>`;
+  stampShrink(`<g fill="${c}"><path transform="translate(50 38) scale(1.05)" d="M0 -16 L4.7 -5 L16 -4.2 L7.5 3.4 L10 14.8 L0 8.8 L-10 14.8 L-7.5 3.4 L-16 -4.2 L-4.7 -5 Z"/></g>`);
 
 // [색, 아이콘, 문구, 글자크기]
 const STAMP_VARIANTS: [string, (c: string) => string, string, number][] = [
-  ["#E25555", stampThumb, "참 잘했어요", 11],
-  ["#E0A11F", stampCrown, "Best", 14],
-  ["#3FA86E", stampStars, "Good", 14],
-  ["#5B8DEF", stampBigStar, "축하해요", 12.5],
-  ["#C9628E", stampThumb, "최고예요", 12],
-  ["#7C6FD0", stampCrown, "대단해요", 11.5],
+  ["#E25555", stampThumb, "참 잘했어요", 9.5],
+  ["#E0A11F", stampCrown, "Best", 12],
+  ["#3FA86E", stampStars, "Good", 12],
+  ["#5B8DEF", stampBigStar, "축하해요", 10.5],
+  ["#C9628E", stampThumb, "최고예요", 10.5],
+  ["#7C6FD0", stampCrown, "대단해요", 10],
 ];
 
 export const STAMP_COUNT = STAMP_VARIANTS.length;
 
-/** 완성 도장 SVG. variant로 6종 중 선택(완성한 칭찬판마다 다른 도장이 찍히도록). */
+/** 완성 도장 SVG — 꽃잎 테두리 + 가운데 아이콘 + 아래 문구. variant로 6종 순환. */
 export function stampSVG(px: number, variant = 0): string {
   const [c, icon, text, fs] = STAMP_VARIANTS[((variant % STAMP_COUNT) + STAMP_COUNT) % STAMP_COUNT];
-  let ticks = "";
-  const N = 40;
+  let petals = "";
+  const N = 18;
   for (let i = 0; i < N; i++) {
-    const a = (i * 2 * Math.PI) / N;
-    const x1 = 50 + Math.cos(a) * 40, y1 = 50 + Math.sin(a) * 40, x2 = 50 + Math.cos(a) * 47, y2 = 50 + Math.sin(a) * 47;
-    ticks += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${c}" stroke-width="2.4" stroke-linecap="round"/>`;
+    const a = (i / N) * 2 * Math.PI;
+    petals += `<circle cx="${(50 + Math.cos(a) * 41).toFixed(1)}" cy="${(50 + Math.sin(a) * 41).toFixed(1)}" r="7" fill="${c}"/>`;
   }
-  return `<svg width="${px}" height="${px}" viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="none" stroke="${c}" stroke-width="2"/>${ticks}<circle cx="50" cy="50" r="38.5" fill="#fff"/><circle cx="50" cy="50" r="37" fill="none" stroke="${c}" stroke-width="1.4"/>${icon(c)}<text x="50" y="76" text-anchor="middle" font-family="sans-serif" font-size="${fs}" font-weight="800" fill="${c}">${text}</text></svg>`;
+  return `<svg width="${px}" height="${px}" viewBox="0 0 100 100">${petals}<circle cx="50" cy="50" r="42" fill="${c}"/><circle cx="50" cy="50" r="38.5" fill="#fff"/><circle cx="50" cy="50" r="37" fill="none" stroke="${c}" stroke-width="1.4"/><g transform="translate(0 1)">${icon(c)}</g><text x="50" y="72" text-anchor="middle" font-family="sans-serif" font-size="${fs}" font-weight="800" fill="${c}">${text}</text></svg>`;
 }
