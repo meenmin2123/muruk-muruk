@@ -42,7 +42,7 @@ export function LoginGate({ onLogin }: { onLogin: () => void }) {
         <span className="float f2" aria-hidden>🌸</span>
         <span className="float f3" aria-hidden>🍀</span>
         <span className="float f4" aria-hidden>💖</span>
-        <div className="login-tree" dangerouslySetInnerHTML={{ __html: treeSVG({ stickers: ["⭐", "🌟", "💖", "🌸", "🍀", "🐣"] }) }} />
+        <div className="login-tree" dangerouslySetInnerHTML={{ __html: treeSVG({ stickers: ["⭐", "🌟", "💖", "🌸", "🍀", "🐣"] }, 6) }} />
       </div>
 
       <h1 className="login-title">
