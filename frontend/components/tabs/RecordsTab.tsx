@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AppState, Dream, THEMES, boardCap, dateStr, streakCount, template, todayStr } from "@/lib/state";
+import { AppState, Dream, THEMES, boardCap, dateStr, streakCount, template, todayStr, totalStickers } from "@/lib/state";
 import type { AppActions } from "@/lib/store";
 import { boardSVG, gridBoardSVG, stampSVG } from "@/lib/trees";
 import { Icon, catIconName, hasIcon } from "../Icon";
@@ -29,6 +29,8 @@ export function RecordsTab({ state, actions }: { state: AppState; actions: AppAc
   const archived = state.dreams
     .filter((d) => d.done)
     .sort((a, b) => (b.completedAt ?? "").localeCompare(a.completedAt ?? ""));
+  const activeGoals = state.dreams.filter((d) => !d.done).length;
+  const stickers = totalStickers(state);
 
   return (
     <section>
@@ -50,6 +52,21 @@ export function RecordsTab({ state, actions }: { state: AppState; actions: AppAc
           <div className="ic"><Icon name="total" size={26} color="var(--primary)" /></div>
           <div className="v">{state.totalDone}</div>
           <div className="l">누적 완료</div>
+        </div>
+        <div className="recard">
+          <div className="ic"><Icon name="goal" size={26} color="#E7B53A" /></div>
+          <div className="v">{archived.length}</div>
+          <div className="l">이룬 목표</div>
+        </div>
+        <div className="recard">
+          <div className="ic"><Icon name="sprout" size={26} color="var(--primary)" /></div>
+          <div className="v">{activeGoals}</div>
+          <div className="l">진행 중 목표</div>
+        </div>
+        <div className="recard">
+          <div className="ic"><Icon name="star" size={26} color="#FF8FB0" /></div>
+          <div className="v">{stickers}</div>
+          <div className="l">모은 스티커</div>
         </div>
       </div>
       <div className="cal-card">
