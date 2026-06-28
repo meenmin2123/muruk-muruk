@@ -221,22 +221,11 @@ main > section {
   margin-bottom: 10px;
   box-shadow: var(--shadow-sm);
 }
-/* 목표에 딸린 할일 — 그 목표(꿈)의 색으로 구분 */
-.task.goal {
-  background: color-mix(in srgb, var(--accent) 6%, var(--card));
-  box-shadow: inset 4px 0 0 var(--accent), var(--shadow-sm);
-}
+/* 목표에 딸린 할일 — 단독 할일과 동일한 레이아웃, 완료 체크 동그라미 색만 그 목표(꿈) 색으로 구분 */
 .task.goal .check {
   border-color: color-mix(in srgb, var(--accent) 55%, #fff);
 }
 .task.goal .check.done {
-  background: var(--accent);
-}
-.task.goal .meta {
-  color: var(--accent);
-}
-.task.goal .meta-tag {
-  color: #fff;
   background: var(--accent);
 }
 .check {

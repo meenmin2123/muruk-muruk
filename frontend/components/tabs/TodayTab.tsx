@@ -59,13 +59,6 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
           </button>
           <div className="body">
             <div className="txt">{t.text}</div>
-            {fg && (
-              <div className="meta">
-                <Icon name="goal" size={11} color={color} />
-                {fg.dream.title}
-                <span className="meta-tag">{fg.goal.repeat === "daily" ? "매일" : "한 번"}</span>
-              </div>
-            )}
           </div>
           {!t.done && !(fg && fg.goal.repeat === "daily") && (
             <button className="later" onClick={() => actions.tomorrow(t.id)}>
