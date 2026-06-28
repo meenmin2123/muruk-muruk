@@ -4,7 +4,7 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import type { AppActions } from "@/lib/store";
 import { AppState, CAT_ORDER, Dream, PALETTE, Repeat, TEMPLATES, THEMES, boardCap, dateStr, ddayText, isHabitDream, template, todayStr } from "@/lib/state";
-import { boardSVG, gridBoardSVG, stampSVG } from "@/lib/trees";
+import { boardSVG, stampSVG } from "@/lib/trees";
 import { Icon, catIconName, hasIcon } from "../Icon";
 import { IconPicker } from "../IconPicker";
 import { Calendar } from "../Calendar";
@@ -183,8 +183,7 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
   const cap = boardCap(d);
   const boardLen = d.stickers?.length ?? 0;
   const boardGold = boardLen >= cap;
-  const themeEmoji = THEMES.find((t) => t.key === d.theme)?.emoji || "🌳";
-  const boardHtml = cap <= 10 ? boardSVG(d, d.theme || "tree", cap) : gridBoardSVG(d, cap, color, themeEmoji);
+  const boardHtml = boardSVG(d, d.theme || "tree", cap, color);
 
   // 카드 높이를 현재 보이는 면에 맞춰 부드럽게 조절(앞/뒷면 높이가 달라도 자연스럽게).
   useLayoutEffect(() => {

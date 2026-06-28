@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { AppState, Dream, THEMES, boardCap, dateStr, streakCount, template, todayStr, totalStickers } from "@/lib/state";
+import { AppState, Dream, boardCap, dateStr, streakCount, template, todayStr, totalStickers } from "@/lib/state";
 import type { AppActions } from "@/lib/store";
-import { boardSVG, gridBoardSVG, stampSVG } from "@/lib/trees";
+import { boardSVG, stampSVG } from "@/lib/trees";
 import { Icon, catIconName, hasIcon } from "../Icon";
 
 export function RecordsTab({ state, actions }: { state: AppState; actions: AppActions }) {
@@ -95,8 +95,7 @@ function ArchivedCard({ dream: d, state, actions }: { dream: Dream; state: AppSt
   const cap = boardCap(d);
   const boardLen = d.stickers?.length ?? 0;
   const boardGold = boardLen >= cap;
-  const themeEmoji = THEMES.find((t) => t.key === d.theme)?.emoji || "🌳";
-  const boardHtml = cap <= 10 ? boardSVG(d, d.theme || "tree", cap) : gridBoardSVG(d, cap, color, themeEmoji);
+  const boardHtml = boardSVG(d, d.theme || "tree", cap, color);
   const md = (s?: string) => {
     if (!s) return "";
     const p = s.split("-");
