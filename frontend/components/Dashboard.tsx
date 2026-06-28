@@ -83,7 +83,7 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
   return (
     <div className="app">
       <header>
-        <span className="appver" title="빌드 버전(캐시 확인용)">v10</span>
+        <span className="appver" title="빌드 버전(캐시 확인용)">v11</span>
         <button className="gear" onClick={() => setSettings(true)} aria-label="설정">
           <Icon name="settings" size={18} />
         </button>
@@ -126,7 +126,7 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
       {gold && (
         <div className="modal-bg" onClick={clearGold}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: "flex", justifyContent: "center" }} dangerouslySetInnerHTML={{ __html: stampSVG(150) }} />
+            <div style={{ display: "flex", justifyContent: "center" }} dangerouslySetInnerHTML={{ __html: stampSVG(150, state.dreams.reduce((n, d) => n + (d.stamps ?? 0), 0) - 1) }} />
             <h3 style={{ margin: "10px 0 6px" }}>완성! 🎉</h3>
             <p className="muted">“{gold}” 칭찬판을 가득 채웠어요.</p>
             {celebrate && <p style={{ lineHeight: 1.6, marginTop: 4 }}>{celebrate}</p>}

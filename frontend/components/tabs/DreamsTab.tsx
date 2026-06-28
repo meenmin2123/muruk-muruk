@@ -454,7 +454,7 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
             </div>
             <div className="board-back-art">
               <div dangerouslySetInnerHTML={{ __html: boardHtml }} />
-              {boardGold && <div className="board-stamp" dangerouslySetInnerHTML={{ __html: stampSVG(62) }} />}
+              {boardGold && <div className="board-stamp" dangerouslySetInnerHTML={{ __html: stampSVG(62, (d.stamps ?? 1) - 1) }} />}
             </div>
             <div className="muted board-back-foot">
               {d.stamps ? `도장 ${d.stamps}개 · ` : ""}

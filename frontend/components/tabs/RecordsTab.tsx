@@ -109,7 +109,7 @@ function ArchivedCard({ dream: d, state, actions }: { dream: Dream; state: AppSt
         <div className="arch-body">
           <div className="arch-board">
             <div dangerouslySetInnerHTML={{ __html: boardHtml }} />
-            {boardGold && <div className="board-stamp" dangerouslySetInnerHTML={{ __html: stampSVG(54) }} />}
+            {boardGold && <div className="board-stamp" dangerouslySetInnerHTML={{ __html: stampSVG(54, (d.stamps ?? 1) - 1) }} />}
           </div>
           <div className="arch-tasks">
             {d.goals.map((g) => {
