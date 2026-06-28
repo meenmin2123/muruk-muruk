@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { api, coachMessage } from "@/lib/api";
-import { clearToken, getUser } from "@/lib/auth";
+import { clearToken, getUser, isAdminEmail } from "@/lib/auth";
 import { AppState, defaultState, streakCount, totalStickers, ENCOURAGE_FALLBACK, REVIEW_FALLBACK, CELEBRATE_FALLBACK } from "@/lib/state";
 import type { AppActions } from "@/lib/store";
 import type { AdminUserState } from "@/lib/types";
@@ -25,10 +25,10 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
   const user = getUser();
 
   // 관리자 여부(서버 확정) + 관리자 모드(로컬에 기억). 모드 ON이면 메인 화면이 전체 사용자 뷰로 전환.
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(() => isAdminEmail(user?.email ?? ""));
   const [adminMode, setAdminMode] = useState(false);
   useEffect(() => {
-    api.me().then((m) => setIsAdmin(!!m.isAdmin)).catch(() => {});
+    api.me().then((m) => setIsAdmin((v) => v || !!m.isAdmin)).catch(() => {});
     try {
       setAdminMode(localStorage.getItem("muruk_admin_mode") === "1");
     } catch {
@@ -83,7 +83,7 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
   return (
     <div className="app">
       <header>
-        <span className="appver" title="빌드 버전(캐시 확인용)">v9</span>
+        <span className="appver" title="빌드 버전(캐시 확인용)">v10</span>
         <button className="gear" onClick={() => setSettings(true)} aria-label="설정">
           <Icon name="settings" size={18} />
         </button>

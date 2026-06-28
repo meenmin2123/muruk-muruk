@@ -1,13 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { AppState, Dream, boardCap, dateStr, streakCount, template, todayStr, totalStickers } from "@/lib/state";
+import { AppState, Dream, boardCap, dateStr, template, todayStr, totalStickers } from "@/lib/state";
 import type { AppActions } from "@/lib/store";
 import { boardSVG, stampSVG } from "@/lib/trees";
 import { Icon, catIconName, hasIcon } from "../Icon";
 
 export function RecordsTab({ state, actions }: { state: AppState; actions: AppActions }) {
-  const streak = streakCount(state);
   const counts: Record<string, number> = {};
   state.todos.filter((t) => t.done).forEach((t) => (counts[t.date] = (counts[t.date] ?? 0) + 1));
 
@@ -38,21 +37,6 @@ export function RecordsTab({ state, actions }: { state: AppState; actions: AppAc
         <h2>나의 기록</h2>
       </div>
       <div className="recards">
-        <div className="recard">
-          <div className="ic"><Icon name="streak" size={26} color="#FF8A3D" /></div>
-          <div className="v">{streak}</div>
-          <div className="l">연속 일수</div>
-        </div>
-        <div className="recard">
-          <div className="ic"><Icon name="best" size={26} color="#E7B53A" /></div>
-          <div className="v">{Math.max(state.bestStreak, streak)}</div>
-          <div className="l">최고 기록</div>
-        </div>
-        <div className="recard">
-          <div className="ic"><Icon name="total" size={26} color="var(--primary)" /></div>
-          <div className="v">{state.totalDone}</div>
-          <div className="l">누적 완료</div>
-        </div>
         <div className="recard">
           <div className="ic"><Icon name="goal" size={26} color="#E7B53A" /></div>
           <div className="v">{archived.length}</div>
