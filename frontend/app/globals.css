@@ -431,9 +431,15 @@ main > section {
 .goal {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 7px 0;
-  border-top: 1px dashed var(--line);
+  gap: 9px;
+  padding: 9px 0;
+}
+.goal .x {
+  color: var(--muted);
+  opacity: 0.55;
+}
+.goal .x:active {
+  opacity: 1;
 }
 .admin-row {
   border: 1px solid var(--line);
@@ -958,7 +964,11 @@ main > section {
   margin: 0 2px 12px !important;
 }
 .goalblock {
-  margin-bottom: 2px;
+  background: #f7faf6;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 1px 12px;
+  margin-bottom: 8px;
 }
 .g-check {
   width: 22px;
@@ -1167,19 +1177,19 @@ main > section {
 .goal-week {
   display: flex;
   gap: 5px;
-  padding: 5px 2px 5px 0;
+  padding: 0 0 9px;
 }
 .daydot {
   flex: 1;
-  max-width: 40px;
+  max-width: 42px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1px;
-  border: 1.5px solid var(--line);
+  border: 1.5px solid transparent;
   background: #fff;
-  border-radius: 11px;
-  padding: 5px 0;
+  border-radius: 12px;
+  padding: 6px 0;
   cursor: pointer;
   color: var(--muted);
   font-family: inherit;
@@ -1234,13 +1244,13 @@ main > section {
 .gt-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   border: 1.5px solid var(--line);
   background: #fff;
   color: var(--muted);
-  border-radius: 10px;
-  padding: 5px 9px;
-  font-size: 11px;
+  border-radius: 9px;
+  padding: 3px 8px;
+  font-size: 10.5px;
   font-weight: 800;
   cursor: pointer;
   font-family: inherit;
