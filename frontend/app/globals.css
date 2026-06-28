@@ -221,7 +221,11 @@ main > section {
   margin-bottom: 10px;
   box-shadow: var(--shadow-sm);
 }
-/* 목표에 딸린 할일 — 단독 할일과 동일한 레이아웃, 완료 체크 동그라미 색만 그 목표(꿈) 색으로 구분 */
+/* 목표에 딸린 할일 — 단독 할일과 동일한 크기·레이아웃, 배경만 그 목표 색 연한 틴트 + 체크 색 구분 */
+.task.goal {
+  background: color-mix(in srgb, var(--accent) 8%, var(--card));
+  border-color: color-mix(in srgb, var(--accent) 22%, var(--line));
+}
 .task.goal .check {
   border-color: color-mix(in srgb, var(--accent) 55%, #fff);
 }
@@ -1349,6 +1353,18 @@ main > section {
 }
 .today-add .addbar {
   margin: 0;
+}
+/* 오늘 할 일 입력칸 — 연두/초록 틴트 */
+.today-add .addbar input {
+  background: #eef8e9;
+  border-color: #cde7c2;
+}
+.today-add .addbar input::placeholder {
+  color: #8bbf86;
+}
+.today-add .addbar input:focus {
+  background: #fff;
+  border-color: var(--primary);
 }
 .board-cap {
   display: flex;

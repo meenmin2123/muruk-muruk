@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "./api";
 import {
   AppState,
+  ADD_CHEER,
   CHEERS,
   CELEBRATE_FALLBACK,
   CustomCat,
@@ -242,6 +243,7 @@ export function useAppState() {
       mutate((s) => {
         s.todos.push({ id: uid(), text, date: todayStr(), done: false, goalId });
       });
+      setToast(rand(ADD_CHEER));
     },
     toggleTodo(id) {
       let toastMsg = "";
@@ -362,6 +364,7 @@ export function useAppState() {
           s.todos.push({ id: uid(), text: title, date: todayStr(), done: false, goalId: g.id });
         }
       });
+      setToast(rand(ADD_CHEER));
     },
     removeGoal(dreamId, goalId) {
       armUndo("할 일을 삭제했어요");

@@ -60,7 +60,7 @@ function renderBoard(theme: string, n: number, filled: number): string {
   const W = 300, H = 300, cx = W / 2;
   const accent = ACCENT[theme] || ACCENT.tree;
   let area = { ax: 34, ay: 74, aw: W - 68, ah: H - 138 };
-  if (theme === "tree") area = { ax: 42, ay: 70, aw: W - 84, ah: H - 140 };
+  if (theme === "tree") area = { ax: 42, ay: 56, aw: W - 84, ah: 146 };
   if (theme === "flower") area = { ax: 40, ay: 70, aw: W - 80, ah: H - 150 };
   if (theme === "rainbow") area = { ax: 40, ay: 110, aw: W - 80, ah: H - 168 };
   const slots = packSlots(Math.max(0, n), area.ax, area.ay, area.aw, area.ah);
@@ -69,8 +69,8 @@ function renderBoard(theme: string, n: number, filled: number): string {
   let scene = "";
 
   if (theme === "tree") {
-    const ecx = cx, ecy = area.ay + area.ah / 2, rx = area.aw / 2 + 28, ry = area.ah / 2 + 26;
-    const baseY = H - 22, half = 15, topY = ecy + ry * 0.5, midY = (topY + baseY) / 2;
+    const ecx = cx, ecy = area.ay + area.ah / 2, rx = area.aw / 2 + 28, ry = area.ah / 2 + 28;
+    const baseY = H - 12, half = 18, topY = ecy + ry * 0.5, midY = (topY + baseY) / 2;
     bg = `<rect width="${W}" height="${H}" rx="20" fill="#f4faf0"/>`;
     scene = `<ellipse cx="${ecx}" cy="${baseY + 6}" rx="40" ry="8" fill="#3a5a40" opacity="0.09"/>
       <path d="M${ecx - half} ${topY} C ${ecx - half - 1} ${midY}, ${ecx - half - 4} ${baseY - 20}, ${ecx - half - 13} ${baseY} L ${ecx - half - 2} ${baseY} C ${ecx - 3} ${baseY - 14}, ${ecx - 3} ${baseY - 13}, ${ecx} ${baseY - 13} C ${ecx + 3} ${baseY - 13}, ${ecx + 3} ${baseY - 14}, ${ecx + half + 2} ${baseY} L ${ecx + half + 13} ${baseY} C ${ecx + half + 4} ${baseY - 20}, ${ecx + half + 1} ${midY}, ${ecx + half} ${topY} Z" fill="#B5895C" stroke="#8a5d38" stroke-width="2.6" stroke-linejoin="round"/>
