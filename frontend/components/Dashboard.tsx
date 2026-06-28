@@ -83,7 +83,7 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
   return (
     <div className="app">
       <header>
-        <span className="appver" title="빌드 버전(캐시 확인용)">v8</span>
+        <span className="appver" title="빌드 버전(캐시 확인용)">v9</span>
         <button className="gear" onClick={() => setSettings(true)} aria-label="설정">
           <Icon name="settings" size={18} />
         </button>
@@ -418,41 +418,78 @@ function AdminView({ onExit }: { onExit: () => void }) {
       )}
 
       {users.map((u) => {
-        const dreamsArr = (Array.isArray(u.data?.dreams) ? u.data!.dreams! : []) as Array<{ title?: string; targetDate?: string | null; goals?: Array<{ title?: string; repeat?: string }> }>;
-        const todosArr = (Array.isArray(u.data?.todos) ? u.data!.todos! : []) as Array<{ text?: string; date?: string; done?: boolean }>;
+        const dreamsArr = (Array.isArray(u.data?.dreams) ? u.data!.dreams! : []) as Array<{
+          title?: string; cat?: string; theme?: string; color?: string;
+          targetDate?: string | null; ddayStart?: string;
+          stickers?: string[]; earned?: number; stamps?: number; done?: boolean; completedAt?: string;
+          goals?: Array<{ id?: string; title?: string; repeat?: string }>;
+        }>;
+        const todosArr = (Array.isArray(u.data?.todos) ? u.data!.todos! : []) as Array<{ text?: string; date?: string; done?: boolean; goalId?: string | null }>;
         const doneTodos = todosArr.filter((t) => t.done).length;
         const totalDone = typeof u.data?.totalDone === "number" ? u.data!.totalDone : 0;
         const bestStreak = typeof u.data?.bestStreak === "number" ? u.data!.bestStreak : 0;
+        const activeDreams = dreamsArr.filter((d) => !d.done).length;
+        const archivedDreams = dreamsArr.length - activeDreams;
+        const recentTodos = [...todosArr].sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
         return (
           <details key={u.userId} className="admin-row">
             <summary>
               <b>{u.name}</b> <span className="muted">{u.email}</span>
               <span className="admin-counts">목표 {dreamsArr.length} · 할일 {todosArr.length} · 완료 {totalDone}</span>
             </summary>
-            <div className="muted" style={{ fontSize: 11.5, margin: "4px 0 6px" }}>
-              최근접속 {u.lastSeenAt?.slice(0, 10) ?? "-"} · 저장 {u.updatedAt?.slice(0, 10) ?? "-"} · v{u.version} · 누적완료 {totalDone} · 최고연속 {bestStreak}
+            <div className="muted" style={{ fontSize: 11.5, margin: "4px 0 8px" }}>
+              최근접속 {u.lastSeenAt?.slice(0, 10) ?? "-"} · 저장 {u.updatedAt?.slice(0, 10) ?? "-"} · v{u.version} · 누적완료 {totalDone} · 최고연속 {bestStreak} · 진행 {activeDreams}/보관 {archivedDreams}
             </div>
             {dreamsArr.length === 0 ? (
               <div className="muted" style={{ fontSize: 12 }}>저장된 목표 없음</div>
             ) : (
-              dreamsArr.map((dr, i) => (
-                <div key={i} className="admin-dream">
-                  <div style={{ fontWeight: 700 }}>
-                    🎯 {dr.title || "(제목 없음)"}
-                    {dr.targetDate ? <span className="muted"> · D-day {dr.targetDate}</span> : null}
-                    <span className="muted"> · 할일 {dr.goals?.length ?? 0}</span>
+              dreamsArr.map((dr, i) => {
+                const cap = Math.min(100, Math.max(1, dr.goals?.length ?? 0));
+                return (
+                  <div key={i} className="admin-dream" style={{ opacity: dr.done ? 0.7 : 1 }}>
+                    <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                      <span style={{ width: 10, height: 10, borderRadius: 3, background: dr.color || "#ccc", display: "inline-block" }} />
+                      {dr.title || "(제목 없음)"}
+                      {dr.done && <span style={{ fontSize: 10, fontWeight: 800, color: "#a9821f", background: "#fff3cf", borderRadius: 6, padding: "1px 6px" }}>달성·보관{dr.completedAt ? ` ${dr.completedAt.slice(5)}` : ""}</span>}
+                    </div>
+                    <div className="muted" style={{ fontSize: 11, margin: "2px 0 3px" }}>
+                      {dr.cat && `분류 ${dr.cat} · `}테마 {dr.theme || "tree"}
+                      {dr.targetDate && ` · 디데이 ${dr.ddayStart ?? "?"}~${dr.targetDate}`}
+                      {` · 칭찬판 칸 ${cap}·도장 ${dr.stamps ?? 0}·스티커 ${dr.earned ?? dr.stickers?.length ?? 0}`}
+                    </div>
+                    {dr.goals && dr.goals.length > 0 ? (
+                      <ul className="admin-goals">
+                        {dr.goals.map((g, j) => {
+                          const gdone = todosArr.some((t) => t.goalId === g.id && t.done);
+                          return (
+                            <li key={j}>
+                              {gdone ? "✓ " : "· "}{g.title} <span className="muted">({g.repeat === "daily" ? "매일" : "한 번"})</span>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    ) : (
+                      <div className="muted" style={{ fontSize: 11 }}>세부 할 일 없음</div>
+                    )}
                   </div>
-                  {dr.goals && dr.goals.length > 0 && (
-                    <ul className="admin-goals">
-                      {dr.goals.map((g, j) => (
-                        <li key={j}>{g.title} <span className="muted">({g.repeat === "daily" ? "매일" : "한 번"})</span></li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              ))
+                );
+              })
             )}
-            <div className="muted" style={{ fontSize: 12, marginTop: 6 }}>할 일 기록: 총 {todosArr.length}개 · 완료 {doneTodos}개</div>
+            <details className="admin-raw" style={{ marginTop: 8 }}>
+              <summary>할 일 기록 {todosArr.length}개 (완료 {doneTodos})</summary>
+              {recentTodos.length === 0 ? (
+                <div className="muted" style={{ fontSize: 12, padding: "4px 0" }}>기록 없음</div>
+              ) : (
+                <ul className="admin-goals" style={{ maxHeight: 200, overflowY: "auto" }}>
+                  {recentTodos.map((t, k) => (
+                    <li key={k}>
+                      <span className="muted">{t.date}</span> {t.done ? "✓" : "○"} {t.text}
+                      {t.goalId && <span className="muted"> · 목표</span>}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </details>
             <details className="admin-raw">
               <summary>원본 JSON</summary>
               <pre className="admin-json">{JSON.stringify(u.data, null, 2)}</pre>
