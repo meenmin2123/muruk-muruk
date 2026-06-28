@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { api } from "@/lib/api";
+import { api, coachMessage } from "@/lib/api";
 import { clearToken, getUser } from "@/lib/auth";
-import { AppState, defaultState, rand, streakCount, totalStickers, ENCOURAGE_FALLBACK, REVIEW_FALLBACK, CELEBRATE_FALLBACK } from "@/lib/state";
+import { AppState, defaultState, streakCount, totalStickers, ENCOURAGE_FALLBACK, REVIEW_FALLBACK, CELEBRATE_FALLBACK } from "@/lib/state";
 import type { AppActions } from "@/lib/store";
 import type { AdminUserState } from "@/lib/types";
 import { stampSVG } from "@/lib/trees";
@@ -41,10 +41,8 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
       return;
     }
     let alive = true;
-    api
-      .coach("celebrate", JSON.stringify({ 완성한목표: gold, 누적완료: state?.totalDone ?? 0 }))
-      .then((r) => alive && setCelebrate(r.message && !r.message.includes("ANTHROPIC_API_KEY") ? r.message : rand(CELEBRATE_FALLBACK)))
-      .catch(() => alive && setCelebrate(rand(CELEBRATE_FALLBACK)));
+    coachMessage("celebrate", JSON.stringify({ 완성한목표: gold, 누적완료: state?.totalDone ?? 0 }), CELEBRATE_FALLBACK)
+      .then((m) => alive && setCelebrate(m));
     return () => {
       alive = false;
     };
@@ -195,10 +193,7 @@ function SettingsSheet({
     setLoading(true);
     setCoach("");
     try {
-      const { message } = await api.coach("encourage", context);
-      setCoach(!message || message.includes("ANTHROPIC_API_KEY") ? rand(ENCOURAGE_FALLBACK) : message);
-    } catch {
-      setCoach(rand(ENCOURAGE_FALLBACK));
+      setCoach(await coachMessage("encourage", context, ENCOURAGE_FALLBACK));
     } finally {
       setLoading(false);
     }
@@ -208,10 +203,7 @@ function SettingsSheet({
     setReviewLoading(true);
     setReview("");
     try {
-      const { message } = await api.coach("weeklyReview", context);
-      setReview(!message || message.includes("ANTHROPIC_API_KEY") ? rand(REVIEW_FALLBACK) : message);
-    } catch {
-      setReview(rand(REVIEW_FALLBACK));
+      setReview(await coachMessage("weeklyReview", context, REVIEW_FALLBACK));
     } finally {
       setReviewLoading(false);
     }

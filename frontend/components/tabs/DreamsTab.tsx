@@ -1,7 +1,7 @@
 "use client";
 
 import { useLayoutEffect, useRef, useState } from "react";
-import { api } from "@/lib/api";
+import { api, looksLikeError } from "@/lib/api";
 import type { AppActions } from "@/lib/store";
 import { AppState, CAT_ORDER, Dream, PALETTE, Repeat, TEMPLATES, THEMES, boardCap, dateStr, ddayText, isHabitDream, template, todayStr } from "@/lib/state";
 import { boardSVG, stampSVG } from "@/lib/trees";
@@ -213,14 +213,17 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
     try {
       const ctx = JSON.stringify({ 목표: d.title, 카테고리: tpl.label, 이미있는할일: used });
       const { message } = await api.coach("suggestTasks", ctx);
+      if (looksLikeError(message)) {
+        setAiMsg("AI 추천을 받지 못했어요. 잠시 후 다시 시도해 주세요.");
+        return;
+      }
       const lines = message
         .split("\n")
         .map((l) => l.replace(/^[\s\d.\-*•")(]+/, "").trim())
         .filter((l) => l.length > 0 && l.length <= 30 && !used.includes(l))
         .slice(0, 5);
       setAiTasks(lines);
-      // 결과 줄이 없으면(키 미설정 안내문 등 비정상 응답) 사용자에게 알린다.
-      if (lines.length === 0) setAiMsg(message.includes("ANTHROPIC_API_KEY") ? "서버에 AI 키가 설정되지 않았어요." : "추천을 받지 못했어요. 잠시 후 다시 시도해 주세요.");
+      if (lines.length === 0) setAiMsg("추천 결과가 없어요. 잠시 후 다시 시도해 주세요.");
     } catch (e) {
       setAiMsg((e as Error).message === "UNAUTHORIZED" ? "로그인이 필요해요." : "AI 추천을 불러오지 못했어요. (네트워크/서버 확인)");
     } finally {

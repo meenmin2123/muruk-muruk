@@ -9,13 +9,12 @@ import {
   CELEBRATE_FALLBACK,
   CustomCat,
   Dream,
-  awardSticker,
+  STICKERS,
   defaultState,
   ensureDailyTodos,
   findGoal,
   isDreamFulfilled,
   rand,
-  removeSticker,
   streakCount,
   todayStr,
   dateStr,
@@ -51,26 +50,40 @@ function syncDreamDone(s: AppState, dreamId: string | null): string | null {
   return null;
 }
 
-/** todo의 완료 상태를 토글하고 칭찬 스티커(목표 단위)를 적립/회수. 표시할 토스트/골드를 반환. */
+/**
+ * 칭찬판을 '실제 완료한 할일 개수'로부터 다시 계산(단일 진실원천).
+ * 토글/삭제/칸수변경 등 어떤 경로로 와도 earned·stamps·stickers가 어긋나지 않는다.
+ * 반환: 이번 계산으로 보드가 새로 가득 찼으면(도장↑) true.
+ */
+function reconcileBoard(s: AppState, d: Dream): boolean {
+  const cap = boardCap(d);
+  const earned = s.todos.filter((t) => t.done && d.goals.some((g) => g.id === t.goalId)).length;
+  const prevStamps = d.stamps ?? 0;
+  const stamps = Math.floor(earned / cap);
+  // 현재 판에 보이는 스티커 수: 가득 차면 cap(완성! 표시), 아니면 나머지.
+  const onBoard = earned === 0 ? 0 : earned % cap === 0 ? cap : earned % cap;
+  const cur = d.stickers ?? [];
+  const next = cur.slice(0, onBoard);
+  while (next.length < onBoard) next.push(rand(STICKERS));
+  d.stickers = next;
+  d.earned = earned;
+  d.stamps = stamps;
+  return stamps > prevStamps;
+}
+
+/** todo의 완료 상태를 토글하고, 그 목표의 칭찬판을 실제 완료 수로 재계산. 토스트/골드 반환. */
 function applyToggle(s: AppState, t: Todo): { toast: string; gold: string | null } {
   t.done = !t.done;
-  let toast = "";
+  let toast = t.done ? rand(CHEERS) : "";
   let gold: string | null = null;
-  if (t.done) {
-    s.totalDone++;
-    toast = rand(CHEERS);
-    if (t.goalId) {
-      const found = findGoal(s, t.goalId);
-      if (found) {
-        toast = "🌟 칭찬 스티커를 받았어요!";
-        if (awardSticker(found.dream, boardCap(found.dream))) gold = found.dream.title;
-      }
-    }
-  } else {
-    s.totalDone = Math.max(0, s.totalDone - 1);
-    if (t.goalId) {
-      const found = findGoal(s, t.goalId);
-      if (found) removeSticker(found.dream, boardCap(found.dream));
+  if (t.done) s.totalDone++;
+  else s.totalDone = Math.max(0, s.totalDone - 1);
+  if (t.goalId) {
+    const found = findGoal(s, t.goalId);
+    if (found) {
+      const filledNow = reconcileBoard(s, found.dream);
+      if (t.done) toast = "🌟 칭찬 스티커를 받았어요!";
+      if (filledNow) gold = found.dream.title;
     }
   }
   return { toast, gold };
@@ -270,7 +283,13 @@ export function useAppState() {
     removeTodo(id) {
       armUndo("할 일을 삭제했어요");
       mutate((s) => {
+        const removed = s.todos.find((t) => t.id === id);
         s.todos = s.todos.filter((t) => t.id !== id);
+        // 완료한 목표 할일을 지우면 그 목표 칭찬판을 다시 계산(스티커 어긋남 방지).
+        if (removed?.done && removed.goalId) {
+          const found = findGoal(s, removed.goalId);
+          if (found) reconcileBoard(s, found.dream);
+        }
       });
     },
     tomorrow(id) {
@@ -367,6 +386,7 @@ export function useAppState() {
         if (repeat === "daily" && !s.todos.some((t) => t.goalId === g.id && t.date === todayStr())) {
           s.todos.push({ id: uid(), text: title, date: todayStr(), done: false, goalId: g.id });
         }
+        reconcileBoard(s, d); // 칸 수(cap) 변경 → 칭찬판 재계산
       });
       setToast(rand(ADD_CHEER));
     },
@@ -374,7 +394,10 @@ export function useAppState() {
       armUndo("할 일을 삭제했어요");
       mutate((s) => {
         const d = s.dreams.find((x) => x.id === dreamId);
-        if (d) d.goals = d.goals.filter((g) => g.id !== goalId);
+        if (!d) return;
+        d.goals = d.goals.filter((g) => g.id !== goalId);
+        s.todos = s.todos.filter((t) => t.goalId !== goalId); // 그 할일의 todo도 정리
+        reconcileBoard(s, d); // 칸 수 변경 → 칭찬판 재계산
       });
     },
     toggleGoalRepeat(dreamId, goalId) {

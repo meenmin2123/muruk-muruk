@@ -1,6 +1,7 @@
 "use client";
 
 import { getToken } from "./auth";
+import { rand } from "./state";
 import type { AppState } from "./state";
 import type { AdminUserState, CoachKind, MurukUser } from "./types";
 
@@ -43,3 +44,23 @@ export const api = {
     }),
   adminStates: () => request<AdminUserState[]>("/api/admin/states"),
 };
+
+/**
+ * AI 코칭 응답이 '진짜 코칭'이 아니라 에러/비정상으로 보이면 true.
+ * (키 미설정·서버 에러·HTML·과도하게 긴 덤프 등 — 사용자에게 그대로 노출되면 안 됨)
+ */
+export function looksLikeError(m: string | null | undefined): boolean {
+  const s = (m ?? "").trim();
+  if (!s || s.length > 400) return true;
+  return /anthropic|api[_ ]?key|unauthorized|forbidden|rate.?limit|\b[45]\d\d\b|<html|error|exception|timeout/i.test(s);
+}
+
+/** 코칭 메시지를 받아오되, 실패·비정상이면 하드코딩 폴백을 반환(절대 throw 안 함). */
+export async function coachMessage(kind: CoachKind, context: string, fallback: string[]): Promise<string> {
+  try {
+    const { message } = await api.coach(kind, context);
+    return looksLikeError(message) ? rand(fallback) : message.trim();
+  } catch {
+    return rand(fallback);
+  }
+}

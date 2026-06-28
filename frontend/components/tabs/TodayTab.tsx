@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { api } from "@/lib/api";
+import { coachMessage } from "@/lib/api";
 import type { AppActions } from "@/lib/store";
-import { AppState, daysSinceLastDone, findGoal, rand, todayStr, SLUMP_FALLBACK } from "@/lib/state";
+import { AppState, daysSinceLastDone, findGoal, todayStr, SLUMP_FALLBACK } from "@/lib/state";
 import { todayTreeSVG } from "@/lib/trees";
 import { Icon } from "../Icon";
 
@@ -17,15 +17,9 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
 
   async function careForSlump() {
     setSlumpLoading(true);
-    try {
-      const ctx = JSON.stringify({ 마지막완료로부터일수: gap, 누적완료: state.totalDone, 목표수: state.dreams.length });
-      const { message } = await api.coach("slumpCare", ctx);
-      setSlump(!message || message.includes("ANTHROPIC_API_KEY") ? rand(SLUMP_FALLBACK) : message);
-    } catch {
-      setSlump(rand(SLUMP_FALLBACK));
-    } finally {
-      setSlumpLoading(false);
-    }
+    const ctx = JSON.stringify({ 마지막완료로부터일수: gap, 누적완료: state.totalDone, 목표수: state.dreams.length });
+    setSlump(await coachMessage("slumpCare", ctx, SLUMP_FALLBACK));
+    setSlumpLoading(false);
   }
 
   const all = state.todos.filter((t) => t.date === todayStr());
