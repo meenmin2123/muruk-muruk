@@ -67,6 +67,16 @@ header {
   margin-top: 2px;
   font-weight: 600;
 }
+.appver {
+  position: absolute;
+  top: 12px;
+  left: 14px;
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--muted);
+  opacity: 0.55;
+  letter-spacing: 0.02em;
+}
 .gear {
   position: absolute;
   top: 20px;
