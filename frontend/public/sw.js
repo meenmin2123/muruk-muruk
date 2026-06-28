@@ -1,7 +1,7 @@
-// 무럽무럽 서비스워커.
+// 무럭무럭 서비스워커.
 // 핵심: HTML 문서는 "네트워크 우선" — 새 배포가 즉시 반영되도록.
 // (캐시 우선으로 옛 HTML을 서빙하면, 바뀐 JS 청크 파일명을 못 찾아 앱이 크래시함)
-const CACHE = "muruk-v2";
+const CACHE = "muruk-v3";
 
 self.addEventListener("install", () => {
   self.skipWaiting();
