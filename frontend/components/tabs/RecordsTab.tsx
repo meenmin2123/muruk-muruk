@@ -118,7 +118,7 @@ function ArchivedCard({ dream: d, state, actions }: { dream: Dream; state: AppSt
         <span className="arch-badge" style={{ background: color + "1f", color }}>
           {d.stamps ? `도장 ${d.stamps} · ` : ""}스티커 {d.earned ?? boardLen}
         </span>
-        <Icon name="back" size={16} className="arch-caret" style={{ transform: open ? "rotate(-90deg)" : "rotate(0deg)" }} />
+        <Icon name="back" size={16} className="arch-caret" style={{ transform: open ? "rotate(-90deg)" : "rotate(180deg)" }} />
       </div>
 
       {open && (

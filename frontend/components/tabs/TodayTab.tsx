@@ -94,9 +94,9 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
         <div dangerouslySetInnerHTML={{ __html: todayTreeSVG(done, all.length) }} />
         <div className="today-tree-cap">
           {all.length === 0
-            ? "오늘의 나무 · 할 일을 더하면 자라기 시작해요"
+            ? "오늘의 나무 · 할 일을 더하면 칸이 생겨요"
             : done === 0
-            ? "오늘의 나무 · 하나씩 완료하면 열매가 열려요"
+            ? "오늘의 나무 · 하나씩 완료하면 스티커가 붙어요"
             : done >= all.length
             ? `오늘 다 했어요! 🎉 (${done}/${all.length})`
             : `오늘 ${done}/${all.length} 완료`}

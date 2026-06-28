@@ -227,7 +227,7 @@ main > section {
   border-color: color-mix(in srgb, var(--accent) 22%, var(--line));
 }
 .task.goal .check {
-  border-color: color-mix(in srgb, var(--accent) 55%, #fff);
+  border-color: color-mix(in srgb, var(--accent) 72%, #fff);
 }
 .task.goal .check.done {
   background: var(--accent);

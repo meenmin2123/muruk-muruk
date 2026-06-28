@@ -214,8 +214,11 @@ export function useAppState() {
           try {
             const env = await api.pullState();
             versionRef.current = env.version ?? 0;
+            const pulled = normalize(env.data);
+            // 최고 기록은 떨어지지 않게 보존(로컬·서버·재계산 중 최댓값).
+            pulled.bestStreak = Math.max(pulled.bestStreak, stateRef.current?.bestStreak ?? 0, streakCount(pulled));
             loaded.current = false; // 이번 setState 가 다시 push 되지 않도록
-            setState(ensureDailyTodos(normalize(env.data)));
+            setState(ensureDailyTodos(pulled));
             setTimeout(() => (loaded.current = true), 0);
             setToast("다른 기기에서 변경되어 최신 상태로 맞췄어요 🔄");
           } catch {
@@ -293,7 +296,8 @@ export function useAppState() {
       });
     },
     replaceState(s) {
-      const next = ensureDailyTodos(structuredClone(s));
+      // 외부 백업은 신뢰 불가 → normalize로 형태 보정(배열/필드 누락 시 크래시 방지).
+      const next = ensureDailyTodos(normalize(s));
       next.lastSeen = todayStr();
       setState(next);
       setToast("백업을 불러왔어요 ✅");

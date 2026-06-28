@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
-import { clearToken, getUser, isAdminEmail } from "@/lib/auth";
+import { clearToken, getUser } from "@/lib/auth";
 import { AppState, defaultState, rand, streakCount, totalStickers, ENCOURAGE_FALLBACK, REVIEW_FALLBACK, CELEBRATE_FALLBACK } from "@/lib/state";
 import type { AppActions } from "@/lib/store";
 import type { AdminUserState } from "@/lib/types";
@@ -164,7 +164,8 @@ function SettingsSheet({
   const [reviewLoading, setReviewLoading] = useState(false);
   const [notif, setNotif] = useState(typeof Notification !== "undefined" ? Notification.permission : "default");
   const fileRef = useRef<HTMLInputElement>(null);
-  const [isAdmin, setIsAdmin] = useState(isAdminEmail(userEmail));
+  // 관리자 여부는 서버(api.me)가 확정 — 클라이언트 이메일로 미리 판정하지 않음.
+  const [isAdmin, setIsAdmin] = useState(false);
   const [adminData, setAdminData] = useState<AdminUserState[] | null>(null);
   const [adminLoading, setAdminLoading] = useState(false);
   const [adminErr, setAdminErr] = useState("");
@@ -337,7 +338,9 @@ function SettingsSheet({
 
         {isAdmin && (
           <div className="card" style={{ border: "1.5px solid #ffe0b8", background: "#fffaf3" }}>
-            <h3 style={{ margin: "0 0 6px", fontSize: 15 }}>🛠 관리자 — 전체 데이터</h3>
+            <h3 style={{ margin: "0 0 6px", fontSize: 15, display: "inline-flex", alignItems: "center", gap: 6 }}>
+              <Icon name="settings" size={16} color="#c9912e" /> 관리자 — 전체 데이터
+            </h3>
             <p className="muted" style={{ margin: "0 0 10px" }}>모든 사용자의 목표·할 일 데이터를 조회합니다.</p>
             <button className="btn btn-soft" onClick={loadAdmin} disabled={adminLoading}>
               {adminLoading ? "불러오는 중…" : adminData ? "새로고침" : "전체 데이터 보기"}
