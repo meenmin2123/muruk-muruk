@@ -83,7 +83,7 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
   return (
     <div className="app">
       <header>
-        <span className="appver" title="빌드 버전(캐시 확인용)">v12</span>
+        <span className="appver" title="빌드 버전(캐시 확인용)">v13</span>
         <button className="gear" onClick={() => setSettings(true)} aria-label="설정">
           <Icon name="settings" size={18} />
         </button>

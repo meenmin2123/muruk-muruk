@@ -164,5 +164,5 @@ export function stampSVG(px: number, variant = 0): string {
     const a = (i / N) * 2 * Math.PI;
     petals += `<circle cx="${(50 + Math.cos(a) * 41).toFixed(1)}" cy="${(50 + Math.sin(a) * 41).toFixed(1)}" r="7" fill="${c}"/>`;
   }
-  return `<svg width="${px}" height="${px}" viewBox="0 0 100 100">${petals}<circle cx="50" cy="50" r="42" fill="${c}"/><circle cx="50" cy="50" r="38.5" fill="#fff"/><circle cx="50" cy="50" r="37" fill="none" stroke="${c}" stroke-width="1.4"/><g transform="translate(0 1)">${icon(c)}</g><text x="50" y="72" text-anchor="middle" font-family="sans-serif" font-size="${fs}" font-weight="800" fill="${c}">${text}</text></svg>`;
+  return `<svg width="${px}" height="${px}" viewBox="0 0 100 100">${petals}<circle cx="50" cy="50" r="42" fill="${c}"/><circle cx="50" cy="50" r="38.5" fill="#fff"/><circle cx="50" cy="50" r="37" fill="none" stroke="${c}" stroke-width="1.4"/><g transform="translate(0 1)">${icon(c)}</g><text x="50" y="73" text-anchor="middle" font-family="'Jua', sans-serif" font-size="${fs + 1.5}" fill="${c}">${text}</text></svg>`;
 }
