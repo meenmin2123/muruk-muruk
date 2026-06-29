@@ -25,29 +25,17 @@ import {
 } from "./state";
 
 /**
- * '한 번' 할일로만 된 목표가 모두 완료되면 자동으로 달성 처리(보관)하고,
- * 다시 미완료가 되면 자동 해제한다. (습관형·수동 보관은 건드리지 않음.)
- * 새로 달성됐으면 그 목표 제목을 반환(축하용), 아니면 null.
+ * '한 번' 할일로만 된 목표의 모든 할 일을 방금 다 끝냈는지 확인.
+ * 자동 보관은 하지 않는다(목표가 갑자기 사라지지 않게) — 축하 토스트용 제목만 반환.
+ * 보관은 사용자가 '마치기'로 직접 한다.
  */
-function syncDreamDone(s: AppState, dreamId: string | null): string | null {
+function checkDreamFulfilled(s: AppState, dreamId: string | null): string | null {
   if (!dreamId) return null;
   const d = s.dreams.find((x) => x.id === dreamId);
-  if (!d) return null;
+  if (!d || d.done) return null;
   const onlyOnce = d.goals.length > 0 && d.goals.every((g) => g.repeat === "once");
-  if (!onlyOnce) return null; // 습관형(매일 포함)은 자동 완성 대상 아님
-  const fulfilled = isDreamFulfilled(d, s.todos);
-  if (fulfilled && !d.done) {
-    d.done = true;
-    d.completedAt = todayStr();
-    d.collapsed = true;
-    return d.title;
-  }
-  if (!fulfilled && d.done) {
-    // 한 번-목표는 수동 보관 경로가 없으므로, 미완료로 돌아가면 자동 해제(되살림).
-    d.done = false;
-    d.completedAt = undefined;
-  }
-  return null;
+  if (!onlyOnce) return null;
+  return isDreamFulfilled(d, s.todos) ? d.title : null;
 }
 
 /**
@@ -292,10 +280,10 @@ export function useAppState() {
         goldTitle = r.gold;
         if (t.goalId) {
           const found = findGoal(s, t.goalId);
-          if (found) achieved = syncDreamDone(s, found.dream.id);
+          if (found) achieved = checkDreamFulfilled(s, found.dream.id);
         }
       });
-      if (achieved) setToast(`🎉 ‘${achieved}’ 목표를 이뤘어요! 기록에 보관했어요`);
+      if (achieved) setToast(`🎉 ‘${achieved}’ 목표를 다 이뤘어요! ‘마치기’로 보관할 수 있어요`);
       else if (goldTitle) setGold(goldTitle);
       else if (toastMsg) setToast(toastMsg);
     },
@@ -384,9 +372,9 @@ export function useAppState() {
         const r = applyToggle(s, t);
         toastMsg = r.toast;
         goldTitle = r.gold;
-        achieved = syncDreamDone(s, found.dream.id);
+        achieved = checkDreamFulfilled(s, found.dream.id);
       });
-      if (achieved) setToast(`🎉 ‘${achieved}’ 목표를 이뤘어요! 기록에 보관했어요`);
+      if (achieved) setToast(`🎉 ‘${achieved}’ 목표를 다 이뤘어요! ‘마치기’로 보관할 수 있어요`);
       else if (goldTitle) setGold(goldTitle);
       else if (toastMsg) setToast(toastMsg);
     },

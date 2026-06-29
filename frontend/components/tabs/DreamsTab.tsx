@@ -274,12 +274,12 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
             <Icon name="tree" size={16} color={color} /> 칭찬판
           </button>
         )}
-        {!editTitle && isHabitDream(d) && (
+        {!editTitle && (
           <button
             className="achieve"
             aria-label="목표 마치기"
             title="이 목표를 달성으로 보관해요"
-            onClick={() => confirm(`‘${d.title}’을(를) 달성으로 보관할까요?\n보관하면 기록 탭에서 볼 수 있어요.`) && actions.completeDream(d.id)}
+            onClick={() => confirm(`‘${d.title}’을(를) 달성으로 보관할까요?\n보관하면 기록 탭 ‘이룬 목표’에서 볼 수 있어요.`) && actions.completeDream(d.id)}
           >
             <Icon name="best" size={15} color="#caa12e" /> 마치기
           </button>
