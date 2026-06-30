@@ -78,7 +78,6 @@ function ArchivedCard({ dream: d, state, actions }: { dream: Dream; state: AppSt
   const color = d.color || template(d.cat).color;
   const cap = boardCap(d);
   const boardLen = d.stickers?.length ?? 0;
-  const boardGold = boardLen >= cap;
   const boardHtml = boardSVG(d, d.theme || "tree", cap, color);
   const md = (s?: string) => {
     if (!s) return "";
@@ -107,9 +106,10 @@ function ArchivedCard({ dream: d, state, actions }: { dream: Dream; state: AppSt
 
       {open && (
         <div className="arch-body">
-          <div className="arch-board">
-            <div dangerouslySetInnerHTML={{ __html: boardHtml }} />
-            {boardGold && <div className="board-stamp" dangerouslySetInnerHTML={{ __html: stampSVG(54, (d.stamps ?? 1) - 1) }} />}
+          <div className="arch-board done">
+            {/* 다 모은 스티커판은 옅은 회색 음영으로 깔고, 그 위에 '참 잘했어요' 도장을 크게 중앙에 */}
+            <div className="arch-board-bg" dangerouslySetInnerHTML={{ __html: boardHtml }} />
+            <div className="arch-stamp" dangerouslySetInnerHTML={{ __html: stampSVG(150, 0) }} />
           </div>
           <div className="arch-tasks">
             {d.goals.map((g) => {

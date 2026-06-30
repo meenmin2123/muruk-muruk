@@ -1191,6 +1191,27 @@ main > section {
   overflow: hidden;
   line-height: 0;
 }
+/* 이룬 목표: 스티커판은 옅은 회색 음영으로 깔고, 가운데에 '참 잘했어요' 도장을 크게 */
+.arch-board.done .arch-board-bg {
+  filter: grayscale(1) opacity(0.45);
+}
+.arch-board.done::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(90, 90, 90, 0.08);
+  pointer-events: none;
+}
+.arch-stamp {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.2));
+}
 .arch-tasks {
   margin-top: 12px;
   display: flex;
