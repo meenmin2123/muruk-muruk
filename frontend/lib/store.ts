@@ -94,6 +94,7 @@ function normalize(data: unknown): AppState {
 
 export interface AppActions {
   addTodo(text: string, goalId: string | null, date?: string): void;
+  editTodo(id: string, text: string): void;
   toggleTodo(id: string): void;
   removeTodo(id: string): void;
   tomorrow(id: string): void;
@@ -274,6 +275,26 @@ export function useAppState() {
         s.todos.push({ id: uid(), text, date: date || todayStr(), done: false, goalId });
       });
       setToast(rand(ADD_CHEER));
+    },
+    editTodo(id, text) {
+      const v = text.trim();
+      if (!v) return;
+      mutate((s) => {
+        const t = s.todos.find((x) => x.id === id);
+        if (!t || t.text === v) return;
+        // 목표에 연결된 할 일이면 목표명을 바꾸고, 그 목표의 모든 할 일 텍스트를 함께 갱신(일관성).
+        if (t.goalId) {
+          const found = findGoal(s, t.goalId);
+          if (found) {
+            found.goal.title = v;
+            s.todos.forEach((x) => {
+              if (x.goalId === t.goalId) x.text = v;
+            });
+            return;
+          }
+        }
+        t.text = v;
+      });
     },
     toggleTodo(id) {
       let toastMsg = "";

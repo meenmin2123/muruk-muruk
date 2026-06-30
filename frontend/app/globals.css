@@ -272,6 +272,20 @@ main > section {
   font-weight: 700;
   font-size: 15px;
   word-break: break-word;
+  cursor: text;
+}
+.task .task-edit {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1.5px solid var(--primary);
+  border-radius: 9px;
+  padding: 7px 9px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  background: #fff;
+  outline: none;
 }
 .task.done .txt {
   text-decoration: line-through;

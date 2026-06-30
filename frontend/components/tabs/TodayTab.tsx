@@ -14,6 +14,22 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
   const [sel, setSel] = useState(todayStr()); // 보고 있는 날짜
   const [slump, setSlump] = useState("");
   const [slumpLoading, setSlumpLoading] = useState(false);
+  const [editId, setEditId] = useState<string | null>(null); // 수정 중인 할 일
+  const [editText, setEditText] = useState("");
+
+  const startEdit = (id: string, cur: string) => {
+    setEditId(id);
+    setEditText(cur);
+  };
+  const saveEdit = () => {
+    if (editId) actions.editTodo(editId, editText);
+    setEditId(null);
+    setEditText("");
+  };
+  const cancelEdit = () => {
+    setEditId(null);
+    setEditText("");
+  };
 
   const today = todayStr();
   const isToday = sel === today;
@@ -81,16 +97,35 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
             {t.done && <Icon name="check" size={15} color="#fff" />}
           </button>
           <div className="body">
-            <div className="txt">{t.text}</div>
+            {editId === t.id ? (
+              <input
+                className="task-edit"
+                autoFocus
+                value={editText}
+                maxLength={60}
+                onChange={(e) => setEditText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.nativeEvent.isComposing) saveEdit();
+                  else if (e.key === "Escape") cancelEdit();
+                }}
+                onBlur={saveEdit}
+              />
+            ) : (
+              <div className="txt" onClick={() => startEdit(t.id, t.text)} title="눌러서 수정">
+                {t.text}
+              </div>
+            )}
           </div>
-          {!t.done && !(fg && fg.goal.repeat === "daily") && (
+          {editId !== t.id && !t.done && !(fg && fg.goal.repeat === "daily") && (
             <button className="later" onClick={() => actions.tomorrow(t.id)}>
               내일로
             </button>
           )}
-          <button className="x" aria-label="할 일 삭제" onClick={() => actions.removeTodo(t.id)}>
-            <Icon name="close" size={14} />
-          </button>
+          {editId !== t.id && (
+            <button className="x" aria-label="할 일 삭제" onClick={() => actions.removeTodo(t.id)}>
+              <Icon name="close" size={14} />
+            </button>
+          )}
         </div>
       );
     });
