@@ -868,6 +868,12 @@ main > section {
   border-radius: 7px;
   padding: 1px 7px;
 }
+.dn-wd.ahead {
+  color: #5b8def;
+  background: #eef3ff;
+  border-radius: 7px;
+  padding: 1px 7px;
+}
 .today-tree {
   max-width: 250px;
   margin: 6px auto 18px;

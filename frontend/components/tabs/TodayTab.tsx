@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { coachMessage } from "@/lib/api";
 import type { AppActions } from "@/lib/store";
-import { AppState, dateStr, daysSinceLastDone, findGoal, todayStr, SLUMP_FALLBACK } from "@/lib/state";
+import { AppState, dateStr, daysSinceLastDone, daysUntil, findGoal, todayStr, SLUMP_FALLBACK } from "@/lib/state";
 import { todayTreeSVG } from "@/lib/trees";
 import { Icon } from "../Icon";
 
@@ -18,11 +18,15 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
   const today = todayStr();
   const isToday = sel === today;
   const selDate = new Date(sel + "T00:00:00");
+  const ahead = daysUntil(sel); // 오늘=0, 내일=1, 모레=2, 과거는 음수
+  const AHEAD_MAX = 14; // 최대 2주 앞까지 미리 적기
+  const isFuture = ahead > 0;
   const shift = (n: number) => {
     const d = new Date(sel + "T00:00:00");
     d.setDate(d.getDate() + n);
     setSel(dateStr(d));
   };
+  const wdLabel = isToday ? "오늘" : ahead === 1 ? "내일" : ahead === 2 ? "모레" : WD[selDate.getDay()];
 
   const gap = daysSinceLastDone(state);
   const showSlump = isToday && gap >= 3; // 오늘 화면에서만, 3일 이상 쉰 경우
@@ -45,7 +49,7 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
   }
 
   const treeCap = all.length === 0
-    ? (isToday ? "오늘의 나무 · 할 일을 더하면 칸이 생겨요" : "이 날은 기록된 할 일이 없어요")
+    ? (isToday ? "오늘의 나무 · 할 일을 더하면 칸이 생겨요" : isFuture ? `${wdLabel} 할 일을 미리 적어둘 수 있어요` : "이 날은 기록된 할 일이 없어요")
     : done >= all.length
     ? `${isToday ? "오늘 " : ""}다 했어요! 🎉 (${done}/${all.length})`
     : done === 0
@@ -94,9 +98,9 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
         </button>
         <button className="dn-date" onClick={() => setSel(today)} title="오늘로">
           <span className="dn-md">{selDate.getMonth() + 1}월 {selDate.getDate()}일</span>
-          <span className={"dn-wd" + (isToday ? " today" : "")}>{isToday ? "오늘" : WD[selDate.getDay()]}</span>
+          <span className={"dn-wd" + (isToday ? " today" : "") + (isFuture ? " ahead" : "")}>{wdLabel}</span>
         </button>
-        <button className="dn-arrow" onClick={() => shift(1)} disabled={isToday} aria-label="다음 날">
+        <button className="dn-arrow" onClick={() => shift(1)} disabled={ahead >= AHEAD_MAX} aria-label="다음 날">
           <Icon name="back" size={18} style={{ transform: "rotate(180deg)" }} />
         </button>
       </div>
@@ -126,7 +130,7 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
         <div className="addbar">
           <input
             value={text}
-            placeholder={isToday ? "오늘 할 일 적기" : `${selDate.getMonth() + 1}월 ${selDate.getDate()}일 할 일 적기`}
+            placeholder={(ahead === 1 || ahead === 2 ? wdLabel : isToday ? "오늘" : `${selDate.getMonth() + 1}월 ${selDate.getDate()}일`) + " 할 일 적기"}
             maxLength={60}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => {
@@ -144,6 +148,12 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
               오늘 할 일이 없어요.
               <br />
               위 입력칸에 바로 적거나 ‘나의 목표’에서 할 일을 더해요.
+            </>
+          ) : isFuture ? (
+            <>
+              아직 할 일이 없어요.
+              <br />
+              위 입력칸에 미리 적어두면 그날 오늘 목록에 떠요.
             </>
           ) : (
             "이 날은 기록된 할 일이 없어요."
