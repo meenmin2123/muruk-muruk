@@ -19,8 +19,13 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
   const isToday = sel === today;
   const selDate = new Date(sel + "T00:00:00");
   const ahead = daysUntil(sel); // 오늘=0, 내일=1, 모레=2, 과거는 음수
-  const AHEAD_MAX = 14; // 최대 2주 앞까지 미리 적기
+  const AHEAD_MAX = 366; // 약 1년 앞까지 미리 적기(달력으로 아무 날이나 점프)
   const isFuture = ahead > 0;
+  const maxStr = (() => {
+    const d = new Date(today + "T00:00:00");
+    d.setDate(d.getDate() + AHEAD_MAX);
+    return dateStr(d);
+  })();
   const shift = (n: number) => {
     const d = new Date(sel + "T00:00:00");
     d.setDate(d.getDate() + n);
@@ -96,14 +101,26 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
         <button className="dn-arrow" onClick={() => shift(-1)} aria-label="이전 날">
           <Icon name="back" size={18} />
         </button>
-        <button className="dn-date" onClick={() => setSel(today)} title="오늘로">
+        <label className="dn-date" title="날짜 선택">
           <span className="dn-md">{selDate.getMonth() + 1}월 {selDate.getDate()}일</span>
           <span className={"dn-wd" + (isToday ? " today" : "") + (isFuture ? " ahead" : "")}>{wdLabel}</span>
-        </button>
+          <Icon name="calendar" size={14} className="dn-cal" />
+          <input
+            type="date"
+            className="dn-pick"
+            value={sel}
+            max={maxStr}
+            onChange={(e) => e.target.value && setSel(e.target.value)}
+            aria-label="날짜 선택"
+          />
+        </label>
         <button className="dn-arrow" onClick={() => shift(1)} disabled={ahead >= AHEAD_MAX} aria-label="다음 날">
           <Icon name="back" size={18} style={{ transform: "rotate(180deg)" }} />
         </button>
       </div>
+      {!isToday && (
+        <button className="dn-reset" onClick={() => setSel(today)}>오늘로 돌아가기</button>
+      )}
 
       {showSlump && (
         <div className="card" style={{ background: "#fff7ee", border: "1px solid #ffe0b8" }}>
