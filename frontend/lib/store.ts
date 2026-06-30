@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, flushState as apiFlushState } from "./api";
+import { pushWidgetSnapshot } from "./widget";
 import {
   AppState,
   ADD_CHEER,
@@ -249,6 +250,12 @@ export function useAppState() {
         setSyncing(false);
       }
     }, 1200);
+  }, [state]);
+
+  // 상태가 바뀔 때마다 홈 화면 위젯 스냅샷을 갱신(Capacitor 네이티브에서만 실제 동작).
+  useEffect(() => {
+    if (!loaded.current || !state) return;
+    pushWidgetSnapshot(state);
   }, [state]);
 
   const mutate = useCallback((fn: (s: AppState) => void) => {
