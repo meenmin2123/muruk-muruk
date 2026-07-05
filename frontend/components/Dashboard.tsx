@@ -23,6 +23,17 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
   const [celebrate, setCelebrate] = useState("");
   const routed = useRef(false);
   const user = getUser();
+  const [slowLoad, setSlowLoad] = useState(false);
+
+  // 로딩이 길어지면(백엔드 콜드 스타트) 멈춘 것처럼 보이지 않게 안내 문구를 띄운다.
+  useEffect(() => {
+    if (state) {
+      setSlowLoad(false);
+      return;
+    }
+    const t = setTimeout(() => setSlowLoad(true), 4000);
+    return () => clearTimeout(t);
+  }, [state]);
 
   // 관리자 여부(서버 확정) + 관리자 모드(로컬에 기억). 모드 ON이면 메인 화면이 전체 사용자 뷰로 전환.
   const [isAdmin, setIsAdmin] = useState(() => isAdminEmail(user?.email ?? ""));
@@ -72,7 +83,16 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
   if (!state) {
     return (
       <div className="app">
-        <div className="empty" style={{ paddingTop: 120 }}>불러오는 중…</div>
+        <div className="empty" style={{ paddingTop: 120 }}>
+          불러오는 중…
+          {slowLoad && (
+            <div className="muted" style={{ marginTop: 12, fontSize: 13, lineHeight: 1.7 }}>
+              서버를 깨우는 중이에요.
+              <br />
+              처음 접속이면 최대 1분 정도 걸릴 수 있어요 ☕
+            </div>
+          )}
+        </div>
       </div>
     );
   }
@@ -83,7 +103,7 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
   return (
     <div className="app">
       <header>
-        <span className="appver" title="빌드 버전(캐시 확인용)">v18</span>
+        <span className="appver" title="빌드 버전(캐시 확인용)">v19</span>
         <button className="gear" onClick={() => setSettings(true)} aria-label="설정">
           <Icon name="settings" size={18} />
         </button>

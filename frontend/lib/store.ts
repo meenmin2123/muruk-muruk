@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, flushState as apiFlushState } from "./api";
 import { pushWidgetSnapshot } from "./widget";
+import { getUser } from "./auth";
 import {
   AppState,
   ADD_CHEER,
@@ -92,6 +93,37 @@ function normalize(data: unknown): AppState {
   };
 }
 
+// 마지막으로 본 상태를 로컬에 캐시 → 다음 접속 때 백엔드 응답을 기다리지 않고 즉시 화면을 띄운다.
+// (특히 무료 백엔드 콜드 스타트 30~60초 동안 하얀 '불러오는 중' 화면을 없앤다.)
+// 사용자(sub)별로 분리 저장해 다른 계정 데이터가 섞이지 않게 한다.
+const CACHE_PREFIX = "muruk_state_cache_v1:";
+function cacheKey(): string | null {
+  try {
+    const u = getUser();
+    return u ? CACHE_PREFIX + u.id : null;
+  } catch {
+    return null;
+  }
+}
+function readCache(): AppState | null {
+  try {
+    const k = cacheKey();
+    if (!k) return null;
+    const raw = localStorage.getItem(k);
+    return raw ? normalize(JSON.parse(raw)) : null;
+  } catch {
+    return null;
+  }
+}
+function writeCache(s: AppState): void {
+  try {
+    const k = cacheKey();
+    if (k) localStorage.setItem(k, JSON.stringify(s));
+  } catch {
+    /* 용량 초과 등 무시 */
+  }
+}
+
 export interface AppActions {
   addTodo(text: string, goalId: string | null, date?: string): void;
   editTodo(id: string, text: string): void;
@@ -131,6 +163,7 @@ export function useAppState() {
   const undoSnap = useRef<AppState | null>(null);
   const undoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dirty = useRef(false); // 마지막 push 이후 변경 있음 → 언로드 시 flush 대상
+  const editedDuringLoad = useRef(false); // 서버 응답 전(캐시 표시 중)에 사용자가 편집했는가
 
   useEffect(() => {
     stateRef.current = state;
@@ -196,28 +229,53 @@ export function useAppState() {
     };
   }, []);
 
-  // 최초 로드: 백엔드에서 받아오기 (없으면 기본 상태)
+  // 최초 로드:
+  //  1) 로컬 캐시가 있으면 즉시 화면에 띄운다(백엔드 콜드 스타트 동안 '불러오는 중' 방지).
+  //  2) 백엔드에서 최신 상태를 받아 동기화한다. 단, 로딩 중 사용자가 편집했다면
+  //     로컬 편집을 우선(덮어쓰기 방지)하고 서버엔 그 편집을 올린다.
   useEffect(() => {
     let alive = true;
+    const cached = readCache();
+    if (cached) {
+      const c = ensureDailyTodos(cached);
+      c.lastSeen = todayStr();
+      setState(c); // loaded.current는 아직 false → 이 상태는 서버로 자동 업로드되지 않음
+    }
     (async () => {
       let s: AppState;
+      let ok = false;
       try {
         const env = await api.pullState();
         s = normalize(env.data);
         versionRef.current = env.version ?? 0;
+        ok = true;
       } catch {
-        s = defaultState();
+        s = cached ?? defaultState();
       }
-      s = ensureDailyTodos(s);
-      s.lastSeen = todayStr();
       if (!alive) return;
+      if (ok && !editedDuringLoad.current) {
+        // 서버 최신본으로 반영(로딩 중 편집이 없었을 때만).
+        s = ensureDailyTodos(s);
+        s.lastSeen = todayStr();
+        setState(s);
+      } else if (!ok && !cached) {
+        // 캐시도 없고 서버도 실패 → 기본 상태라도 보여준다.
+        s = ensureDailyTodos(s);
+        s.lastSeen = todayStr();
+        setState(s);
+      }
+      // ok && editedDuringLoad: 로컬 편집 유지 → 이후 디바운스 push가 서버 version으로 올림.
       loaded.current = true;
-      setState(s);
     })();
     return () => {
       alive = false;
     };
   }, []);
+
+  // 상태가 바뀔 때마다 로컬 캐시 갱신(다음 접속 즉시 표시용).
+  useEffect(() => {
+    if (state) writeCache(state);
+  }, [state]);
 
   // 변경 시 디바운스 업로드
   useEffect(() => {
@@ -262,6 +320,7 @@ export function useAppState() {
   const mutate = useCallback((fn: (s: AppState) => void) => {
     const cur = stateRef.current;
     if (!cur) return;
+    if (!loaded.current) editedDuringLoad.current = true; // 서버 응답 전 편집 → 로컬 우선
     const next = structuredClone(cur);
     fn(next);
     const st = streakCount(next);
