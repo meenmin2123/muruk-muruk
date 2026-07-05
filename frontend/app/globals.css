@@ -1486,6 +1486,39 @@ main > section {
 .today-add .addbar {
   margin: 0;
 }
+/* 자주 적은 할 일 추천 — 입력칸 바로 위, 작게 */
+.suggest {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+}
+.suggest-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+  margin-right: 2px;
+}
+.suggest-chip {
+  border: 1px solid #cde7c2;
+  background: #f2fbee;
+  color: var(--primary-d);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 4px 10px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.suggest-chip:active {
+  transform: translateY(1px);
+  filter: brightness(0.97);
+}
 /* 오늘 할 일 입력칸 — 연두/초록 틴트 */
 .today-add .addbar input {
   background: #eef8e9;

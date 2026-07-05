@@ -62,6 +62,22 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
   const all = state.todos.filter((t) => t.date === sel);
   const done = all.filter((t) => t.done).length;
 
+  // 이 달에 3번 이상 '직접' 적은 할 일 → 추천(한 번에 다시 추가). 목표 연결 할 일은 제외.
+  const monthPrefix = sel.slice(0, 7); // YYYY-MM
+  const selTexts = new Set(all.map((t) => t.text.trim()));
+  const freq = new Map<string, number>();
+  for (const t of state.todos) {
+    if (t.goalId) continue; // 자동 생성되는 목표 할 일 제외
+    if (!t.date.startsWith(monthPrefix)) continue;
+    const key = t.text.trim();
+    if (key) freq.set(key, (freq.get(key) ?? 0) + 1);
+  }
+  const suggestions = [...freq.entries()]
+    .filter(([txt, n]) => n >= 3 && !selTexts.has(txt)) // 이미 이 날에 있는 건 제외
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6)
+    .map(([txt]) => txt);
+
   function add() {
     const v = text.trim();
     if (!v) return;
@@ -179,6 +195,16 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
       </div>
 
       <div className="addbox today-add">
+        {suggestions.length > 0 && (
+          <div className="suggest">
+            <span className="suggest-label">자주 적은 할 일</span>
+            {suggestions.map((s) => (
+              <button key={s} className="suggest-chip" onClick={() => actions.addTodo(s, null, sel)} title="눌러서 추가">
+                + {s}
+              </button>
+            ))}
+          </div>
+        )}
         <div className="addbar">
           <input
             value={text}
