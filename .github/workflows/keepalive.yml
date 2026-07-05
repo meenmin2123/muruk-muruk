@@ -1,0 +1,31 @@
+# 백엔드(무료 Render 웹서비스)가 15분 미사용으로 잠들지 않도록 주기적으로 깨워둔다.
+# JVM(Spring) 백엔드는 콜드 스타트가 30~60초라 특히 느리다 → 미리 warm 상태로 유지.
+#
+# 참고: GitHub Actions 스케줄은 부하 시 몇 분 지연될 수 있다. 더 정확한 유지가 필요하면
+#       UptimeRobot / cron-job.org 같은 무료 모니터로 같은 URL을 5분 간격 핑하는 걸 권장.
+name: keep-backend-warm
+
+on:
+  schedule:
+    - cron: "*/10 * * * *" # 10분마다
+  workflow_dispatch: {} # 수동 실행 버튼
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping backend health
+        run: |
+          URL="https://muruk-backend.onrender.com/api/health"
+          for i in 1 2 3 4; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 90 "$URL" || echo 000)
+            echo "attempt $i → HTTP $code"
+            if [ "$code" = "200" ]; then
+              echo "backend is awake ✅"
+              exit 0
+            fi
+            sleep 15
+          done
+          # 실패해도 워크플로를 실패로 남기지 않음(불필요한 알림 방지)
+          echo "backend did not return 200 (아마 콜드 스타트 중) — 다음 주기에 재시도"
+          exit 0

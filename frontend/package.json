@@ -9,6 +9,7 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "build:app": "BUILD_TARGET=app next build",
+    "build:static": "BUILD_TARGET=static next build",
     "cap:sync": "npm run build:app && cap sync",
     "cap:add:ios": "cap add ios",
     "cap:add:android": "cap add android",
