@@ -3,10 +3,10 @@ import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "참잘했어요",
+  title: "모아모아",
   description: "오늘 할 일을 해내고 칭찬 도장을 모으는 습관 앱",
   manifest: "/manifest.json",
-  appleWebApp: { capable: true, statusBarStyle: "default", title: "참잘했어요" },
+  appleWebApp: { capable: true, statusBarStyle: "default", title: "모아모아" },
   icons: {
     icon: [
       { url: "/icon.svg", type: "image/svg+xml" },

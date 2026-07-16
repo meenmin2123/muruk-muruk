@@ -46,7 +46,7 @@ export function LoginGate({ onLogin }: { onLogin: () => void }) {
       </div>
 
       <h1 className="login-title">
-        참잘했어요<span style={{ color: "var(--primary)" }}>.</span>
+        모아모아<span style={{ color: "var(--primary)" }}>.</span>
       </h1>
 
       <div className="login-features" style={{ marginTop: 14 }}>
