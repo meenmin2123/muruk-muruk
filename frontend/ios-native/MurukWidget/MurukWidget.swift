@@ -219,7 +219,7 @@ private struct MediumView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 5) {
                 Image(systemName: "leaf.fill").font(.system(size: 12)).foregroundColor(brand)
-                Text("무럭무럭 · 오늘").font(.subheadline.bold()).foregroundColor(.primary)
+                Text("참잘했어요 · 오늘").font(.subheadline.bold()).foregroundColor(.primary)
                 Spacer()
                 if snap.totalCount > 0 {
                     Text("\(snap.doneCount)/\(snap.totalCount)")
@@ -272,7 +272,7 @@ struct MurukWidget: Widget {
         StaticConfiguration(kind: kind, provider: Provider()) { entry in
             MurukWidgetEntryView(entry: entry)
         }
-        .configurationDisplayName("무럭무럭")
+        .configurationDisplayName("참잘했어요")
         .description("오늘 할 일과 칭찬판 진행도를 보여줘요.")
         .supportedFamilies([.systemSmall, .systemMedium])
     }

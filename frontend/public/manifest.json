@@ -1,7 +1,7 @@
 {
-  "name": "무럭무럭",
-  "short_name": "무럭무럭",
-  "description": "목표와 할 일을 관리하는 습관 앱",
+  "name": "참잘했어요",
+  "short_name": "참잘했어요",
+  "description": "오늘 할 일을 해내고 칭찬 도장을 모으는 습관 앱",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
