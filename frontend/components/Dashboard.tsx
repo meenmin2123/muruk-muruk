@@ -103,7 +103,7 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
   return (
     <div className="app">
       <header>
-        <span className="appver" title="빌드 버전(캐시 확인용)">v25</span>
+        <span className="appver" title="빌드 버전(캐시 확인용)">v26</span>
         <button className="gear" onClick={() => setSettings(true)} aria-label="설정">
           <Icon name="settings" size={18} />
         </button>
@@ -111,7 +111,7 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/icon.svg" alt="" className="logo-ic" />
           <span>
-            모아모아<span className="dot">.</span>
+            여기붙여<span className="dot">.</span>
           </span>
         </div>
       </header>
@@ -282,7 +282,7 @@ function SettingsSheet({
     setNotif(p);
     if (p === "granted") {
       actions.updateSettings({ reminderEnabled: true, reminderTime: remindTime });
-      new Notification("모아모아", { body: `매일 ${remindTime}에 알려드릴게요! 오늘도 한 걸음 🌿` });
+      new Notification("여기붙여", { body: `매일 ${remindTime}에 알려드릴게요! 오늘도 한 걸음 🌿` });
     }
   }
 

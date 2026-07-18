@@ -12,17 +12,17 @@ function fire(body: string) {
   // SW가 실제로 페이지를 제어 중일 때만 SW 알림 사용(없으면 ready가 영영 안 풀림) → 아니면 일반 Notification.
   if (navigator.serviceWorker?.controller) {
     navigator.serviceWorker.ready
-      .then((reg) => reg.showNotification("모아모아", opts))
+      .then((reg) => reg.showNotification("여기붙여", opts))
       .catch(() => {
         try {
-          new Notification("모아모아", opts);
+          new Notification("여기붙여", opts);
         } catch {
           /* ignore */
         }
       });
   } else {
     try {
-      new Notification("모아모아", opts);
+      new Notification("여기붙여", opts);
     } catch {
       /* ignore */
     }
