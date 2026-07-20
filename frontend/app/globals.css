@@ -773,6 +773,18 @@ main > section {
   letter-spacing: -1px;
   margin: 18px 0 6px;
 }
+/* '여기붙여' 워드마크 — 둥글둥글한 Jua로 앱 분위기 통일(장식 없이 폰트만, 깔끔). */
+.logo,
+.splash-logo,
+.login-title {
+  font-family: "Jua", "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", sans-serif;
+  letter-spacing: 0.2px;
+}
+.logo .dot,
+.splash-logo span,
+.login-title span {
+  margin-left: 1px;
+}
 .login-tagline {
   color: var(--muted);
   font-weight: 600;
