@@ -13,6 +13,7 @@ import { TodayTab } from "./tabs/TodayTab";
 import { DreamsTab } from "./tabs/DreamsTab";
 import { RecordsTab } from "./tabs/RecordsTab";
 import { Icon } from "./Icon";
+import { Wordmark } from "./Wordmark";
 
 type Tab = "dreams" | "today" | "records";
 
@@ -103,16 +104,14 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
   return (
     <div className="app">
       <header>
-        <span className="appver" title="빌드 버전(캐시 확인용)">v29</span>
+        <span className="appver" title="빌드 버전(캐시 확인용)">v30</span>
         <button className="gear" onClick={() => setSettings(true)} aria-label="설정">
           <Icon name="settings" size={18} />
         </button>
         <div className="logo">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/icon.svg" alt="" className="logo-ic" />
-          <span>
-            여기붙여<span className="dot">.</span>
-          </span>
+          <Wordmark height={27} color="#283330" />
         </div>
       </header>
 

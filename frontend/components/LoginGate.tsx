@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { GOOGLE_CLIENT_ID, saveToken, whenGoogleReady } from "@/lib/auth";
 import { treeSVG } from "@/lib/trees";
 import { Icon } from "./Icon";
+import { Wordmark } from "./Wordmark";
 
 export function LoginGate({ onLogin }: { onLogin: () => void }) {
   const btnRef = useRef<HTMLDivElement>(null);
@@ -45,8 +46,8 @@ export function LoginGate({ onLogin }: { onLogin: () => void }) {
         <div className="login-tree" dangerouslySetInnerHTML={{ __html: treeSVG({ stickers: ["⭐", "🌟", "💖", "🌸", "🍀", "🐣"] }, 6) }} />
       </div>
 
-      <h1 className="login-title">
-        여기붙여<span style={{ color: "var(--primary)" }}>.</span>
+      <h1 className="login-title" style={{ display: "flex", justifyContent: "center" }}>
+        <Wordmark height={44} color="#283330" />
       </h1>
 
       <div className="login-features" style={{ marginTop: 14 }}>

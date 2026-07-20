@@ -1,14 +1,15 @@
 "use client";
 
 import { stampSVG } from "@/lib/trees";
+import { Wordmark } from "./Wordmark";
 
 /** 앱을 처음 열면 보이는 로딩 스플래시 — '참 잘했어요' 도장이 찍히는 화면. */
 export function SplashScreen() {
   return (
     <div className="splash">
       <div className="stamp-hero" aria-hidden dangerouslySetInnerHTML={{ __html: stampSVG(150) }} />
-      <div className="splash-logo">
-        여기붙여<span style={{ color: "#eafaec" }}>.</span>
+      <div className="splash-logo" style={{ display: "flex", justifyContent: "center" }}>
+        <Wordmark height={34} color="#ffffff" />
       </div>
       <div className="splash-hint">잠시만요…</div>
     </div>
