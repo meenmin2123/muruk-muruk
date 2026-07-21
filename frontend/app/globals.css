@@ -1,21 +1,18 @@
 :root {
-  /* 팔레트: Lime Sprout #E4FD97 + Fresh Canopy #2D3E2C */
-  --bg: #f4fbdf;
-  --primary: #2d3e2c; /* forest — 아이콘·강조 텍스트·기본 */
-  --primary-d: #1f2c1e; /* 더 짙은 forest — 제목·그라데이션 끝 */
-  --primary-soft: #eaf7c4; /* soft lime — 칩/활성 배경 */
-  --lime: #e4fd97; /* 라임 강조 */
-  --lime-d: #d2f076; /* 진한 라임 — 테두리/호버 */
-  --accent2: #e4fd97;
+  --bg: #f3faf1;
+  --primary: #46b97c;
+  --primary-d: #2e9e63;
+  --primary-soft: #e2f2e8;
+  --accent2: #bee89e;
   --gold: #e7b53a;
-  --text: #2d3e2c;
-  --muted: #66765f;
+  --text: #283330;
+  --muted: #5e7967;
   --card: #fff;
-  --line: #e6edd3;
-  --success: #2d3e2c;
+  --line: #e9f1e6;
+  --success: #3fb984;
   --radius: 18px;
-  --shadow-sm: 0 1px 2px rgba(30, 44, 30, 0.05), 0 8px 22px -12px rgba(30, 44, 30, 0.16);
-  --shadow-md: 0 2px 8px rgba(30, 44, 30, 0.06), 0 18px 40px -18px rgba(30, 44, 30, 0.24);
+  --shadow-sm: 0 1px 2px rgba(40, 58, 46, 0.05), 0 8px 22px -12px rgba(40, 58, 46, 0.16);
+  --shadow-md: 0 2px 8px rgba(40, 58, 46, 0.06), 0 18px 40px -18px rgba(40, 58, 46, 0.24);
 }
 * {
   box-sizing: border-box;
@@ -43,7 +40,7 @@ html,
 body {
   margin: 0;
   padding: 0;
-  background: linear-gradient(170deg, #edf7d0 0%, #f4fbdf 42%, #eff8d4 100%);
+  background: linear-gradient(170deg, #e7f4e9 0%, #f3faf1 42%, #eef9f1 100%);
   background-attachment: fixed;
   color: var(--text);
   line-height: 1.5;
@@ -61,7 +58,7 @@ body {
   position: relative;
 }
 header {
-  background: linear-gradient(165deg, #e4fd97 0%, #ebfcaf 55%, #f2fbcf 100%);
+  background: linear-gradient(165deg, #d3eed9 0%, #e7f5e6 52%, var(--bg) 100%);
   /* 노치/상단바 안전영역만큼 위쪽 여백 추가 */
   padding: calc(24px + env(safe-area-inset-top)) 22px 20px;
   border-radius: 0 0 28px 28px;
@@ -212,7 +209,7 @@ main > section {
 .btn,
 .addbar button {
   border: none;
-  background: linear-gradient(135deg, #3a5238, var(--primary-d));
+  background: linear-gradient(135deg, #4ec083, var(--primary-d));
   color: #fff;
   font-weight: 800;
   border-radius: 14px;
@@ -363,7 +360,7 @@ main > section {
 .task .later {
   font-size: 11px;
   color: var(--muted);
-  background: #eef7d2;
+  background: #eaf3ea;
   border: none;
   border-radius: 9px;
   padding: 6px 8px;
@@ -372,7 +369,7 @@ main > section {
   transition: background 0.15s ease, transform 0.12s ease;
 }
 .task .later:active {
-  background: #e0f2b8;
+  background: #dcecdb;
   transform: scale(0.94);
 }
 .x {
@@ -394,7 +391,7 @@ main > section {
 }
 /* 완료된 할 일 카드는 살짝 가라앉혀 상태를 명확히 */
 .task.done {
-  background: #f9fce6;
+  background: #fbfdfb;
 }
 .empty {
   text-align: center;
@@ -428,7 +425,7 @@ main > section {
   }
 }
 .dream {
-  background: linear-gradient(180deg, #ffffff 0%, #fafce8 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #fcfdfb 100%);
   border-radius: 22px;
   padding: 17px;
   margin-bottom: 14px;
@@ -588,7 +585,7 @@ main > section {
 .admin-json {
   max-height: 240px;
   overflow: auto;
-  background: #f6fbe4;
+  background: #f6f8f5;
   border-radius: 10px;
   padding: 10px;
   font-size: 11px;
@@ -648,7 +645,7 @@ main > section {
 .ipick-cell {
   aspect-ratio: 1;
   border: none;
-  background: #f6fbe4;
+  background: #f5faf3;
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -684,7 +681,7 @@ main > section {
   overflow: auto;
   font-size: 11px;
   color: var(--muted);
-  background: #f6fbe4;
+  background: #f6f8f5;
   border-radius: 10px;
   padding: 10px 12px;
   white-space: pre-wrap;
@@ -698,7 +695,7 @@ main > section {
   align-items: center;
   justify-content: center;
   gap: 4px;
-  background: linear-gradient(165deg, #3a5238 0%, #2d3e2c 55%, #23311f 100%);
+  background: linear-gradient(165deg, #84cf86 0%, #57bd75 52%, #3faa6e 100%);
   z-index: 100;
 }
 .splash-logo {
@@ -1243,7 +1240,7 @@ main > section {
 .ta-add {
   flex: none;
   border: none;
-  background: linear-gradient(135deg, #3a5238, var(--primary-d));
+  background: linear-gradient(135deg, #4ec083, var(--primary-d));
   color: #fff;
   font-weight: 800;
   border-radius: 12px;
@@ -1458,7 +1455,7 @@ main > section {
   cursor: pointer;
 }
 .add-today.added {
-  background: #edf7d0;
+  background: #eaf7f0;
   color: var(--success);
 }
 .gt-badge {
@@ -1496,7 +1493,7 @@ main > section {
 }
 .goal-add button {
   border: none;
-  background: #e9f5cd;
+  background: #e3f1e6;
   color: var(--primary-d);
   font-weight: 800;
   border-radius: 12px;
@@ -1521,7 +1518,7 @@ main > section {
   transform: scale(0.95);
 }
 .chip.on {
-  background: linear-gradient(135deg, #3a5238, var(--primary-d));
+  background: linear-gradient(135deg, #4ec083, var(--primary-d));
   color: #fff;
   border-color: transparent;
   box-shadow: 0 5px 13px -6px rgba(46, 158, 99, 0.6);
@@ -1604,8 +1601,8 @@ main > section {
   margin-right: 2px;
 }
 .suggest-chip {
-  border: 1px solid #dceeab;
-  background: #f4fbdc;
+  border: 1px solid #cde7c2;
+  background: #f2fbee;
   color: var(--primary-d);
   font-family: inherit;
   font-size: 12px;
@@ -1624,11 +1621,11 @@ main > section {
 }
 /* 오늘 할 일 입력칸 — 연두/초록 틴트 */
 .today-add .addbar input {
-  background: #f2fbda;
-  border-color: #dceeab;
+  background: #eef8e9;
+  border-color: #cde7c2;
 }
 .today-add .addbar input::placeholder {
-  color: #a6bd7c;
+  color: #8bbf86;
 }
 .today-add .addbar input:focus {
   background: #fff;
@@ -1717,7 +1714,7 @@ main > section {
   align-items: center;
   gap: 6px;
   border: 1.5px dashed var(--accent2);
-  background: #f5fbdf;
+  background: #f6fbf4;
   color: var(--primary-d);
   font-weight: 800;
   border-radius: 11px;
@@ -1796,7 +1793,7 @@ main > section {
 }
 .recard {
   flex: 1;
-  background: linear-gradient(180deg, #ffffff 0%, #fafce8 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdfa 100%);
   border-radius: 18px;
   padding: 16px 12px;
   text-align: center;
@@ -1836,7 +1833,7 @@ main > section {
 .cell {
   aspect-ratio: 1;
   border-radius: 5px;
-  background: #e8eed6;
+  background: #e7f0e2;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1844,17 +1841,17 @@ main > section {
 .cell-d {
   font-size: 9.5px;
   font-weight: 800;
-  color: #9aa889;
+  color: #9ab39d;
   line-height: 1;
 }
 .cell.l1 {
-  background: #dcf2a0;
+  background: #cdebc6;
 }
 .cell.l1 .cell-d {
-  color: #4a5f34;
+  color: #5c8a57;
 }
 .cell.l2 {
-  background: #bfe771;
+  background: #8fd58b;
 }
 .cell.l2 .cell-d,
 .cell.l3 .cell-d {

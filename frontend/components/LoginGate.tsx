@@ -47,7 +47,7 @@ export function LoginGate({ onLogin }: { onLogin: () => void }) {
       </div>
 
       <h1 className="login-title" style={{ display: "flex", justifyContent: "center" }}>
-        <Wordmark height={44} color="#2d3e2c" />
+        <Wordmark height={44} color="#283330" />
       </h1>
 
       <div className="login-features" style={{ marginTop: 14 }}>
