@@ -9,7 +9,7 @@ export function SplashScreen() {
     <div className="splash">
       <div className="stamp-hero" aria-hidden dangerouslySetInnerHTML={{ __html: stampSVG(150) }} />
       <div className="splash-logo" style={{ display: "flex", justifyContent: "center" }}>
-        <Wordmark height={34} color="#ffffff" />
+        <Wordmark height={34} color="#e4fd97" />
       </div>
       <div className="splash-hint">잠시만요…</div>
     </div>

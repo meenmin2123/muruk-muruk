@@ -104,14 +104,14 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
   return (
     <div className="app">
       <header>
-        <span className="appver" title="빌드 버전(캐시 확인용)">v30</span>
+        <span className="appver" title="빌드 버전(캐시 확인용)">v31</span>
         <button className="gear" onClick={() => setSettings(true)} aria-label="설정">
           <Icon name="settings" size={18} />
         </button>
         <div className="logo">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/icon.svg" alt="" className="logo-ic" />
-          <Wordmark height={27} color="#283330" />
+          <Wordmark height={27} color="#2d3e2c" />
         </div>
       </header>
 
