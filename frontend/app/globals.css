@@ -3,6 +3,12 @@
   --primary: #46b97c;
   --primary-d: #2e9e63;
   --primary-soft: #e2f2e8;
+  /* 흰 글자·아이콘을 얹는 초록. 파스텔 초록(--primary #46b97c)은 흰 글자와 2.47:1 뿐이라
+     WCAG AA(4.5:1)에 한참 못 미친다. 장식용 초록은 그대로 두고, 글자를 얹는 면만 이 값을 쓴다.
+     #25834f = 4.73:1, #1f7a4c = 5.32:1 (둘 다 흰색 기준). 되돌리려면 이 두 줄만 바꾸면 된다. */
+  --on-primary-l: #25834f;
+  --on-primary: #1f7a4c;
+  --grad-primary: linear-gradient(135deg, var(--on-primary-l), var(--on-primary));
   --accent2: #bee89e;
   --gold: #e7b53a;
   --text: #283330;
@@ -209,7 +215,7 @@ main > section {
 .btn,
 .addbar button {
   border: none;
-  background: linear-gradient(135deg, #4ec083, var(--primary-d));
+  background: var(--grad-primary);
   color: #fff;
   font-weight: 800;
   border-radius: 14px;
@@ -217,7 +223,7 @@ main > section {
   font-size: 15px;
   cursor: pointer;
   font-family: inherit;
-  box-shadow: 0 6px 15px -7px rgba(46, 158, 99, 0.65);
+  box-shadow: 0 6px 15px -7px rgba(31, 122, 76, 0.65);
   transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
 }
 .btn:active,
@@ -290,7 +296,7 @@ main > section {
   outline-offset: 2px;
 }
 .check.done {
-  background: linear-gradient(135deg, var(--primary), var(--primary-d));
+  background: linear-gradient(135deg, var(--primary-d), var(--on-primary));
   border-color: transparent;
   animation: checkpop 0.34s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -844,6 +850,15 @@ main > section {
 .stamp-hero svg {
   filter: drop-shadow(0 6px 10px rgba(218, 58, 58, 0.22));
 }
+/* 축하 모달 안에서는 아래 문구와 붙지 않게 여백만 줄인다. */
+.stamp-hero.in-modal {
+  margin-bottom: 4px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .stamp-hero {
+    animation: none;
+  }
+}
 @keyframes stampDown {
   0% {
     transform: scale(2.3) rotate(-15deg);
@@ -1240,7 +1255,7 @@ main > section {
 .ta-add {
   flex: none;
   border: none;
-  background: linear-gradient(135deg, #4ec083, var(--primary-d));
+  background: var(--grad-primary);
   color: #fff;
   font-weight: 800;
   border-radius: 12px;
@@ -1250,7 +1265,7 @@ main > section {
   font-family: inherit;
 }
 .type-toggle.daily {
-  background: linear-gradient(135deg, var(--accent2), var(--primary));
+  background: var(--grad-primary);
   color: #fff;
 }
 .boardflip {
@@ -1448,7 +1463,7 @@ main > section {
   font-size: 11.5px;
   font-weight: 800;
   color: #fff;
-  background: linear-gradient(135deg, var(--primary), var(--primary-d));
+  background: var(--grad-primary);
   border: none;
   border-radius: 10px;
   padding: 7px 10px;
@@ -1475,7 +1490,7 @@ main > section {
 .gt-badge.daily {
   border-color: transparent;
   color: #fff;
-  background: linear-gradient(135deg, var(--accent2), var(--primary));
+  background: var(--grad-primary);
 }
 .goal-add {
   display: flex;
@@ -1518,7 +1533,7 @@ main > section {
   transform: scale(0.95);
 }
 .chip.on {
-  background: linear-gradient(135deg, #4ec083, var(--primary-d));
+  background: var(--grad-primary);
   color: #fff;
   border-color: transparent;
   box-shadow: 0 5px 13px -6px rgba(46, 158, 99, 0.6);
@@ -1556,7 +1571,7 @@ main > section {
 .theme-opt.on {
   border-color: transparent;
   color: #fff;
-  background: linear-gradient(135deg, var(--primary), var(--primary-d));
+  background: var(--grad-primary);
 }
 .addbox {
   margin-top: 16px;
@@ -1706,7 +1721,7 @@ main > section {
   border-left: 1.5px solid var(--line);
 }
 .seg button.on {
-  background: linear-gradient(135deg, var(--primary), var(--primary-d));
+  background: var(--grad-primary);
   color: #fff;
 }
 .ai-link {
@@ -1841,21 +1856,16 @@ main > section {
 .cell-d {
   font-size: 9.5px;
   font-weight: 800;
-  color: #9ab39d;
+  /* #1d3f2b 은 잔디 4단계 배경(#e7f0e2·#cdebc6·#8fd58b·--primary) 모두에서 4.7:1 이상.
+     예전에는 단계별로 #9ab39d/#5c8a57/#fff 를 섞어 써 전 단계가 4.5:1 미달이었다. */
+  color: #1d3f2b;
   line-height: 1;
 }
 .cell.l1 {
   background: #cdebc6;
 }
-.cell.l1 .cell-d {
-  color: #5c8a57;
-}
 .cell.l2 {
   background: #8fd58b;
-}
-.cell.l2 .cell-d,
-.cell.l3 .cell-d {
-  color: #fff;
 }
 .cell.l3 {
   background: var(--primary);

@@ -146,11 +146,14 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
   const [iconOpen, setIconOpen] = useState(false);
   const [calOpen, setCalOpen] = useState(false);
   const [flipped, setFlipped] = useState(false);
+  const [deco, setDeco] = useState(false);
   const frontRef = useRef<HTMLDivElement>(null);
   const backRef = useRef<HTMLDivElement>(null);
   const [faceH, setFaceH] = useState<number>();
-  const color = d.color || template(d.cat).color;
-  const tpl = template(d.cat);
+  // 커스텀 카테고리도 찾도록 customCats 를 넘긴다.
+  // 안 넘기면 커스텀으로 만든 목표가 전부 '자유'로 떨어져 라벨·색·추천 할 일이 사라진다.
+  const tpl = template(d.cat, state.customCats);
+  const color = d.color || tpl.color;
   // 진행도: 분모는 '할 일 개수'. 매일 할일은 '오늘 완료'로, 한 번 할일은 '완료한 적 있으면'으로 판정.
   const goalDone = (g: { id: string; repeat: Repeat }) =>
     g.repeat === "daily"
@@ -460,6 +463,48 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
               {d.stamps ? `도장 ${d.stamps}개 · ` : ""}
               {boardLen === 0 ? "할 일을 완료하면 스티커가 쌓여요" : `스티커 ${d.earned ?? boardLen}개`}
             </div>
+
+            <button className="link deco-toggle" onClick={() => setDeco((o) => !o)}>
+              {deco ? "꾸미기 닫기 ▴" : "🎨 색·칭찬판 모양 바꾸기 ▾"}
+            </button>
+            {deco && (
+              <>
+                <div className="field-label">색</div>
+                <div className="row-wrap">
+                  {PALETTE.map((c) => (
+                    <div
+                      key={c}
+                      className={"sw" + (c.toLowerCase() === color.toLowerCase() ? " on" : "")}
+                      style={{ background: c }}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`색 ${c}`}
+                      aria-pressed={c.toLowerCase() === color.toLowerCase()}
+                      onClick={() => actions.setDreamColor(d.id, c)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          actions.setDreamColor(d.id, c);
+                        }
+                      }}
+                    />
+                  ))}
+                </div>
+                <div className="field-label">칭찬판 모양</div>
+                <div className="row-wrap">
+                  {THEMES.map((t) => (
+                    <button
+                      key={t.key}
+                      className={"theme-opt" + ((d.theme || "tree") === t.key ? " on" : "")}
+                      aria-pressed={(d.theme || "tree") === t.key}
+                      onClick={() => actions.setDreamTheme(d.id, t.key)}
+                    >
+                      {t.emoji} {t.label}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

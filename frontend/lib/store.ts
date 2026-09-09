@@ -187,6 +187,8 @@ export interface AppActions {
   toggleCollapse(id: string): void;
   setDday(id: string, date: string | null): void;
   setDreamIcon(id: string, icon: string): void;
+  setDreamColor(id: string, color: string): void;
+  setDreamTheme(id: string, theme: string): void;
   addGoal(dreamId: string, title: string, repeat: Repeat): void;
   removeGoal(dreamId: string, goalId: string): void;
   toggleGoalRepeat(dreamId: string, goalId: string): void;
@@ -552,14 +554,23 @@ export function useAppState() {
       });
     },
     tomorrow(id) {
+      let moved = "";
       mutate((s) => {
         const t = s.todos.find((x) => x.id === id);
         if (!t) return;
-        const d = new Date();
+        // 그 할 일이 놓인 날짜 기준으로 하루 뒤. 예전에는 항상 '실제 오늘 +1'이라
+        // 미래 날짜 화면에서 미루면 할 일이 오히려 앞으로 당겨졌다.
+        const d = new Date((t.date || todayStr()) + "T00:00:00");
         d.setDate(d.getDate() + 1);
         t.date = dateStr(d);
+        moved = t.date;
       });
-      setToast("내일로 미뤘어요. 괜찮아요 🤍");
+      const tmr = (() => {
+        const d = new Date(todayStr() + "T00:00:00");
+        d.setDate(d.getDate() + 1);
+        return dateStr(d);
+      })();
+      setToast(moved === tmr ? "내일로 미뤘어요. 괜찮아요 🤍" : "하루 뒤로 미뤘어요 🤍");
     },
     addDream(d) {
       mutate((s) => {
@@ -634,6 +645,18 @@ export function useAppState() {
       mutate((s) => {
         const d = s.dreams.find((x) => x.id === id);
         if (d) d.icon = icon;
+      });
+    },
+    setDreamColor(id, color) {
+      mutate((s) => {
+        const d = s.dreams.find((x) => x.id === id);
+        if (d) d.color = color;
+      });
+    },
+    setDreamTheme(id, theme) {
+      mutate((s) => {
+        const d = s.dreams.find((x) => x.id === id);
+        if (d) d.theme = theme;
       });
     },
     addGoal(dreamId, title, repeat) {

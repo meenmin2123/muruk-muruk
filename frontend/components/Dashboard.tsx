@@ -145,7 +145,13 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
       {gold && (
         <div className="modal-bg" onClick={clearGold}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: "flex", justifyContent: "center" }} dangerouslySetInnerHTML={{ __html: stampSVG(150, state.dreams.reduce((n, d) => n + (d.stamps ?? 0), 0) - 1) }} />
+            {/* stamp-hero: 도장이 '쾅' 찍히는 stampDown 애니메이션. 예전에는 스플래시에만 붙어 있었다. */}
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <span
+                className="stamp-hero in-modal"
+                dangerouslySetInnerHTML={{ __html: stampSVG(150, state.dreams.reduce((n, d) => n + (d.stamps ?? 0), 0) - 1) }}
+              />
+            </div>
             <h3 style={{ margin: "10px 0 6px" }}>완성! 🎉</h3>
             <p className="muted">“{gold}” 칭찬판을 가득 채웠어요.</p>
             {celebrate && <p style={{ lineHeight: 1.6, marginTop: 4 }}>{celebrate}</p>}

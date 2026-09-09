@@ -75,7 +75,7 @@ export function RecordsTab({ state, actions }: { state: AppState; actions: AppAc
 /** 보관된 목표 — 읽기 전용(수정·삭제 불가). 목표·할일·다 모은 칭찬판을 그대로 보여준다. */
 function ArchivedCard({ dream: d, state, actions }: { dream: Dream; state: AppState; actions: AppActions }) {
   const [open, setOpen] = useState(false);
-  const color = d.color || template(d.cat).color;
+  const color = d.color || template(d.cat, state.customCats).color;
   const cap = boardCap(d);
   const boardLen = d.stickers?.length ?? 0;
   const boardHtml = boardSVG(d, d.theme || "tree", cap, color);
