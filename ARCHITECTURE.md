@@ -26,8 +26,9 @@
 
 ## 데이터
 - `user_state` 테이블: 사용자별 앱 상태 전체를 **JSON(jsonb)** 으로 저장 (기존 PWA의 통째 동기화와 호환).
-- **낙관적 잠금(`@Version`)**: 저장마다 버전 증가. 클라이언트가 보낸 `baseVersion`이 서버와 다르면
-  `409 Conflict` → 프론트가 서버 최신본으로 재동기화(다른 기기 변경분 보존).
+- **낙관적 잠금(`@Version`)**: 저장마다 버전 증가. 클라이언트가 보낸 `baseVersion`이 서버와 다르거나
+  누락되면 `409 Conflict` → 프론트가 서버 최신본을 받아 **3-way 병합**(`frontend/lib/merge.ts`) 후 다시 올린다.
+  조회·검사·저장은 `StateService`의 한 트랜잭션 안에서 처리해 검사-후-저장 경쟁 구간이 없다.
 - 저장 시 노션으로 비동기 백업(best-effort). 두 가지 모드:
   - **중계 서버**: `NOTION_RELAY_URL`
   - **직접 연결**: `NOTION_TOKEN` + `NOTION_DATABASE_ID` (Notion API로 사용자별 페이지 생성/갱신)
@@ -59,7 +60,7 @@
 - 상태 변경은 디바운스로 백엔드에 자동 저장(`PUT /api/state`), 시작 시 자동 불러오기
 
 ## CI
-- `.github/workflows/ci.yml`: 백엔드 `./gradlew build`, 프론트 `tsc --noEmit` + `next build`
+- `.github/workflows/ci.yml`: 백엔드 `./gradlew build`(= `StateServiceTest` 실행), 프론트 `tsc --noEmit` + `next build`
 
 ## 실행 (Docker — 가장 간단)
 ```bash
@@ -98,8 +99,22 @@ npm run dev    # http://localhost:3000
 2. **Claude API 키** → 백엔드 `ANTHROPIC_API_KEY`
 3. (운영) **Postgres** 인스턴스 → `DB_URL/DB_USER/DB_PASSWORD`
 
+## 인증 수명주기
+- 구글 ID 토큰은 약 1시간 뒤 만료된다. 프론트는 요청 직전에 만료가 임박하면(60초) **무음 갱신**을 시도하고,
+  그래도 401이면 한 번 더 갱신 후 재시도한다(`frontend/lib/api.ts`).
+- 끝내 실패하면 `onAuthExpired` 신호로 로그인 화면으로 되돌린다. **조용히 저장이 멈추는 상태를 만들지 않는다.**
+- 미인증은 **401**, 인증됐지만 권한 없음은 **403**으로 구분한다(`SecurityConfig`의 entry point / access denied handler).
+- 만료된 토큰도 지우지 않는다 — 신원(`sub`)을 알아야 아직 못 올린 편집을 그 사용자의 로컬 캐시에 계속 남길 수 있다.
+- 로그아웃은 `signOut()` — 토큰 삭제 + `disableAutoSelect()`로 즉시 자동 재로그인되는 것을 막는다.
+
+## 미저장 편집 보호
+로컬 캐시는 상태만이 아니라 **동기화 문맥**(`version` · 병합 기준 `base` · `pending`)까지 함께 저장한다.
+콜드 스타트 중 편집 · 토큰 만료 · 오프라인 · 탭 종료로 업로드가 끊겨도, 다음 접속 때 서버본과 병합되어 살아남는다.
+업로드 실패 시 3초·8초·20초·45초 간격으로 재시도한다.
+
 ## 한계 (현재)
-- 충돌 시 **자동 병합**이 아니라 "서버 최신본으로 맞춤"(가장 단순·안전). 필드 단위 머지는 미구현.
+- 3-way 병합의 기준(`base`)이 없을 때(예: 아주 오래된 캐시)는 합집합으로 떨어진다 —
+  유실보다 부활이 안전하다는 판단. 이 경우에만 삭제한 항목이 되돌아올 수 있다.
 - 노션 백업은 best-effort(실패해도 본 저장에 영향 없음). 직접 연결은 DB 속성 스키마가 맞아야 동작.
 - 알림은 **권한 요청 + 테스트 알림**까지. 정해진 시간에 울리는 **예약/푸시 알림은 미구현**(서버 푸시 인프라 필요).
 - 커스텀 카테고리는 이모지·이름·색까지(프리셋의 추천 할 일 목록은 없음).

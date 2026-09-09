@@ -3,12 +3,12 @@ package com.muruk.web
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.muruk.config.MurukProperties
-import com.muruk.domain.UserState
 import com.muruk.repo.AppUserRepository
 import com.muruk.repo.UserStateRepository
 import com.muruk.security.CurrentUserHolder
 import com.muruk.service.CoachingService
 import com.muruk.service.NotionBackupService
+import com.muruk.service.StateService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
-import java.time.Instant
 
 @RestController
 @RequestMapping("/api")
@@ -88,14 +87,14 @@ class AdminController(
 @RestController
 @RequestMapping("/api/state")
 class StateController(
-    private val states: UserStateRepository,
+    private val stateService: StateService,
     private val mapper: ObjectMapper,
     private val notion: NotionBackupService,
 ) {
     @GetMapping
     fun pull(): Map<String, Any?> {
         val u = CurrentUserHolder.require()
-        val entity = states.findById(u.id).orElse(null)
+        val entity = stateService.load(u.id)
         return mapOf(
             "data" to mapper.readTree(entity?.data ?: "{}"),
             "version" to (entity?.version ?: 0L),
@@ -106,19 +105,13 @@ class StateController(
     @PutMapping
     fun push(@RequestBody body: StatePush): Map<String, Any?> {
         val u = CurrentUserHolder.require()
-        val existing = states.findById(u.id).orElse(null)
-
-        // 클라이언트가 본 버전과 서버 버전이 다르면 충돌.
-        if (existing != null && body.baseVersion != null && body.baseVersion != existing.version) {
-            throw ResponseStatusException(HttpStatus.CONFLICT, "stale version: ${body.baseVersion} != ${existing.version}")
-        }
-
         val json = mapper.writeValueAsString(body.data ?: mapper.createObjectNode())
-        val entity = existing ?: UserState(userId = u.id)
-        entity.data = json
-        entity.updatedAt = Instant.now()
-        val saved = states.save(entity)
-        notion.backup(u.id, json) // Postgres 저장 후 노션 백업(비동기, best-effort)
+
+        // 조회 → baseVersion 검사 → 저장을 한 트랜잭션에서. 충돌이면 409를 던진다.
+        val saved = stateService.save(u.id, json, body.baseVersion)
+
+        // 노션 백업은 커밋이 끝난 뒤에(비동기, best-effort) — 실패해도 본 저장에 영향 없음.
+        notion.backup(u.id, json)
         return mapOf("ok" to true, "version" to saved.version, "updatedAt" to saved.updatedAt.toString())
     }
 }

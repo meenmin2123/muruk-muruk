@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { api, coachMessage } from "@/lib/api";
-import { clearToken, getUser, isAdminEmail } from "@/lib/auth";
+import { getUser, isAdminEmail, signOut } from "@/lib/auth";
 import { AppState, defaultState, streakCount, totalStickers, ENCOURAGE_FALLBACK, REVIEW_FALLBACK, CELEBRATE_FALLBACK } from "@/lib/state";
 import type { AppActions } from "@/lib/store";
 import type { AdminUserState } from "@/lib/types";
@@ -160,7 +160,10 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
         <SettingsSheet
           onClose={() => setSettings(false)}
           onLogout={() => {
-            clearToken();
+            // signOut: 토큰 삭제 + 구글 자동 재선택 해제.
+            // disableAutoSelect 없이 토큰만 지우면 auto_select가 즉시 재로그인시켜
+            // 사실상 로그아웃이 되지 않는다.
+            signOut();
             onLogout();
           }}
           state={state}
