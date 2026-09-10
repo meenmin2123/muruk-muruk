@@ -83,8 +83,7 @@ html,
 body {
   margin: 0;
   padding: 0;
-  background: linear-gradient(170deg, #e7f4e9 0%, #f3faf1 42%, #eef9f1 100%);
-  background-attachment: fixed;
+  background: var(--bg);
   color: var(--text);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -101,7 +100,7 @@ body {
   position: relative;
 }
 header {
-  background: linear-gradient(165deg, #d3eed9 0%, #e7f5e6 52%, var(--bg) 100%);
+  background: var(--primary-soft);
   /* 노치/상단바 안전영역만큼 위쪽 여백 추가 */
   padding: calc(24px + env(safe-area-inset-top)) 22px 20px;
   border-radius: 0 0 var(--r-xl) var(--r-xl);
@@ -738,7 +737,7 @@ main > section {
   align-items: center;
   justify-content: center;
   gap: 4px;
-  background: linear-gradient(165deg, #84cf86 0%, #57bd75 52%, #3faa6e 100%);
+  background: var(--on-primary);
   z-index: 100;
 }
 .splash-logo {
