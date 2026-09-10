@@ -80,6 +80,23 @@ function applyToggle(s: AppState, t: Todo): { toast: string; gold: string | null
   return { toast, gold };
 }
 
+/**
+ * 되살릴 가치가 있는 기록이 담겨 있는가 — 갓 설치한 빈 상태와 구분한다.
+ * 애매하면 '있다'로 판단한다: 잘못 판단해도 서버에 빈 행이 하나 생길 뿐이지만,
+ * 반대로 놓치면 마지막 사본이 지워진다.
+ */
+function hasContent(s: AppState | null): s is AppState {
+  if (!s) return false;
+  return (
+    s.dreams.length > 0 ||
+    s.todos.length > 0 ||
+    s.customCats.length > 0 ||
+    (s.totalDone ?? 0) > 0 ||
+    (s.bestStreak ?? 0) > 0 ||
+    Object.keys(s.settings ?? {}).length > 0
+  );
+}
+
 function normalize(data: unknown): AppState {
   const d = (data ?? {}) as Partial<AppState>;
   const base = defaultState();
@@ -412,18 +429,34 @@ export function useAppState() {
     (async () => {
       let remote: AppState | null = null;
       let remoteVersion = 0;
+      let serverRowExists = false;
       try {
         const env = await api.pullState();
         remote = normalize(env.data);
         remoteVersion = env.version ?? 0;
+        // updatedAt 은 서버에 행이 있을 때만 채워진다(없으면 null).
+        // version 으로는 구분할 수 없다 — 최초 저장도 0 이라 '행 없음'과 값이 같다.
+        serverRowExists = typeof env.updatedAt === "string";
       } catch {
         // 오프라인·콜드스타트·토큰 만료 — 캐시로 계속 진행한다.
       }
       if (!alive) return;
 
-      if (remote) {
+      const local = stateRef.current;
+
+      if (remote && !serverRowExists && hasContent(local)) {
+        // 서버에 행 자체가 없는데 이 기기에는 기록이 있다
+        //  = 사용자가 지운 게 아니라 서버 쪽 데이터가 사라진 것(DB 재생성·초기화, 또는 첫 동기화 미완료).
+        // 서버가 200 + {} 를 돌려주기 때문에 예전에는 이걸 '정상적인 빈 상태'로 받아들여
+        // 화면과 로컬 캐시까지 덮어썼다 — 마지막 남은 사본이 바로 여기서 사라졌다.
+        // 이제는 로컬을 정본으로 삼아 서버로 되돌려 올린다.
+        versionRef.current = 0; // 행이 없으므로 이 값으로 INSERT 된다
+        baseRef.current = null; // 합의된 기준이 없다 → 충돌 시 합집합 병합(보존 우선)으로 떨어진다
+        dirty.current = true; // 아래 디바운스 효과가 이 상태를 서버에 복원한다
+        applyState(structuredClone(local)); // 캐시에 pending 표시가 남도록 다시 적용
+        setToast("서버에 기록이 없어 이 기기의 기록을 올릴게요 ☁️");
+      } else if (remote) {
         versionRef.current = remoteVersion;
-        const local = stateRef.current;
         if (dirty.current && local) {
           const merged = reconcileAll(
             ensureDailyTodos(structuredClone(mergeStates(baseRef.current, local, remote))),
