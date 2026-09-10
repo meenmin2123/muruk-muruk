@@ -395,7 +395,7 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
 
           {sugg.length > 0 && (
             <div style={{ marginTop: 11 }}>
-              <div className="muted" style={{ fontWeight: 700, marginBottom: 7 }}>추천</div>
+              <div className="muted" style={{ fontWeight: "var(--fw-medium)", marginBottom: 7 }}>추천</div>
               <div className="row-wrap">
                 {sugg.map((s) => (
                   <span key={s} className="chip" onClick={() => addGoal(s, "once")}>
@@ -407,12 +407,12 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
           )}
 
           {aiMsg && (
-            <div className="muted" style={{ marginTop: 10, fontWeight: 700 }}>⚠️ {aiMsg}</div>
+            <div className="muted" style={{ marginTop: 10, fontWeight: "var(--fw-medium)" }}>⚠️ {aiMsg}</div>
           )}
 
           {aiTasks.length > 0 && (
             <div style={{ marginTop: 11 }}>
-              <div className="muted" style={{ fontWeight: 700, marginBottom: 7 }}>AI 추천 (눌러서 추가)</div>
+              <div className="muted" style={{ fontWeight: "var(--fw-medium)", marginBottom: 7 }}>AI 추천 (눌러서 추가)</div>
               <div className="row-wrap">
                 {aiTasks.map((s) => (
                   <span key={s} className="chip" onClick={() => { addGoal(s, "once"); setAiTasks((p) => p.filter((x) => x !== s)); }}>
@@ -452,7 +452,7 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
                 })()}
               </span>
               <span className="t">{d.title}</span>
-              <span className="muted" style={{ fontWeight: 800, color }}>{boardGold ? "완성!" : `${boardLen}/${cap}`}</span>
+              <span className="muted" style={{ fontWeight: "var(--fw-bold)", color }}>{boardGold ? "완성!" : `${boardLen}/${cap}`}</span>
               <button className="icon-btn" aria-label="목표로 돌아가기" onClick={() => setFlipped(false)}><Icon name="back" size={17} /></button>
             </div>
             <div className="board-back-art">

@@ -54,13 +54,13 @@ export function RecordsTab({ state, actions }: { state: AppState; actions: AppAc
         </div>
       </div>
       <div className="cal-card">
-        <h3 style={{ margin: "0 0 12px", fontSize: 15 }}>최근 2주</h3>
+        <h3 style={{ margin: "0 0 12px", fontSize: "var(--fs-lg)" }}>최근 2주</h3>
         <div className="grass">{cells}</div>
       </div>
 
       <div className="sec-title" style={{ marginTop: 22 }}>
-        <h3 style={{ margin: 0, fontSize: 16, display: "inline-flex", alignItems: "center", gap: 7 }}>
-          <Icon name="best" size={18} color="#E7B53A" /> 이룬 목표 {archived.length > 0 && <span className="muted" style={{ fontWeight: 800 }}>{archived.length}</span>}
+        <h3 style={{ margin: 0, fontSize: "var(--fs-xl)", display: "inline-flex", alignItems: "center", gap: 7 }}>
+          <Icon name="best" size={18} color="#E7B53A" /> 이룬 목표 {archived.length > 0 && <span className="muted" style={{ fontWeight: "var(--fw-bold)" }}>{archived.length}</span>}
         </h3>
       </div>
       {archived.length === 0 ? (
@@ -122,7 +122,7 @@ function ArchivedCard({ dream: d, state, actions }: { dream: Dream; state: AppSt
                 </div>
               );
             })}
-            {d.goals.length === 0 && <div className="muted" style={{ fontSize: 13 }}>등록된 할 일이 없어요.</div>}
+            {d.goals.length === 0 && <div className="muted" style={{ fontSize: "var(--fs-md)" }}>등록된 할 일이 없어요.</div>}
           </div>
           <button className="link arch-restore" onClick={() => confirm(`‘${d.title}’을(를) 다시 진행할까요?`) && actions.restoreDream(d.id)}>
             다시 진행하기
