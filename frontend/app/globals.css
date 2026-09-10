@@ -56,11 +56,6 @@
   --ring-soft: 0 0 0 1.5px var(--line);
   --ring-strong: 0 0 0 2.5px var(--text);
   --ring-brand: 0 0 0 2px var(--primary-soft);
-
-  /* 브랜드 글로우 — 초록빛 컬러 그림자. 빅테크 앵커 기준으로는 제거 후보라
-     한 곳에 모아둔다. 없애려면 아래 두 값을 var(--shadow-sm) 으로 바꾸면 된다. */
-  --glow-btn: 0 6px 15px -7px rgba(31, 122, 76, 0.65);
-  --glow-chip: 0 5px 13px -6px rgba(46, 158, 99, 0.6);
 }
 * {
   box-sizing: border-box;
@@ -265,7 +260,7 @@ main > section {
   font-size: var(--fs-lg);
   cursor: pointer;
   font-family: inherit;
-  box-shadow: var(--glow-btn);
+  box-shadow: var(--shadow-sm);
   transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
 }
 .btn:active,
@@ -1578,7 +1573,7 @@ main > section {
   background: var(--grad-primary);
   color: #fff;
   border-color: transparent;
-  box-shadow: var(--glow-chip);
+  box-shadow: var(--shadow-sm);
 }
 .row-wrap {
   display: flex;
