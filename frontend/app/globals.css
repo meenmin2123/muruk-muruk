@@ -70,7 +70,7 @@
 :focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
-  border-radius: 6px;
+  border-radius: var(--r-xs);
 }
 :focus:not(:focus-visible) {
   outline: none;
@@ -109,7 +109,7 @@ header {
   background: linear-gradient(165deg, #d3eed9 0%, #e7f5e6 52%, var(--bg) 100%);
   /* 노치/상단바 안전영역만큼 위쪽 여백 추가 */
   padding: calc(24px + env(safe-area-inset-top)) 22px 20px;
-  border-radius: 0 0 28px 28px;
+  border-radius: 0 0 var(--r-xl) var(--r-xl);
   position: relative;
 }
 .logo {
@@ -123,7 +123,7 @@ header {
 .logo-ic {
   width: 32px;
   height: 32px;
-  border-radius: 9px;
+  border-radius: var(--r-sm);
   display: block;
 }
 .logo .dot {
@@ -172,7 +172,7 @@ header {
   flex: 1;
   background: rgba(255, 255, 255, 0.7);
   border: 1px solid #fff;
-  border-radius: 16px;
+  border-radius: var(--r-lg);
   padding: 10px 12px;
 }
 .stat .v {
@@ -244,7 +244,7 @@ main > section {
   flex: 1;
   border: 1.5px solid var(--line);
   background: #fff;
-  border-radius: 14px;
+  border-radius: var(--r-md);
   padding: 13px 15px;
   font-size: 15px;
   outline: none;
@@ -260,7 +260,7 @@ main > section {
   background: var(--grad-primary);
   color: #fff;
   font-weight: 800;
-  border-radius: 14px;
+  border-radius: var(--r-md);
   padding: 0 18px;
   font-size: 15px;
   cursor: pointer;
@@ -285,7 +285,7 @@ main > section {
   width: 100%;
   border: 1.5px solid var(--line);
   background: #fff;
-  border-radius: 14px;
+  border-radius: var(--r-md);
   padding: 11px 13px;
   font-size: 14px;
   font-family: inherit;
@@ -299,7 +299,7 @@ main > section {
   gap: 13px;
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 18px;
+  border-radius: var(--r-lg);
   padding: 14px 15px;
   margin-bottom: 10px;
   box-shadow: var(--shadow-sm);
@@ -375,7 +375,7 @@ main > section {
   width: 100%;
   box-sizing: border-box;
   border: 1.5px solid var(--primary);
-  border-radius: 9px;
+  border-radius: var(--r-sm);
   padding: 7px 9px;
   font-family: inherit;
   font-size: 15px;
@@ -402,7 +402,7 @@ main > section {
   font-weight: 800;
   color: var(--primary-d);
   background: var(--primary-soft);
-  border-radius: 7px;
+  border-radius: var(--r-xs);
   padding: 1px 6px;
 }
 .task .later {
@@ -410,7 +410,7 @@ main > section {
   color: var(--muted);
   background: #eaf3ea;
   border: none;
-  border-radius: 9px;
+  border-radius: var(--r-sm);
   padding: 6px 8px;
   font-weight: 700;
   cursor: pointer;
@@ -474,7 +474,7 @@ main > section {
 }
 .dream {
   background: linear-gradient(180deg, #ffffff 0%, #fcfdfb 100%);
-  border-radius: 22px;
+  border-radius: var(--r-xl);
   padding: 17px;
   margin-bottom: 14px;
   box-shadow: var(--shadow-sm);
@@ -526,7 +526,7 @@ main > section {
 .board-back-art {
   position: relative;
   margin-top: 14px;
-  border-radius: 14px;
+  border-radius: var(--r-md);
   overflow: hidden;
   line-height: 0;
 }
@@ -553,7 +553,7 @@ main > section {
   justify-content: center;
   width: 38px;
   height: 38px;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   font-size: 21px;
   flex: none;
 }
@@ -565,14 +565,14 @@ main > section {
 .progress {
   height: 9px;
   background: var(--primary-soft);
-  border-radius: 20px;
+  border-radius: var(--r-lg);
   margin: 12px 0 4px;
   overflow: hidden;
 }
 .progress i {
   display: block;
   height: 100%;
-  border-radius: 20px;
+  border-radius: var(--r-lg);
   transition: width 0.4s;
 }
 .progress-l {
@@ -590,7 +590,7 @@ main > section {
 }
 .admin-row {
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--r-md);
   padding: 10px 12px;
   margin-bottom: 8px;
   background: #fff;
@@ -634,7 +634,7 @@ main > section {
   max-height: 240px;
   overflow: auto;
   background: #f6f8f5;
-  border-radius: 10px;
+  border-radius: var(--r-sm);
   padding: 10px;
   font-size: 11px;
   line-height: 1.45;
@@ -644,7 +644,7 @@ main > section {
 }
 .iconpicker {
   background: #fff;
-  border-radius: 22px;
+  border-radius: var(--r-xl);
   width: 100%;
   max-width: 360px;
   max-height: 72vh;
@@ -669,7 +669,7 @@ main > section {
   cursor: pointer;
   font-family: inherit;
   padding: 5px 10px;
-  border-radius: 10px;
+  border-radius: var(--r-sm);
 }
 .ipick-tabs button.on {
   color: var(--primary-d);
@@ -694,7 +694,7 @@ main > section {
   aspect-ratio: 1;
   border: none;
   background: #f5faf3;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -730,7 +730,7 @@ main > section {
   font-size: 11px;
   color: var(--muted);
   background: #f6f8f5;
-  border-radius: 10px;
+  border-radius: var(--r-sm);
   padding: 10px 12px;
   white-space: pre-wrap;
   word-break: break-all;
@@ -761,7 +761,7 @@ main > section {
 .login-ic {
   width: 76px;
   height: 76px;
-  border-radius: 20px;
+  border-radius: var(--r-lg);
   margin-bottom: 18px;
   box-shadow: var(--shadow-sm);
 }
@@ -785,7 +785,7 @@ main > section {
 }
 .login-tree {
   line-height: 0;
-  border-radius: 22px;
+  border-radius: var(--r-xl);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
 }
@@ -853,7 +853,7 @@ main > section {
   color: var(--primary-d);
   font-weight: 800;
   font-size: 12.5px;
-  border-radius: 20px;
+  border-radius: var(--r-lg);
   padding: 7px 13px;
 }
 .login-btn {
@@ -947,7 +947,7 @@ main > section {
 }
 .remind-time {
   border: 1.5px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--r-sm);
   padding: 8px 10px;
   font-family: inherit;
   font-size: 14px;
@@ -979,7 +979,7 @@ main > section {
   flex: 1;
   min-width: 0;
   border: 1.5px solid var(--primary);
-  border-radius: 9px;
+  border-radius: var(--r-sm);
   padding: 5px 9px;
   font-family: inherit;
   font-size: 14px;
@@ -1000,7 +1000,7 @@ main > section {
   border: none;
   background: #fff;
   color: var(--primary-d);
-  border-radius: 11px;
+  border-radius: var(--r-sm);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1018,7 +1018,7 @@ main > section {
   gap: 8px;
   border: none;
   background: #fff;
-  border-radius: 13px;
+  border-radius: var(--r-md);
   padding: 8px 16px;
   cursor: pointer;
   box-shadow: var(--shadow-sm);
@@ -1066,13 +1066,13 @@ main > section {
 .dn-wd.today {
   color: var(--primary-d);
   background: var(--primary-soft);
-  border-radius: 7px;
+  border-radius: var(--r-xs);
   padding: 1px 7px;
 }
 .dn-wd.ahead {
   color: #5b8def;
   background: #eef3ff;
-  border-radius: 7px;
+  border-radius: var(--r-xs);
   padding: 1px 7px;
 }
 .today-tree {
@@ -1080,7 +1080,7 @@ main > section {
   margin: 6px auto 18px;
 }
 .today-tree > div:first-child {
-  border-radius: 16px;
+  border-radius: var(--r-lg);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
   line-height: 0;
@@ -1112,7 +1112,7 @@ main > section {
 }
 .dday-pick {
   border: 1.5px solid var(--line);
-  border-radius: 9px;
+  border-radius: var(--r-sm);
   padding: 5px 9px;
   font-family: inherit;
   font-size: 12.5px;
@@ -1128,7 +1128,7 @@ main > section {
 /* 커스텀 달력 팝업 */
 .calpop {
   background: #fff;
-  border-radius: 22px;
+  border-radius: var(--r-xl);
   width: 100%;
   max-width: 330px;
   padding: 16px 16px 12px;
@@ -1152,7 +1152,7 @@ main > section {
   border: none;
   background: var(--primary-soft);
   color: var(--primary-d);
-  border-radius: 9px;
+  border-radius: var(--r-sm);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1187,7 +1187,7 @@ main > section {
   aspect-ratio: 1;
   border: 1.5px solid transparent;
   background: none;
-  border-radius: 10px;
+  border-radius: var(--r-sm);
   font-family: inherit;
   font-size: 13.5px;
   font-weight: 700;
@@ -1250,7 +1250,7 @@ main > section {
   border: none;
   background: var(--primary-soft);
   color: var(--primary-d);
-  border-radius: 12px;
+  border-radius: var(--r-md);
   padding: 0 9px;
   font-size: 12px;
   font-weight: 800;
@@ -1266,7 +1266,7 @@ main > section {
   width: 100%;
   box-sizing: border-box;
   border: 1.5px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--r-md);
   padding: 10px 38px 10px 12px;
   font-size: 14px;
   outline: none;
@@ -1286,7 +1286,7 @@ main > section {
   cursor: pointer;
   padding: 5px;
   display: inline-flex;
-  border-radius: 8px;
+  border-radius: var(--r-sm);
 }
 .ta-ai:active {
   background: var(--primary-soft);
@@ -1300,7 +1300,7 @@ main > section {
   background: var(--grad-primary);
   color: #fff;
   font-weight: 800;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   padding: 0 18px;
   font-size: 14px;
   cursor: pointer;
@@ -1316,7 +1316,7 @@ main > section {
   gap: 4px;
   flex: none;
   border: none;
-  border-radius: 11px;
+  border-radius: var(--r-sm);
   padding: 5px 10px;
   font-size: 12px;
   font-weight: 800;
@@ -1332,7 +1332,7 @@ main > section {
   border: 1.5px solid #f0d98a;
   background: #fff9e8;
   color: #a9821f;
-  border-radius: 11px;
+  border-radius: var(--r-sm);
   padding: 4px 9px;
   font-size: 12px;
   font-weight: 800;
@@ -1347,13 +1347,13 @@ main > section {
 .dream-emoji.sm {
   width: 32px;
   height: 32px;
-  border-radius: 10px;
+  border-radius: var(--r-sm);
   font-size: 17px;
 }
 .arch-card {
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: var(--r-lg);
   padding: 12px 13px;
   margin-bottom: 10px;
   box-shadow: var(--shadow-sm);
@@ -1382,7 +1382,7 @@ main > section {
   flex: none;
   font-size: 11px;
   font-weight: 800;
-  border-radius: 9px;
+  border-radius: var(--r-sm);
   padding: 3px 8px;
 }
 .arch-caret {
@@ -1394,7 +1394,7 @@ main > section {
 }
 .arch-board {
   position: relative;
-  border-radius: 14px;
+  border-radius: var(--r-md);
   overflow: hidden;
   line-height: 0;
 }
@@ -1462,7 +1462,7 @@ main > section {
   gap: 1px;
   border: 1.5px solid var(--line);
   background: #fff;
-  border-radius: 11px;
+  border-radius: var(--r-sm);
   padding: 5px 0;
   cursor: pointer;
   color: var(--muted);
@@ -1493,7 +1493,7 @@ main > section {
   margin: 8px 0 6px 14px;
   border: 1.5px solid var(--line);
   background: #fff;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   padding: 8px 16px;
   font-weight: 800;
   font-size: 13px;
@@ -1507,7 +1507,7 @@ main > section {
   color: #fff;
   background: var(--grad-primary);
   border: none;
-  border-radius: 10px;
+  border-radius: var(--r-sm);
   padding: 7px 10px;
   cursor: pointer;
 }
@@ -1522,7 +1522,7 @@ main > section {
   border: 1.5px solid var(--line);
   background: #fff;
   color: var(--muted);
-  border-radius: 10px;
+  border-radius: var(--r-sm);
   padding: 5px 9px;
   font-size: 11px;
   font-weight: 800;
@@ -1542,7 +1542,7 @@ main > section {
 .goal-add input {
   flex: 1;
   border: 1.5px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--r-md);
   padding: 10px 12px;
   font-size: 14px;
   outline: none;
@@ -1553,7 +1553,7 @@ main > section {
   background: #e3f1e6;
   color: var(--primary-d);
   font-weight: 800;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   padding: 0 14px;
   cursor: pointer;
 }
@@ -1563,7 +1563,7 @@ main > section {
   gap: 5px;
   border: 1.5px solid var(--line);
   background: #fff;
-  border-radius: 20px;
+  border-radius: var(--r-lg);
   padding: 8px 13px;
   font-size: 13px;
   font-weight: 700;
@@ -1602,7 +1602,7 @@ main > section {
   min-width: 88px;
   border: 1.5px solid var(--line);
   background: #fff;
-  border-radius: 14px;
+  border-radius: var(--r-md);
   padding: 10px 6px;
   font-size: 13.5px;
   font-weight: 800;
@@ -1664,7 +1664,7 @@ main > section {
   font-family: inherit;
   font-size: 12px;
   font-weight: 700;
-  border-radius: 999px;
+  border-radius: var(--r-full);
   padding: 4px 10px;
   max-width: 100%;
   overflow: hidden;
@@ -1701,7 +1701,7 @@ main > section {
 .board-cap input[type="number"] {
   width: 58px;
   border: 1.5px solid var(--line);
-  border-radius: 9px;
+  border-radius: var(--r-sm);
   padding: 5px 8px;
   font-family: inherit;
   font-size: 14px;
@@ -1711,7 +1711,7 @@ main > section {
 }
 .board-cap input[type="date"] {
   border: 1.5px solid var(--primary);
-  border-radius: 9px;
+  border-radius: var(--r-sm);
   padding: 5px 8px;
   font-family: inherit;
   font-size: 12.5px;
@@ -1743,7 +1743,7 @@ main > section {
 .seg {
   display: inline-flex;
   border: 1.5px solid var(--line);
-  border-radius: 11px;
+  border-radius: var(--r-sm);
   overflow: hidden;
 }
 .seg button {
@@ -1774,7 +1774,7 @@ main > section {
   background: #f6fbf4;
   color: var(--primary-d);
   font-weight: 800;
-  border-radius: 11px;
+  border-radius: var(--r-sm);
   padding: 7px 13px;
   font-size: 13px;
   cursor: pointer;
@@ -1798,7 +1798,7 @@ main > section {
 .newdream-title {
   width: 100%;
   border: 1.5px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--r-md);
   padding: 12px 13px;
   font-size: 15px;
   font-family: inherit;
@@ -1835,7 +1835,7 @@ main > section {
   background: var(--primary-soft);
   color: var(--primary-d);
   font-weight: 800;
-  border-radius: 16px;
+  border-radius: var(--r-lg);
   padding: 13px;
   font-size: 15px;
   cursor: pointer;
@@ -1851,7 +1851,7 @@ main > section {
 .recard {
   flex: 1;
   background: linear-gradient(180deg, #ffffff 0%, #fbfdfa 100%);
-  border-radius: 18px;
+  border-radius: var(--r-lg);
   padding: 16px 12px;
   text-align: center;
   box-shadow: var(--shadow-sm);
@@ -1877,7 +1877,7 @@ main > section {
 }
 .cal-card {
   background: var(--card);
-  border-radius: 20px;
+  border-radius: var(--r-lg);
   padding: 18px 16px;
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--line);
@@ -1889,7 +1889,7 @@ main > section {
 }
 .cell {
   aspect-ratio: 1;
-  border-radius: 5px;
+  border-radius: var(--r-xs);
   background: #e7f0e2;
   display: flex;
   align-items: center;
@@ -1918,7 +1918,7 @@ main > section {
 .tree-card {
   background: #fff;
   border: 1px solid var(--line);
-  border-radius: 18px;
+  border-radius: var(--r-lg);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
   margin-bottom: 14px;
@@ -1939,7 +1939,7 @@ main > section {
   font-weight: 800;
   color: var(--primary-d);
   background: var(--primary-soft);
-  border-radius: 10px;
+  border-radius: var(--r-sm);
   padding: 4px 9px;
 }
 .tree-card.done .tree-title span {
@@ -1995,7 +1995,7 @@ nav button .ni {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 13px;
+  border-radius: var(--r-md);
   transition: background 0.2s ease, transform 0.2s ease;
 }
 nav button .nl {
@@ -2022,7 +2022,7 @@ nav button.on .nl {
   background: var(--text);
   color: #fff;
   padding: 12px 20px;
-  border-radius: 30px;
+  border-radius: var(--r-xl);
   font-weight: 700;
   font-size: 14px;
   opacity: 0;
@@ -2050,7 +2050,7 @@ nav button.on .nl {
   font-family: inherit;
   cursor: pointer;
   padding: 6px 10px;
-  border-radius: 20px;
+  border-radius: var(--r-lg);
 }
 .toast.undo button:active {
   background: rgba(255, 255, 255, 0.12);
@@ -2067,7 +2067,7 @@ nav button.on .nl {
 }
 .modal {
   background: #fff;
-  border-radius: 24px;
+  border-radius: var(--r-xl);
   padding: 26px 22px;
   text-align: center;
   max-width: 340px;
@@ -2105,7 +2105,7 @@ nav button.on .nl {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-  border-radius: 24px 24px 0 0;
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
   padding: 18px 16px calc(32px + env(safe-area-inset-bottom));
 }
 .acct {
