@@ -1,15 +1,17 @@
 "use client";
 
-import { getToken } from "./auth";
+import { emitAuthExpired, ensureToken, getStoredToken, refreshToken } from "./auth";
 import { rand } from "./state";
 import type { AppState } from "./state";
 import type { AdminUserState, CoachKind, MurukUser } from "./types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8080";
 
-async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const token = getToken();
-  const res = await fetch(`${API_BASE}${path}`, {
+export const ERR_UNAUTHORIZED = "UNAUTHORIZED";
+export const ERR_CONFLICT = "CONFLICT";
+
+async function send(path: string, init: RequestInit, token: string | null): Promise<Response> {
+  return fetch(`${API_BASE}${path}`, {
     ...init,
     headers: {
       "Content-Type": "application/json",
@@ -17,8 +19,33 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
       ...(init.headers ?? {}),
     },
   });
-  if (res.status === 401) throw new Error("UNAUTHORIZED");
-  if (res.status === 409) throw new Error("CONFLICT");
+}
+
+/**
+ * 인증이 필요한 API 호출.
+ *
+ * 토큰 수명주기를 여기서 한 곳에 모아 처리한다:
+ *  1) 보내기 전에 만료가 임박했으면 미리 무음 갱신
+ *  2) 그래도 401 이면 한 번 더 갱신하고 재시도
+ *  3) 끝내 실패하면 재로그인 이벤트를 쏘고 UNAUTHORIZED 로 던진다
+ *     (이 신호가 없으면 저장이 조용히 멈춰 사용자가 편집을 잃는다)
+ */
+async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const token = await ensureToken();
+  let res = await send(path, init, token);
+
+  if (res.status === 401) {
+    const fresh = await refreshToken();
+    if (fresh) {
+      res = await send(path, init, fresh);
+    }
+    if (res.status === 401) {
+      emitAuthExpired();
+      throw new Error(ERR_UNAUTHORIZED);
+    }
+  }
+
+  if (res.status === 409) throw new Error(ERR_CONFLICT);
   if (!res.ok) throw new Error(`API ${res.status}`);
   return (await res.json()) as T;
 }
@@ -46,11 +73,15 @@ export const api = {
 };
 
 /**
- * 페이지가 사라지기 직전(pagehide/SW 강제 새로고침 등)에 최신 상태를 보낸다.
+ * 페이지가 사라지기 직전(탭 닫기·SW 강제 새로고침 등)에 최신 상태를 보낸다.
  * keepalive:true 라 언로드 후에도 요청이 살아남아 미저장 편집 유실을 막는다.
+ *
+ * 언로드 중에는 await 할 시간이 없어 토큰 갱신을 하지 못한다.
+ * 그래서 실패해도 괜찮도록, 호출부는 로컬 캐시에 '아직 못 올림(pending)' 표시를 남겨
+ * 다음 접속 때 서버 상태와 병합하도록 되어 있다.
  */
 export function flushState(state: AppState, baseVersion: number): void {
-  const token = getToken();
+  const token = getStoredToken();
   try {
     fetch(`${API_BASE}/api/state`, {
       method: "PUT",

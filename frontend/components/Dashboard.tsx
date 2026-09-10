@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { api, coachMessage } from "@/lib/api";
-import { clearToken, getUser, isAdminEmail } from "@/lib/auth";
+import { getUser, isAdminEmail, signOut } from "@/lib/auth";
 import { AppState, defaultState, streakCount, totalStickers, ENCOURAGE_FALLBACK, REVIEW_FALLBACK, CELEBRATE_FALLBACK } from "@/lib/state";
 import type { AppActions } from "@/lib/store";
 import type { AdminUserState } from "@/lib/types";
@@ -87,7 +87,7 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
         <div className="empty" style={{ paddingTop: 120 }}>
           불러오는 중…
           {slowLoad && (
-            <div className="muted" style={{ marginTop: 12, fontSize: 13, lineHeight: 1.7 }}>
+            <div className="muted" style={{ marginTop: 12, fontSize: "var(--fs-md)", lineHeight: 1.7 }}>
               서버를 깨우는 중이에요.
               <br />
               처음 접속이면 최대 1분 정도 걸릴 수 있어요 ☕
@@ -145,7 +145,13 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
       {gold && (
         <div className="modal-bg" onClick={clearGold}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: "flex", justifyContent: "center" }} dangerouslySetInnerHTML={{ __html: stampSVG(150, state.dreams.reduce((n, d) => n + (d.stamps ?? 0), 0) - 1) }} />
+            {/* stamp-hero: 도장이 '쾅' 찍히는 stampDown 애니메이션. 예전에는 스플래시에만 붙어 있었다. */}
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <span
+                className="stamp-hero in-modal"
+                dangerouslySetInnerHTML={{ __html: stampSVG(150, state.dreams.reduce((n, d) => n + (d.stamps ?? 0), 0) - 1) }}
+              />
+            </div>
             <h3 style={{ margin: "10px 0 6px" }}>완성! 🎉</h3>
             <p className="muted">“{gold}” 칭찬판을 가득 채웠어요.</p>
             {celebrate && <p style={{ lineHeight: 1.6, marginTop: 4 }}>{celebrate}</p>}
@@ -160,7 +166,10 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
         <SettingsSheet
           onClose={() => setSettings(false)}
           onLogout={() => {
-            clearToken();
+            // signOut: 토큰 삭제 + 구글 자동 재선택 해제.
+            // disableAutoSelect 없이 토큰만 지우면 auto_select가 즉시 재로그인시켜
+            // 사실상 로그아웃이 되지 않는다.
+            signOut();
             onLogout();
           }}
           state={state}
@@ -289,7 +298,7 @@ function SettingsSheet({
     <div className="sheet-bg" onClick={onClose}>
       <div className="sheet" onClick={(e) => e.stopPropagation()}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-          <b style={{ fontSize: 17, display: "flex", alignItems: "center", gap: 7 }}>
+          <b style={{ fontSize: "var(--fs-xl)", display: "flex", alignItems: "center", gap: 7 }}>
             <Icon name="settings" size={18} color="var(--primary-d)" /> 설정
           </b>
           <button className="x" aria-label="설정 닫기" onClick={onClose}>
@@ -303,7 +312,7 @@ function SettingsSheet({
             <img src={userPicture} alt="" referrerPolicy="no-referrer" />
           )}
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontWeight: 800 }}>{userName}</div>
+            <div style={{ fontWeight: "var(--fw-bold)" }}>{userName}</div>
             <div className="muted">{userEmail}</div>
           </div>
           <button className="btn btn-soft" onClick={onLogout}>
@@ -312,7 +321,7 @@ function SettingsSheet({
         </div>
 
         <div className="card">
-          <h3 style={{ margin: "0 0 10px", fontSize: 15 }}>AI 코칭</h3>
+          <h3 style={{ margin: "0 0 10px", fontSize: "var(--fs-lg)" }}>AI 코칭</h3>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             <button className="btn" onClick={askCoach} disabled={loading}>
               {loading ? "…" : "오늘의 응원"}
@@ -326,7 +335,7 @@ function SettingsSheet({
         </div>
 
         <div className="card">
-          <h3 style={{ margin: "0 0 10px", fontSize: 15 }}>백업</h3>
+          <h3 style={{ margin: "0 0 10px", fontSize: "var(--fs-lg)" }}>백업</h3>
           <div style={{ display: "flex", gap: 8 }}>
             <button className="btn btn-soft" onClick={exportData}>내보내기</button>
             <button className="btn btn-soft" onClick={() => fileRef.current?.click()}>불러오기</button>
@@ -335,7 +344,7 @@ function SettingsSheet({
         </div>
 
         <div className="card">
-          <h3 style={{ margin: "0 0 10px", fontSize: 15 }}>매일 알림</h3>
+          <h3 style={{ margin: "0 0 10px", fontSize: "var(--fs-lg)" }}>매일 알림</h3>
           {notif !== "granted" ? (
             <>
               <p className="muted" style={{ margin: "0 0 10px" }}>정해진 시간에 오늘 남은 할 일을 살짝 알려드려요.</p>
@@ -367,10 +376,10 @@ function SettingsSheet({
           <div className="card" style={{ border: "1.5px solid #ffe0b8", background: "#fffaf3" }}>
             <div className="remind-row">
               <div style={{ flex: 1, minWidth: 0 }}>
-                <h3 style={{ margin: "0 0 2px", fontSize: 15, display: "inline-flex", alignItems: "center", gap: 6 }}>
+                <h3 style={{ margin: "0 0 2px", fontSize: "var(--fs-lg)", display: "inline-flex", alignItems: "center", gap: 6 }}>
                   <Icon name="settings" size={16} color="#c9912e" /> 관리자 모드
                 </h3>
-                <p className="muted" style={{ margin: 0, fontSize: 12.5 }}>켜면 메인 화면이 모든 사용자 데이터로 전환돼요.</p>
+                <p className="muted" style={{ margin: 0, fontSize: "var(--fs-sm)" }}>켜면 메인 화면이 모든 사용자 데이터로 전환돼요.</p>
               </div>
               <label className="remind-toggle">
                 <input type="checkbox" checked={adminMode} onChange={(e) => onToggleAdminMode(e.target.checked)} />
@@ -424,14 +433,14 @@ function AdminView({ onExit }: { onExit: () => void }) {
 
       <div className="addbar" style={{ margin: "0 0 12px" }}>
         <input value={q} placeholder="이름·이메일 검색" onChange={(e) => setQ(e.target.value)} />
-        <button className="btn-soft" style={{ borderRadius: 14, padding: "0 16px", border: "none", fontWeight: 800, cursor: "pointer" }} onClick={load} disabled={loading}>
+        <button className="btn-soft" style={{ borderRadius: "var(--r-md)", padding: "0 16px", border: "none", fontWeight: "var(--fw-bold)", cursor: "pointer" }} onClick={load} disabled={loading}>
           {loading ? "…" : "새로고침"}
         </button>
       </div>
 
       {err && <div className="empty" style={{ color: "var(--muted)" }}>⚠️ {err}</div>}
       {!err && (
-        <div className="muted" style={{ fontWeight: 800, margin: "0 4px 10px" }}>
+        <div className="muted" style={{ fontWeight: "var(--fw-bold)", margin: "0 4px 10px" }}>
           사용자 {data?.length ?? 0}명{q.trim() && ` · 검색결과 ${users.length}명`}
         </div>
       )}
@@ -456,22 +465,22 @@ function AdminView({ onExit }: { onExit: () => void }) {
               <b>{u.name}</b> <span className="muted">{u.email}</span>
               <span className="admin-counts">목표 {dreamsArr.length} · 할일 {todosArr.length} · 완료 {totalDone}</span>
             </summary>
-            <div className="muted" style={{ fontSize: 11.5, margin: "4px 0 8px" }}>
+            <div className="muted" style={{ fontSize: "var(--fs-xs)", margin: "4px 0 8px" }}>
               최근접속 {u.lastSeenAt?.slice(0, 10) ?? "-"} · 저장 {u.updatedAt?.slice(0, 10) ?? "-"} · v{u.version} · 누적완료 {totalDone} · 최고연속 {bestStreak} · 진행 {activeDreams}/보관 {archivedDreams}
             </div>
             {dreamsArr.length === 0 ? (
-              <div className="muted" style={{ fontSize: 12 }}>저장된 목표 없음</div>
+              <div className="muted" style={{ fontSize: "var(--fs-sm)" }}>저장된 목표 없음</div>
             ) : (
               dreamsArr.map((dr, i) => {
                 const cap = Math.min(100, Math.max(1, dr.goals?.length ?? 0));
                 return (
                   <div key={i} className="admin-dream" style={{ opacity: dr.done ? 0.7 : 1 }}>
-                    <div style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-                      <span style={{ width: 10, height: 10, borderRadius: 3, background: dr.color || "#ccc", display: "inline-block" }} />
+                    <div style={{ fontWeight: "var(--fw-medium)", display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                      <span style={{ width: 10, height: 10, borderRadius: "var(--r-xs)", background: dr.color || "#ccc", display: "inline-block" }} />
                       {dr.title || "(제목 없음)"}
-                      {dr.done && <span style={{ fontSize: 10, fontWeight: 800, color: "#a9821f", background: "#fff3cf", borderRadius: 6, padding: "1px 6px" }}>달성·보관{dr.completedAt ? ` ${dr.completedAt.slice(5)}` : ""}</span>}
+                      {dr.done && <span style={{ fontSize: "var(--fs-2xs)", fontWeight: "var(--fw-bold)", color: "#a9821f", background: "#fff3cf", borderRadius: "var(--r-xs)", padding: "1px 6px" }}>달성·보관{dr.completedAt ? ` ${dr.completedAt.slice(5)}` : ""}</span>}
                     </div>
-                    <div className="muted" style={{ fontSize: 11, margin: "2px 0 3px" }}>
+                    <div className="muted" style={{ fontSize: "var(--fs-xs)", margin: "2px 0 3px" }}>
                       {dr.cat && `분류 ${dr.cat} · `}테마 {dr.theme || "tree"}
                       {dr.targetDate && ` · 디데이 ${dr.ddayStart ?? "?"}~${dr.targetDate}`}
                       {` · 칭찬판 칸 ${cap}·도장 ${dr.stamps ?? 0}·스티커 ${dr.earned ?? dr.stickers?.length ?? 0}`}
@@ -488,7 +497,7 @@ function AdminView({ onExit }: { onExit: () => void }) {
                         })}
                       </ul>
                     ) : (
-                      <div className="muted" style={{ fontSize: 11 }}>세부 할 일 없음</div>
+                      <div className="muted" style={{ fontSize: "var(--fs-xs)" }}>세부 할 일 없음</div>
                     )}
                   </div>
                 );
@@ -497,7 +506,7 @@ function AdminView({ onExit }: { onExit: () => void }) {
             <details className="admin-raw" style={{ marginTop: 8 }}>
               <summary>할 일 기록 {todosArr.length}개 (완료 {doneTodos})</summary>
               {recentTodos.length === 0 ? (
-                <div className="muted" style={{ fontSize: 12, padding: "4px 0" }}>기록 없음</div>
+                <div className="muted" style={{ fontSize: "var(--fs-sm)", padding: "4px 0" }}>기록 없음</div>
               ) : (
                 <ul className="admin-goals" style={{ maxHeight: 200, overflowY: "auto" }}>
                   {recentTodos.map((t, k) => (

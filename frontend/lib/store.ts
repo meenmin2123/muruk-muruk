@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { api, flushState as apiFlushState } from "./api";
+import { api, flushState as apiFlushState, ERR_CONFLICT, ERR_UNAUTHORIZED } from "./api";
 import { pushWidgetSnapshot } from "./widget";
-import { getUser } from "./auth";
+import { getIdentity } from "./auth";
+import { mergeStates } from "./merge";
 import {
   AppState,
   ADD_CHEER,
@@ -79,6 +80,23 @@ function applyToggle(s: AppState, t: Todo): { toast: string; gold: string | null
   return { toast, gold };
 }
 
+/**
+ * 되살릴 가치가 있는 기록이 담겨 있는가 — 갓 설치한 빈 상태와 구분한다.
+ * 애매하면 '있다'로 판단한다: 잘못 판단해도 서버에 빈 행이 하나 생길 뿐이지만,
+ * 반대로 놓치면 마지막 사본이 지워진다.
+ */
+function hasContent(s: AppState | null): s is AppState {
+  if (!s) return false;
+  return (
+    s.dreams.length > 0 ||
+    s.todos.length > 0 ||
+    s.customCats.length > 0 ||
+    (s.totalDone ?? 0) > 0 ||
+    (s.bestStreak ?? 0) > 0 ||
+    Object.keys(s.settings ?? {}).length > 0
+  );
+}
+
 function normalize(data: unknown): AppState {
   const d = (data ?? {}) as Partial<AppState>;
   const base = defaultState();
@@ -96,32 +114,81 @@ function normalize(data: unknown): AppState {
 // 마지막으로 본 상태를 로컬에 캐시 → 다음 접속 때 백엔드 응답을 기다리지 않고 즉시 화면을 띄운다.
 // (특히 무료 백엔드 콜드 스타트 30~60초 동안 하얀 '불러오는 중' 화면을 없앤다.)
 // 사용자(sub)별로 분리 저장해 다른 계정 데이터가 섞이지 않게 한다.
+//
+// v2부터는 상태만이 아니라 동기화 문맥까지 함께 저장한다:
+//   version — 이 상태가 기반한 서버 버전
+//   base    — 마지막으로 서버와 일치했던 상태(3-way 병합 기준점)
+//   pending — 아직 서버에 올리지 못한 편집이 있는가
+// 이 세 가지가 있어야, 토큰 만료·오프라인·탭 종료로 저장이 끊겨도
+// 다음 접속 때 서버본과 '합칠' 수 있다(예전엔 서버본으로 덮어써서 편집이 사라졌다).
 const CACHE_PREFIX = "muruk_state_cache_v1:";
+
+interface CacheEnvelope {
+  state: AppState;
+  version: number;
+  base: AppState | null;
+  pending: boolean;
+}
+
+/**
+ * 캐시 키는 '유효한 토큰'이 아니라 '토큰에 적힌 신원'으로 만든다.
+ * 유효성으로 판단하면 토큰이 만료된 순간 키가 null이 되어 캐시 쓰기가 멈추고,
+ * 만료 이후의 편집이 로컬에도 서버에도 남지 않아 통째로 사라진다.
+ */
 function cacheKey(): string | null {
   try {
-    const u = getUser();
+    const u = getIdentity();
     return u ? CACHE_PREFIX + u.id : null;
   } catch {
     return null;
   }
 }
-function readCache(): AppState | null {
+
+function readCache(): CacheEnvelope | null {
   try {
     const k = cacheKey();
     if (!k) return null;
     const raw = localStorage.getItem(k);
-    return raw ? normalize(JSON.parse(raw)) : null;
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    // v2 봉투 형태
+    if (parsed && typeof parsed === "object" && parsed.v === 2) {
+      return {
+        state: normalize(parsed.state),
+        version: typeof parsed.version === "number" ? parsed.version : 0,
+        base: parsed.base ? normalize(parsed.base) : null,
+        pending: parsed.pending === true,
+      };
+    }
+    // v1(상태만 저장하던 형태) — 서버 버전을 모르므로 병합 기준도 없다.
+    return { state: normalize(parsed), version: 0, base: null, pending: false };
   } catch {
     return null;
   }
 }
-function writeCache(s: AppState): void {
+
+function writeCache(state: AppState, version: number, base: AppState | null, pending: boolean): void {
+  const k = cacheKey();
+  if (!k) return;
+  const save = (withBase: AppState | null) => {
+    localStorage.setItem(k, JSON.stringify({ v: 2, state, version, base: withBase, pending }));
+  };
   try {
-    const k = cacheKey();
-    if (k) localStorage.setItem(k, JSON.stringify(s));
+    save(base);
   } catch {
-    /* 용량 초과 등 무시 */
+    // 용량 초과 → 병합 기준(base)을 빼고 다시 시도. 상태 보존이 우선이다.
+    try {
+      save(null);
+    } catch {
+      /* 그래도 안 되면 포기(다음 저장에서 재시도) */
+    }
   }
+}
+
+/** 병합 후 모든 목표의 칭찬판을 실제 완료 수로 다시 맞춘다(스티커·도장 어긋남 방지). */
+function reconcileAll(s: AppState): AppState {
+  s.dreams.forEach((d) => reconcileBoard(s, d));
+  return s;
 }
 
 export interface AppActions {
@@ -137,6 +204,8 @@ export interface AppActions {
   toggleCollapse(id: string): void;
   setDday(id: string, date: string | null): void;
   setDreamIcon(id: string, icon: string): void;
+  setDreamColor(id: string, color: string): void;
+  setDreamTheme(id: string, theme: string): void;
   addGoal(dreamId: string, title: string, repeat: Repeat): void;
   removeGoal(dreamId: string, goalId: string): void;
   toggleGoalRepeat(dreamId: string, goalId: string): void;
@@ -158,23 +227,59 @@ export function useAppState() {
 
   const stateRef = useRef<AppState | null>(null);
   const versionRef = useRef(0);
-  const loaded = useRef(false);
+  // 마지막으로 서버와 일치했던 상태 — 충돌 시 3-way 병합의 기준점.
+  const baseRef = useRef<AppState | null>(null);
+  // 마지막 push 이후 변경 있음 → 아직 서버에 없는 편집이 존재한다.
+  // 예전에는 이 값을 '상태 변경 효과'가 세웠는데, 그 효과는 로딩 중(!loaded)에 조기 리턴하므로
+  // 콜드 스타트 중의 편집이 dirty로 기록되지 않아 서버로도 캐시로도 남지 않았다.
+  // 지금은 편집(mutate/commit)이 직접 세운다.
+  const dirty = useRef(false);
+  const readyRef = useRef(false);
+  const [ready, setReady] = useState(false); // 초기 로드 완료 → 이제부터 서버로 올린다
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const undoSnap = useRef<AppState | null>(null);
   const undoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const dirty = useRef(false); // 마지막 push 이후 변경 있음 → 언로드 시 flush 대상
-  const editedDuringLoad = useRef(false); // 서버 응답 전(캐시 표시 중)에 사용자가 편집했는가
+  const retryCount = useRef(0);
+  const conflictRounds = useRef(0);
+  const pushRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     stateRef.current = state;
   }, [state]);
 
+  const setToast = useCallback((msg: string) => {
+    setToastRaw(msg);
+    setTimeout(() => setToastRaw(""), 2200);
+  }, []);
+
+  /**
+   * 화면 상태를 바꾸면서 stateRef 도 그 자리에서 갱신한다.
+   * 초기 로드의 async 블록이 stateRef 를 읽어 병합 여부를 정하는데,
+   * 그 값이 React 렌더·이펙트 타이밍에 좌우되면 로딩 중 편집을 놓치고 서버본으로 덮어쓸 수 있다.
+   */
+  const applyState = useCallback((next: AppState) => {
+    stateRef.current = next;
+    setState(next);
+  }, []);
+
+  /** 상태를 바꾸고 '아직 서버에 없음'으로 표시한다. 모든 사용자 편집은 이 경로를 지난다. */
+  const commit = useCallback(
+    (next: AppState) => {
+      dirty.current = true;
+      applyState(next);
+    },
+    [applyState],
+  );
+
   // 페이지가 사라지기 직전(탭 닫기·SW 강제 새로고침 등) 미저장 변경을 keepalive로 마저 보낸다.
+  // 언로드 중에는 응답을 확인할 수 없으므로 dirty를 내리지 않고, 캐시에 pending으로 남긴다.
+  // 전송이 실패했더라도 다음 접속 때 서버본과 병합되어 편집이 살아남는다.
   useEffect(() => {
     const flush = () => {
-      if (!loaded.current || !dirty.current || !stateRef.current) return;
-      apiFlushState(stateRef.current, versionRef.current);
-      dirty.current = false;
+      const s = stateRef.current;
+      if (!readyRef.current || !dirty.current || !s) return;
+      apiFlushState(s, versionRef.current);
+      writeCache(s, versionRef.current, baseRef.current, true);
     };
     const onHide = () => document.visibilityState === "hidden" && flush();
     window.addEventListener("pagehide", flush);
@@ -185,10 +290,85 @@ export function useAppState() {
     };
   }, []);
 
-  const setToast = useCallback((msg: string) => {
-    setToastRaw(msg);
-    setTimeout(() => setToastRaw(""), 2200);
+  /** 네트워크 오류 등으로 못 올렸을 때 점점 긴 간격으로 재시도. */
+  const scheduleRetry = useCallback(() => {
+    const delays = [3000, 8000, 20000, 45000];
+    if (retryCount.current >= delays.length) return; // 다음 편집이나 언로드 flush 때 다시 시도된다
+    const delay = delays[retryCount.current];
+    retryCount.current += 1;
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => pushRef.current?.(), delay);
   }, []);
+
+  /**
+   * 409(다른 기기가 먼저 저장) 해결.
+   * 예전에는 서버본으로 통째 교체해 로컬 편집을 버렸다. 지금은 base 기준 3-way 병합 후
+   * 병합 결과를 다시 올린다 — 양쪽 편집이 모두 살아남는다.
+   */
+  const resolveConflict = useCallback(async () => {
+    if (conflictRounds.current >= 5) {
+      setToast("동기화 충돌이 반복돼요. 새로고침해 주세요");
+      return;
+    }
+    conflictRounds.current += 1;
+    try {
+      const env = await api.pullState();
+      const remote = normalize(env.data);
+      versionRef.current = env.version ?? 0;
+      const local = stateRef.current;
+
+      if (!local) {
+        baseRef.current = structuredClone(remote);
+        dirty.current = false;
+        applyState(ensureDailyTodos(remote));
+        return;
+      }
+
+      // structuredClone: 병합 결과는 local/remote 객체를 그대로 참조하므로,
+      // 이어지는 reconcileBoard 가 baseRef(=remote)까지 오염시키지 않도록 떼어낸다.
+      const merged = reconcileAll(ensureDailyTodos(structuredClone(mergeStates(baseRef.current, local, remote))));
+      baseRef.current = structuredClone(remote);
+      commit(merged); // dirty=true → 디바운스가 병합 결과를 다시 올린다
+      setToast("다른 기기의 변경과 합쳤어요 🔄");
+    } catch (e) {
+      if ((e as Error).message !== ERR_UNAUTHORIZED) scheduleRetry();
+    }
+  }, [applyState, commit, scheduleRetry, setToast]);
+
+  /** 지금 서버로 올린다. 성공하면 base·version을 갱신하고 dirty를 내린다. */
+  const pushNow = useCallback(async () => {
+    const s = stateRef.current;
+    if (!s || !dirty.current) return;
+    setSyncing(true);
+    try {
+      const res = await api.pushState(s, versionRef.current);
+      versionRef.current = res.version;
+      baseRef.current = s; // 이제 서버와 일치 — 다음 충돌의 병합 기준
+      dirty.current = false;
+      retryCount.current = 0;
+      conflictRounds.current = 0;
+      writeCache(s, versionRef.current, baseRef.current, false);
+    } catch (e) {
+      const msg = (e as Error).message;
+      if (msg === ERR_CONFLICT) {
+        await resolveConflict();
+      } else if (msg === ERR_UNAUTHORIZED) {
+        // api 계층이 이미 갱신을 시도하고 재로그인 신호를 보냈다.
+        // dirty는 그대로 둔다 → 다시 로그인하면 캐시의 pending 편집이 병합된다.
+        setToast("로그인이 만료됐어요. 다시 로그인하면 이어서 저장돼요");
+      } else {
+        scheduleRetry();
+      }
+    } finally {
+      setSyncing(false);
+    }
+  }, [resolveConflict, scheduleRetry, setToast]);
+
+  useEffect(() => {
+    pushRef.current = () => {
+      void pushNow();
+    };
+  }, [pushNow]);
 
   // 삭제 직전 상태를 스냅샷해 두고 5초간 되돌리기를 제공.
   const armUndo = useCallback((label: string) => {
@@ -203,20 +383,20 @@ export function useAppState() {
 
   const runUndo = useCallback(() => {
     if (undoTimer.current) clearTimeout(undoTimer.current);
-    if (undoSnap.current) setState(undoSnap.current);
+    if (undoSnap.current) commit(undoSnap.current);
     undoSnap.current = null;
     setUndoLabel("");
-  }, []);
+  }, [commit]);
 
   // 자정이 지나거나 다시 포커스됐을 때, 날짜가 바뀌었으면 오늘 목록을 갱신.
   useEffect(() => {
     const refresh = () => {
       const cur = stateRef.current;
-      if (!cur || !loaded.current) return;
+      if (!cur || !readyRef.current) return;
       if (cur.lastSeen === todayStr()) return;
       const next = ensureDailyTodos(structuredClone(cur));
       next.lastSeen = todayStr();
-      setState(next);
+      commit(next);
     };
     const onVis = () => document.visibilityState === "visible" && refresh();
     document.addEventListener("visibilitychange", onVis);
@@ -227,106 +407,126 @@ export function useAppState() {
       window.removeEventListener("focus", refresh);
       clearInterval(iv);
     };
-  }, []);
+  }, [commit]);
 
   // 최초 로드:
   //  1) 로컬 캐시가 있으면 즉시 화면에 띄운다(백엔드 콜드 스타트 동안 '불러오는 중' 방지).
-  //  2) 백엔드에서 최신 상태를 받아 동기화한다. 단, 로딩 중 사용자가 편집했다면
-  //     로컬 편집을 우선(덮어쓰기 방지)하고 서버엔 그 편집을 올린다.
+  //  2) 백엔드에서 최신 상태를 받는다.
+  //  3) 아직 못 올린 로컬 편집(캐시 pending 또는 로딩 중 편집)이 있으면 서버본과 '병합'한다.
+  //     예전에는 무조건 서버본으로 교체해, 토큰 만료·오프라인 중의 편집이 사라졌다.
   useEffect(() => {
     let alive = true;
     const cached = readCache();
     if (cached) {
-      const c = ensureDailyTodos(cached);
+      versionRef.current = cached.version;
+      baseRef.current = cached.base;
+      if (cached.pending) dirty.current = true; // 지난 세션에서 못 올린 편집이 있다
+      const c = ensureDailyTodos(cached.state);
       c.lastSeen = todayStr();
-      setState(c); // loaded.current는 아직 false → 이 상태는 서버로 자동 업로드되지 않음
+      applyState(c); // commit이 아니라 applyState — 캐시 표시 자체는 새 편집이 아니다
     }
+
     (async () => {
-      let s: AppState;
-      let ok = false;
+      let remote: AppState | null = null;
+      let remoteVersion = 0;
+      let serverRowExists = false;
       try {
         const env = await api.pullState();
-        s = normalize(env.data);
-        versionRef.current = env.version ?? 0;
-        ok = true;
+        remote = normalize(env.data);
+        remoteVersion = env.version ?? 0;
+        // updatedAt 은 서버에 행이 있을 때만 채워진다(없으면 null).
+        // version 으로는 구분할 수 없다 — 최초 저장도 0 이라 '행 없음'과 값이 같다.
+        serverRowExists = typeof env.updatedAt === "string";
       } catch {
-        s = cached ?? defaultState();
+        // 오프라인·콜드스타트·토큰 만료 — 캐시로 계속 진행한다.
       }
       if (!alive) return;
-      if (ok && !editedDuringLoad.current) {
-        // 서버 최신본으로 반영(로딩 중 편집이 없었을 때만).
-        s = ensureDailyTodos(s);
+
+      const local = stateRef.current;
+
+      if (remote && !serverRowExists && hasContent(local)) {
+        // 서버에 행 자체가 없는데 이 기기에는 기록이 있다
+        //  = 사용자가 지운 게 아니라 서버 쪽 데이터가 사라진 것(DB 재생성·초기화, 또는 첫 동기화 미완료).
+        // 서버가 200 + {} 를 돌려주기 때문에 예전에는 이걸 '정상적인 빈 상태'로 받아들여
+        // 화면과 로컬 캐시까지 덮어썼다 — 마지막 남은 사본이 바로 여기서 사라졌다.
+        // 이제는 로컬을 정본으로 삼아 서버로 되돌려 올린다.
+        versionRef.current = 0; // 행이 없으므로 이 값으로 INSERT 된다
+        baseRef.current = null; // 합의된 기준이 없다 → 충돌 시 합집합 병합(보존 우선)으로 떨어진다
+        dirty.current = true; // 아래 디바운스 효과가 이 상태를 서버에 복원한다
+        applyState(structuredClone(local)); // 캐시에 pending 표시가 남도록 다시 적용
+        setToast("서버에 기록이 없어 이 기기의 기록을 올릴게요 ☁️");
+      } else if (remote) {
+        versionRef.current = remoteVersion;
+        if (dirty.current && local) {
+          const merged = reconcileAll(
+            ensureDailyTodos(structuredClone(mergeStates(baseRef.current, local, remote))),
+          );
+          baseRef.current = structuredClone(remote);
+          applyState(merged); // dirty는 이미 true → 아래 효과가 병합 결과를 올린다
+          setToast("저장 못 한 변경을 서버와 합쳤어요 🔄");
+        } else {
+          baseRef.current = structuredClone(remote);
+          dirty.current = false;
+          const s = ensureDailyTodos(remote);
+          s.lastSeen = todayStr();
+          applyState(s);
+        }
+      } else if (!cached) {
+        const s = ensureDailyTodos(defaultState());
         s.lastSeen = todayStr();
-        setState(s);
-      } else if (!ok && !cached) {
-        // 캐시도 없고 서버도 실패 → 기본 상태라도 보여준다.
-        s = ensureDailyTodos(s);
-        s.lastSeen = todayStr();
-        setState(s);
+        applyState(s);
       }
-      // ok && editedDuringLoad: 로컬 편집 유지 → 이후 디바운스 push가 서버 version으로 올림.
-      loaded.current = true;
+
+      readyRef.current = true;
+      setReady(true); // ready가 바뀌면 아래 효과가 다시 돌아, 로딩 중 편집도 예약된다
     })();
+
     return () => {
       alive = false;
     };
-  }, []);
+  }, [applyState, setToast]);
 
-  // 상태가 바뀔 때마다 로컬 캐시 갱신(다음 접속 즉시 표시용).
+  // 상태가 바뀔 때마다 로컬 캐시 갱신(다음 접속 즉시 표시 + 미저장 편집 보존).
   useEffect(() => {
-    if (state) writeCache(state);
+    if (state) writeCache(state, versionRef.current, baseRef.current, dirty.current);
   }, [state]);
 
-  // 변경 시 디바운스 업로드
+  // 변경 시 디바운스 업로드.
+  // ready를 의존성에 넣은 것이 핵심 — 로딩이 끝나는 순간 효과가 다시 실행되어
+  // 로딩 중에 한 편집(dirty=true)도 업로드가 예약된다.
   useEffect(() => {
-    if (!loaded.current || !state) return;
+    if (!ready || !state || !dirty.current) return;
     if (timer.current) clearTimeout(timer.current);
-    dirty.current = true; // 이 상태가 아직 서버에 안 올라감
-    timer.current = setTimeout(async () => {
-      setSyncing(true);
-      try {
-        const res = await api.pushState(state, versionRef.current);
-        versionRef.current = res.version;
-        dirty.current = false;
-      } catch (e) {
-        if ((e as Error).message === "CONFLICT") {
-          // 다른 기기에서 먼저 변경됨 → 서버 최신 상태로 동기화(로컬 덮어쓰기 방지).
-          try {
-            const env = await api.pullState();
-            versionRef.current = env.version ?? 0;
-            const pulled = normalize(env.data);
-            // 최고 기록은 떨어지지 않게 보존(로컬·서버·재계산 중 최댓값).
-            pulled.bestStreak = Math.max(pulled.bestStreak, stateRef.current?.bestStreak ?? 0, streakCount(pulled));
-            loaded.current = false; // 이번 setState 가 다시 push 되지 않도록
-            setState(ensureDailyTodos(pulled));
-            setTimeout(() => (loaded.current = true), 0);
-            setToast("다른 기기에서 변경되어 최신 상태로 맞췄어요 🔄");
-          } catch {
-            /* ignore */
-          }
-        }
-      } finally {
-        setSyncing(false);
-      }
+    timer.current = setTimeout(() => {
+      void pushNow();
     }, 1200);
-  }, [state]);
+    return () => {
+      if (timer.current) clearTimeout(timer.current);
+    };
+  }, [state, ready, pushNow]);
 
   // 상태가 바뀔 때마다 홈 화면 위젯 스냅샷을 갱신(Capacitor 네이티브에서만 실제 동작).
   useEffect(() => {
-    if (!loaded.current || !state) return;
+    if (!ready || !state) return;
     pushWidgetSnapshot(state);
-  }, [state]);
+  }, [state, ready]);
 
-  const mutate = useCallback((fn: (s: AppState) => void) => {
-    const cur = stateRef.current;
-    if (!cur) return;
-    if (!loaded.current) editedDuringLoad.current = true; // 서버 응답 전 편집 → 로컬 우선
-    const next = structuredClone(cur);
-    fn(next);
-    const st = streakCount(next);
-    if (st > next.bestStreak) next.bestStreak = st;
-    setState(next);
-  }, []);
+  const mutate = useCallback(
+    (fn: (s: AppState) => void) => {
+      const cur = stateRef.current;
+      if (!cur) return;
+      // 새 편집 = 새 시도. (commit이 아니라 여기서만 초기화하는 이유:
+      //  resolveConflict도 commit을 쓰므로, commit에서 초기화하면 충돌 루프 가드가 무력화된다.)
+      retryCount.current = 0;
+      conflictRounds.current = 0;
+      const next = structuredClone(cur);
+      fn(next);
+      const st = streakCount(next);
+      if (st > next.bestStreak) next.bestStreak = st;
+      commit(next);
+    },
+    [commit],
+  );
 
   const actions: AppActions = {
     addTodo(text, goalId, date) {
@@ -387,14 +587,23 @@ export function useAppState() {
       });
     },
     tomorrow(id) {
+      let moved = "";
       mutate((s) => {
         const t = s.todos.find((x) => x.id === id);
         if (!t) return;
-        const d = new Date();
+        // 그 할 일이 놓인 날짜 기준으로 하루 뒤. 예전에는 항상 '실제 오늘 +1'이라
+        // 미래 날짜 화면에서 미루면 할 일이 오히려 앞으로 당겨졌다.
+        const d = new Date((t.date || todayStr()) + "T00:00:00");
         d.setDate(d.getDate() + 1);
         t.date = dateStr(d);
+        moved = t.date;
       });
-      setToast("내일로 미뤘어요. 괜찮아요 🤍");
+      const tmr = (() => {
+        const d = new Date(todayStr() + "T00:00:00");
+        d.setDate(d.getDate() + 1);
+        return dateStr(d);
+      })();
+      setToast(moved === tmr ? "내일로 미뤘어요. 괜찮아요 🤍" : "하루 뒤로 미뤘어요 🤍");
     },
     addDream(d) {
       mutate((s) => {
@@ -412,7 +621,7 @@ export function useAppState() {
       // 외부 백업은 신뢰 불가 → normalize로 형태 보정(배열/필드 누락 시 크래시 방지).
       const next = ensureDailyTodos(normalize(s));
       next.lastSeen = todayStr();
-      setState(next);
+      commit(next); // 불러온 백업도 서버로 올려야 한다
       setToast("백업을 불러왔어요 ✅");
     },
     removeDream(id) {
@@ -469,6 +678,18 @@ export function useAppState() {
       mutate((s) => {
         const d = s.dreams.find((x) => x.id === id);
         if (d) d.icon = icon;
+      });
+    },
+    setDreamColor(id, color) {
+      mutate((s) => {
+        const d = s.dreams.find((x) => x.id === id);
+        if (d) d.color = color;
+      });
+    },
+    setDreamTheme(id, theme) {
+      mutate((s) => {
+        const d = s.dreams.find((x) => x.id === id);
+        if (d) d.theme = theme;
       });
     },
     addGoal(dreamId, title, repeat) {
