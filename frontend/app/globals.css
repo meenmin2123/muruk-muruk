@@ -116,8 +116,8 @@ header {
   display: flex;
   align-items: center;
   gap: 9px;
-  font-size: 26px;
-  font-weight: 800;
+  font-size: var(--fs-display);
+  font-weight: var(--fw-bold);
   letter-spacing: -1px;
 }
 .logo-ic {
@@ -130,17 +130,17 @@ header {
   color: var(--primary);
 }
 .tagline {
-  font-size: 13px;
+  font-size: var(--fs-md);
   color: var(--muted);
   margin-top: 2px;
-  font-weight: 600;
+  font-weight: var(--fw-medium);
 }
 .appver {
   position: absolute;
   top: calc(12px + env(safe-area-inset-top));
   left: 14px;
-  font-size: 10px;
-  font-weight: 800;
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-medium);
   color: var(--muted);
   opacity: 0.55;
   letter-spacing: 0.02em;
@@ -155,7 +155,7 @@ header {
   border: none;
   background: #fff;
   box-shadow: 0 2px 8px rgba(46, 58, 47, 0.12);
-  font-size: 17px;
+  font-size: var(--fs-xl);
   cursor: pointer;
   transition: transform 0.14s ease, box-shadow 0.14s ease;
 }
@@ -176,15 +176,15 @@ header {
   padding: 10px 12px;
 }
 .stat .v {
-  font-size: 21px;
-  font-weight: 800;
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-bold);
   line-height: 1;
 }
 .stat .l {
-  font-size: 11px;
+  font-size: var(--fs-xs);
   color: var(--muted);
   margin-top: 4px;
-  font-weight: 600;
+  font-weight: var(--fw-medium);
 }
 main {
   padding: 18px 16px 0;
@@ -214,25 +214,25 @@ main > section {
   margin: 4px 4px 12px;
 }
 .sec-title h2 {
-  font-size: 16px;
+  font-size: var(--fs-xl);
   margin: 0;
-  font-weight: 800;
+  font-weight: var(--fw-bold);
 }
 .hint {
-  font-size: 12px;
+  font-size: var(--fs-sm);
   color: var(--muted);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
 }
 .greet {
-  font-size: 15px;
-  font-weight: 700;
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-medium);
   margin: 2px 4px 14px;
 }
 .greet small {
   display: block;
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   color: var(--muted);
-  font-size: 12.5px;
+  font-size: var(--fs-sm);
   margin-top: 3px;
 }
 .addbar {
@@ -246,7 +246,7 @@ main > section {
   background: #fff;
   border-radius: var(--r-md);
   padding: 13px 15px;
-  font-size: 15px;
+  font-size: var(--fs-lg);
   outline: none;
   font-family: inherit;
   color: var(--text);
@@ -259,10 +259,10 @@ main > section {
   border: none;
   background: var(--grad-primary);
   color: #fff;
-  font-weight: 800;
+  font-weight: var(--fw-bold);
   border-radius: var(--r-md);
   padding: 0 18px;
-  font-size: 15px;
+  font-size: var(--fs-lg);
   cursor: pointer;
   font-family: inherit;
   box-shadow: 0 6px 15px -7px rgba(31, 122, 76, 0.65);
@@ -287,7 +287,7 @@ main > section {
   background: #fff;
   border-radius: var(--r-md);
   padding: 11px 13px;
-  font-size: 14px;
+  font-size: var(--fs-lg);
   font-family: inherit;
   color: var(--text);
   outline: none;
@@ -325,7 +325,7 @@ main > section {
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 16px;
+  font-size: var(--fs-xl);
   font-family: inherit;
   background: #fff;
   transition: background 0.25s ease, border-color 0.25s ease, transform 0.15s ease;
@@ -366,8 +366,8 @@ main > section {
   min-width: 0;
 }
 .task .txt {
-  font-weight: 700;
-  font-size: 15px;
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-lg);
   word-break: break-word;
   cursor: text;
 }
@@ -378,8 +378,8 @@ main > section {
   border-radius: var(--r-sm);
   padding: 7px 9px;
   font-family: inherit;
-  font-size: 15px;
-  font-weight: 600;
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-medium);
   color: var(--text);
   background: #fff;
   outline: none;
@@ -392,27 +392,27 @@ main > section {
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 12px;
+  font-size: var(--fs-sm);
   color: var(--primary-d);
-  font-weight: 700;
+  font-weight: var(--fw-medium);
   margin-top: 4px;
 }
 .task .meta-tag {
-  font-size: 10px;
-  font-weight: 800;
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-medium);
   color: var(--primary-d);
   background: var(--primary-soft);
   border-radius: var(--r-xs);
   padding: 1px 6px;
 }
 .task .later {
-  font-size: 11px;
+  font-size: var(--fs-xs);
   color: var(--muted);
   background: #eaf3ea;
   border: none;
   border-radius: var(--r-sm);
   padding: 6px 8px;
-  font-weight: 700;
+  font-weight: var(--fw-medium);
   cursor: pointer;
   transition: background 0.15s ease, transform 0.12s ease;
 }
@@ -425,7 +425,7 @@ main > section {
   align-items: center;
   justify-content: center;
   color: var(--muted);
-  font-size: 18px;
+  font-size: var(--fs-xl);
   padding: 4px 6px;
   cursor: pointer;
   opacity: 0.55;
@@ -445,7 +445,7 @@ main > section {
   text-align: center;
   padding: 40px 18px;
   color: var(--muted);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   line-height: 1.6;
 }
 /* 빈 상태에 작은 새싹 일러스트(공통) */
@@ -517,7 +517,7 @@ main > section {
   pointer-events: none;
 }
 .flipbtn {
-  font-size: 17px;
+  font-size: var(--fs-xl);
   opacity: 0.85;
 }
 .board-back {
@@ -540,7 +540,7 @@ main > section {
 .board-back-foot {
   margin-top: 12px;
   text-align: center;
-  font-weight: 700;
+  font-weight: var(--fw-medium);
 }
 .dream-h {
   display: flex;
@@ -554,12 +554,12 @@ main > section {
   width: 38px;
   height: 38px;
   border-radius: var(--r-md);
-  font-size: 21px;
+  font-size: var(--fs-2xl);
   flex: none;
 }
 .dream-h .t {
-  font-weight: 800;
-  font-size: 16px;
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-xl);
   flex: 1;
 }
 .progress {
@@ -576,9 +576,9 @@ main > section {
   transition: width 0.4s;
 }
 .progress-l {
-  font-size: 11.5px;
+  font-size: var(--fs-xs);
   color: var(--muted);
-  font-weight: 700;
+  font-weight: var(--fw-medium);
   text-align: right;
 }
 .goal {
@@ -597,7 +597,7 @@ main > section {
 }
 .admin-row summary {
   cursor: pointer;
-  font-size: 13px;
+  font-size: var(--fs-md);
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
@@ -605,19 +605,19 @@ main > section {
 }
 .admin-counts {
   margin-left: auto;
-  font-size: 11.5px;
-  font-weight: 800;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
   color: var(--primary-d);
 }
 .admin-dream {
   padding: 6px 0;
   border-top: 1px dashed var(--line);
-  font-size: 13px;
+  font-size: var(--fs-md);
 }
 .admin-goals {
   margin: 4px 0 0;
   padding-left: 18px;
-  font-size: 12.5px;
+  font-size: var(--fs-sm);
 }
 .admin-goals li {
   margin: 1px 0;
@@ -626,7 +626,7 @@ main > section {
   margin-top: 8px;
 }
 .admin-raw summary {
-  font-size: 11.5px;
+  font-size: var(--fs-xs);
   color: var(--muted);
   cursor: pointer;
 }
@@ -636,7 +636,7 @@ main > section {
   background: #f6f8f5;
   border-radius: var(--r-sm);
   padding: 10px;
-  font-size: 11px;
+  font-size: var(--fs-xs);
   line-height: 1.45;
   white-space: pre-wrap;
   word-break: break-all;
@@ -663,8 +663,8 @@ main > section {
 .ipick-tabs button {
   border: none;
   background: none;
-  font-weight: 800;
-  font-size: 14.5px;
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-lg);
   color: var(--muted);
   cursor: pointer;
   font-family: inherit;
@@ -699,7 +699,7 @@ main > section {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 20px;
+  font-size: var(--fs-2xl);
   transition: background 0.12s ease, transform 0.1s ease;
 }
 .ipick-cell:hover {
@@ -727,7 +727,7 @@ main > section {
   margin-top: 22px;
   max-width: 100%;
   overflow: auto;
-  font-size: 11px;
+  font-size: var(--fs-xs);
   color: var(--muted);
   background: #f6f8f5;
   border-radius: var(--r-sm);
@@ -747,16 +747,16 @@ main > section {
   z-index: 100;
 }
 .splash-logo {
-  font-size: 25px;
-  font-weight: 800;
+  font-size: var(--fs-display);
+  font-weight: var(--fw-bold);
   letter-spacing: -1px;
   margin-top: 10px;
   color: #fff;
 }
 .splash-hint {
-  font-size: 13px;
+  font-size: var(--fs-md);
   color: rgba(255, 255, 255, 0.9);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
 }
 .login-ic {
   width: 76px;
@@ -791,7 +791,7 @@ main > section {
 }
 .login-hero .float {
   position: absolute;
-  font-size: 24px;
+  font-size: var(--fs-display);
   filter: drop-shadow(0 3px 5px rgba(46, 58, 47, 0.18));
   animation: floaty 3.2s ease-in-out infinite;
 }
@@ -817,7 +817,7 @@ main > section {
 }
 .login-title {
   font-size: 32px;
-  font-weight: 800;
+  font-weight: var(--fw-bold);
   letter-spacing: -1px;
   margin: 18px 0 6px;
 }
@@ -835,7 +835,7 @@ main > section {
 }
 .login-tagline {
   color: var(--muted);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   margin: 0 0 18px;
 }
 .login-features {
@@ -851,8 +851,8 @@ main > section {
   gap: 5px;
   background: var(--primary-soft);
   color: var(--primary-d);
-  font-weight: 800;
-  font-size: 12.5px;
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-sm);
   border-radius: var(--r-lg);
   padding: 7px 13px;
 }
@@ -937,7 +937,7 @@ main > section {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-weight: 800;
+  font-weight: var(--fw-medium);
   cursor: pointer;
 }
 .remind-toggle input {
@@ -950,7 +950,7 @@ main > section {
   border-radius: var(--r-sm);
   padding: 8px 10px;
   font-family: inherit;
-  font-size: 14px;
+  font-size: var(--fs-lg);
   color: var(--text);
   background: #fff;
 }
@@ -964,7 +964,7 @@ main > section {
   border: none;
   background: none;
   color: var(--muted);
-  font-size: 14px;
+  font-size: var(--fs-lg);
   padding: 4px 6px;
   cursor: pointer;
   opacity: 0.6;
@@ -982,7 +982,7 @@ main > section {
   border-radius: var(--r-sm);
   padding: 5px 9px;
   font-family: inherit;
-  font-size: 14px;
+  font-size: var(--fs-lg);
   color: var(--text);
   outline: none;
 }
@@ -1049,18 +1049,18 @@ main > section {
   background: none;
   color: var(--primary-d);
   font-family: inherit;
-  font-size: 12.5px;
-  font-weight: 800;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
   cursor: pointer;
 }
 .dn-md {
-  font-size: 16px;
-  font-weight: 800;
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-medium);
   color: var(--text);
 }
 .dn-wd {
-  font-size: 12px;
-  font-weight: 800;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
   color: var(--muted);
 }
 .dn-wd.today {
@@ -1087,15 +1087,15 @@ main > section {
 }
 .today-tree-cap {
   text-align: center;
-  font-weight: 800;
-  font-size: 12.5px;
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-sm);
   color: var(--primary-d);
   margin-top: 7px;
 }
 .goal .g-t {
   flex: 1;
-  font-weight: 600;
-  font-size: 14px;
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-lg);
   cursor: pointer;
 }
 .goal.done .g-t {
@@ -1107,16 +1107,16 @@ main > section {
   align-items: center;
   gap: 7px;
   margin: 2px 2px 12px;
-  font-size: 12.5px;
-  font-weight: 700;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
 }
 .dday-pick {
   border: 1.5px solid var(--line);
   border-radius: var(--r-sm);
   padding: 5px 9px;
   font-family: inherit;
-  font-size: 12.5px;
-  font-weight: 700;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
   color: var(--text);
   background: #fff;
   cursor: pointer;
@@ -1141,8 +1141,8 @@ main > section {
   margin-bottom: 12px;
 }
 .cal-title {
-  font-weight: 800;
-  font-size: 15px;
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-lg);
   flex: 1;
   text-align: center;
 }
@@ -1172,8 +1172,8 @@ main > section {
 }
 .cal-wd-c {
   text-align: center;
-  font-size: 11px;
-  font-weight: 800;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
   color: var(--muted);
   padding: 4px 0;
 }
@@ -1189,8 +1189,8 @@ main > section {
   background: none;
   border-radius: var(--r-sm);
   font-family: inherit;
-  font-size: 13.5px;
-  font-weight: 700;
+  font-size: var(--fs-md);
+  font-weight: var(--fw-medium);
   color: var(--text);
   cursor: pointer;
   display: flex;
@@ -1202,11 +1202,11 @@ main > section {
 }
 .cal-day.today {
   border-color: currentColor;
-  font-weight: 800;
+  font-weight: var(--fw-medium);
 }
 .cal-day.sel {
   color: #fff !important;
-  font-weight: 800;
+  font-weight: var(--fw-medium);
 }
 .cal-day:disabled {
   color: var(--line);
@@ -1252,8 +1252,8 @@ main > section {
   color: var(--primary-d);
   border-radius: var(--r-md);
   padding: 0 9px;
-  font-size: 12px;
-  font-weight: 800;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
   cursor: pointer;
   font-family: inherit;
 }
@@ -1268,7 +1268,7 @@ main > section {
   border: 1.5px solid var(--line);
   border-radius: var(--r-md);
   padding: 10px 38px 10px 12px;
-  font-size: 14px;
+  font-size: var(--fs-lg);
   outline: none;
   font-family: inherit;
   color: var(--text);
@@ -1299,10 +1299,10 @@ main > section {
   border: none;
   background: var(--grad-primary);
   color: #fff;
-  font-weight: 800;
+  font-weight: var(--fw-bold);
   border-radius: var(--r-md);
   padding: 0 18px;
-  font-size: 14px;
+  font-size: var(--fs-lg);
   cursor: pointer;
   font-family: inherit;
 }
@@ -1318,8 +1318,8 @@ main > section {
   border: none;
   border-radius: var(--r-sm);
   padding: 5px 10px;
-  font-size: 12px;
-  font-weight: 800;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
   cursor: pointer;
   font-family: inherit;
 }
@@ -1334,8 +1334,8 @@ main > section {
   color: #a9821f;
   border-radius: var(--r-sm);
   padding: 4px 9px;
-  font-size: 12px;
-  font-weight: 800;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
   cursor: pointer;
   font-family: inherit;
 }
@@ -1348,7 +1348,7 @@ main > section {
   width: 32px;
   height: 32px;
   border-radius: var(--r-sm);
-  font-size: 17px;
+  font-size: var(--fs-xl);
 }
 .arch-card {
   background: var(--card);
@@ -1369,19 +1369,19 @@ main > section {
   min-width: 0;
 }
 .arch-title {
-  font-weight: 800;
-  font-size: 15px;
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-lg);
   word-break: break-word;
 }
 .arch-date {
-  font-size: 11.5px;
-  font-weight: 700;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
   margin-top: 1px;
 }
 .arch-badge {
   flex: none;
-  font-size: 11px;
-  font-weight: 800;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
   border-radius: var(--r-sm);
   padding: 3px 8px;
 }
@@ -1429,8 +1429,8 @@ main > section {
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 14px;
-  font-weight: 700;
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-medium);
 }
 .arch-task > span:first-of-type {
   flex: 1;
@@ -1440,13 +1440,13 @@ main > section {
 .gt-badge.mini {
   flex: none;
   padding: 2px 7px;
-  font-size: 10px;
-  font-weight: 800;
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-medium);
 }
 .arch-restore {
   display: block;
   margin: 14px auto 2px;
-  font-size: 12.5px;
+  font-size: var(--fs-sm);
 }
 .goal-week {
   display: flex;
@@ -1479,12 +1479,12 @@ main > section {
   box-shadow: 0 0 0 2px var(--primary-soft);
 }
 .dd-w {
-  font-size: 9px;
-  font-weight: 700;
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-medium);
 }
 .dd-n {
-  font-size: 12.5px;
-  font-weight: 800;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
 }
 .goal-onecheck {
   display: inline-flex;
@@ -1495,15 +1495,15 @@ main > section {
   background: #fff;
   border-radius: var(--r-md);
   padding: 8px 16px;
-  font-weight: 800;
-  font-size: 13px;
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-md);
   color: var(--muted);
   cursor: pointer;
   font-family: inherit;
 }
 .add-today {
-  font-size: 11.5px;
-  font-weight: 800;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
   color: #fff;
   background: var(--grad-primary);
   border: none;
@@ -1524,8 +1524,8 @@ main > section {
   color: var(--muted);
   border-radius: var(--r-sm);
   padding: 5px 9px;
-  font-size: 11px;
-  font-weight: 800;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
   cursor: pointer;
   font-family: inherit;
 }
@@ -1544,7 +1544,7 @@ main > section {
   border: 1.5px solid var(--line);
   border-radius: var(--r-md);
   padding: 10px 12px;
-  font-size: 14px;
+  font-size: var(--fs-lg);
   outline: none;
   font-family: inherit;
 }
@@ -1552,7 +1552,7 @@ main > section {
   border: none;
   background: #e3f1e6;
   color: var(--primary-d);
-  font-weight: 800;
+  font-weight: var(--fw-bold);
   border-radius: var(--r-md);
   padding: 0 14px;
   cursor: pointer;
@@ -1565,8 +1565,8 @@ main > section {
   background: #fff;
   border-radius: var(--r-lg);
   padding: 8px 13px;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--fs-md);
+  font-weight: var(--fw-medium);
   cursor: pointer;
   color: var(--text);
   transition: transform 0.1s ease, border-color 0.15s ease, background 0.15s ease;
@@ -1604,8 +1604,8 @@ main > section {
   background: #fff;
   border-radius: var(--r-md);
   padding: 10px 6px;
-  font-size: 13.5px;
-  font-weight: 800;
+  font-size: var(--fs-md);
+  font-weight: var(--fw-medium);
   color: var(--muted);
   cursor: pointer;
   font-family: inherit;
@@ -1652,8 +1652,8 @@ main > section {
   margin: 0 0 8px;
 }
 .suggest-label {
-  font-size: 11px;
-  font-weight: 800;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
   color: var(--muted);
   margin-right: 2px;
 }
@@ -1662,8 +1662,8 @@ main > section {
   background: #f2fbee;
   color: var(--primary-d);
   font-family: inherit;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
   border-radius: var(--r-full);
   padding: 4px 10px;
   max-width: 100%;
@@ -1694,8 +1694,8 @@ main > section {
   gap: 7px;
   flex-wrap: wrap;
   margin: 4px 2px 10px;
-  font-size: 12.5px;
-  font-weight: 700;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
   color: var(--muted);
 }
 .board-cap input[type="number"] {
@@ -1704,8 +1704,8 @@ main > section {
   border-radius: var(--r-sm);
   padding: 5px 8px;
   font-family: inherit;
-  font-size: 14px;
-  font-weight: 800;
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-medium);
   color: var(--text);
   text-align: center;
 }
@@ -1714,7 +1714,7 @@ main > section {
   border-radius: var(--r-sm);
   padding: 5px 8px;
   font-family: inherit;
-  font-size: 12.5px;
+  font-size: var(--fs-sm);
   color: var(--text);
 }
 .board-cap .link {
@@ -1722,8 +1722,8 @@ main > section {
   background: none;
   padding: 2px 4px;
   font-family: inherit;
-  font-size: 12.5px;
-  font-weight: 800;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
   color: var(--primary-d);
   cursor: pointer;
 }
@@ -1753,8 +1753,8 @@ main > section {
   border: none;
   background: #fff;
   padding: 7px 12px;
-  font-size: 13px;
-  font-weight: 800;
+  font-size: var(--fs-md);
+  font-weight: var(--fw-medium);
   color: var(--muted);
   cursor: pointer;
   font-family: inherit;
@@ -1773,10 +1773,10 @@ main > section {
   border: 1.5px dashed var(--accent2);
   background: #f6fbf4;
   color: var(--primary-d);
-  font-weight: 800;
+  font-weight: var(--fw-medium);
   border-radius: var(--r-sm);
   padding: 7px 13px;
-  font-size: 13px;
+  font-size: var(--fs-md);
   cursor: pointer;
   font-family: inherit;
 }
@@ -1784,14 +1784,14 @@ main > section {
   opacity: 0.6;
 }
 .taskadd-help {
-  font-size: 11.5px;
+  font-size: var(--fs-xs);
   color: var(--muted);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   margin: 8px 2px 0;
 }
 .field-label {
-  font-size: 12px;
-  font-weight: 800;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
   color: var(--muted);
   margin: 2px 2px 8px;
 }
@@ -1800,7 +1800,7 @@ main > section {
   border: 1.5px solid var(--line);
   border-radius: var(--r-md);
   padding: 12px 13px;
-  font-size: 15px;
+  font-size: var(--fs-lg);
   font-family: inherit;
   outline: none;
   margin-bottom: 4px;
@@ -1813,8 +1813,8 @@ main > section {
   background: none;
   padding: 2px 4px;
   font-family: inherit;
-  font-size: 12.5px;
-  font-weight: 800;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
   color: var(--primary-d);
   cursor: pointer;
 }
@@ -1834,10 +1834,10 @@ main > section {
   border: 1.5px dashed var(--primary);
   background: var(--primary-soft);
   color: var(--primary-d);
-  font-weight: 800;
+  font-weight: var(--fw-bold);
   border-radius: var(--r-lg);
   padding: 13px;
-  font-size: 15px;
+  font-size: var(--fs-lg);
   cursor: pointer;
   font-family: inherit;
   margin-bottom: 14px;
@@ -1858,21 +1858,21 @@ main > section {
   border: 1px solid var(--line);
 }
 .recard .ic {
-  font-size: 22px;
+  font-size: var(--fs-2xl);
   display: flex;
   align-items: center;
   justify-content: center;
   height: 28px;
 }
 .recard .v {
-  font-size: 20px;
-  font-weight: 800;
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-bold);
   margin-top: 4px;
 }
 .recard .l {
-  font-size: 11px;
+  font-size: var(--fs-xs);
   color: var(--muted);
-  font-weight: 700;
+  font-weight: var(--fw-medium);
   margin-top: 2px;
 }
 .cal-card {
@@ -1896,8 +1896,8 @@ main > section {
   justify-content: center;
 }
 .cell-d {
-  font-size: 9.5px;
-  font-weight: 800;
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-medium);
   /* #1d3f2b 은 잔디 4단계 배경(#e7f0e2·#cdebc6·#8fd58b·--primary) 모두에서 4.7:1 이상.
      예전에는 단계별로 #9ab39d/#5c8a57/#fff 를 섞어 써 전 단계가 4.5:1 미달이었다. */
   color: #1d3f2b;
@@ -1931,12 +1931,12 @@ main > section {
   align-items: center;
   justify-content: space-between;
   padding: 13px 15px 11px;
-  font-weight: 800;
-  font-size: 15px;
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-lg);
 }
 .tree-title span {
-  font-size: 12px;
-  font-weight: 800;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
   color: var(--primary-d);
   background: var(--primary-soft);
   border-radius: var(--r-sm);
@@ -1949,8 +1949,8 @@ main > section {
 .tree-from {
   padding: 0 15px 11px;
   margin-top: -4px;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
   color: var(--muted);
 }
 nav {
@@ -1988,7 +1988,7 @@ nav button:active {
   transform: scale(0.92);
 }
 nav button .ni {
-  font-size: 20px;
+  font-size: var(--fs-2xl);
   width: 46px;
   height: 30px;
   margin: 0 auto;
@@ -1999,8 +1999,8 @@ nav button .ni {
   transition: background 0.2s ease, transform 0.2s ease;
 }
 nav button .nl {
-  font-size: 11px;
-  font-weight: 700;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
   margin-top: 3px;
   transition: font-weight 0.15s ease;
 }
@@ -2012,7 +2012,7 @@ nav button.on .ni {
   transform: translateY(-1px);
 }
 nav button.on .nl {
-  font-weight: 800;
+  font-weight: var(--fw-bold);
 }
 .toast {
   position: fixed;
@@ -2023,8 +2023,8 @@ nav button.on .nl {
   color: #fff;
   padding: 12px 20px;
   border-radius: var(--r-xl);
-  font-weight: 700;
-  font-size: 14px;
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-lg);
   opacity: 0;
   transition: all 0.35s;
   z-index: 40;
@@ -2045,8 +2045,8 @@ nav button.on .nl {
   background: none;
   border: none;
   color: var(--accent2);
-  font-weight: 800;
-  font-size: 14px;
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-lg);
   font-family: inherit;
   cursor: pointer;
   padding: 6px 10px;
@@ -2075,7 +2075,7 @@ nav button.on .nl {
 }
 .muted {
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--fs-md);
 }
 .card {
   background: var(--card);
