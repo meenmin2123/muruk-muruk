@@ -160,8 +160,28 @@ export function defaultState(): AppState {
   return { totalDone: 0, bestStreak: 0, dreams: [], todos: [], customCats: [], settings: {}, lastSeen: todayStr() };
 }
 
-export function template(cat: string): Template {
-  return TEMPLATES[cat] ?? TEMPLATES.free;
+/**
+ * 카테고리 메타(이모지·라벨·색·디데이 사용 여부·추천 할 일).
+ *
+ * customCats 를 넘기면 사용자가 만든 카테고리도 찾는다.
+ * 넘기지 않으면 프리셋에 없는 키는 모두 '자유'로 떨어지므로,
+ * 커스텀 카테고리로 만든 목표의 라벨·색·추천 칩이 사라진다.
+ */
+export function template(cat: string, customCats?: CustomCat[]): Template {
+  const preset = TEMPLATES[cat];
+  if (preset) return preset;
+  const custom = customCats?.find((c) => c.key === cat);
+  if (custom) {
+    return {
+      emoji: custom.emoji,
+      label: custom.label,
+      ph: custom.ph,
+      dday: custom.dday,
+      color: custom.color,
+      goals: custom.goals ?? [],
+    };
+  }
+  return TEMPLATES.free;
 }
 
 export function streakCount(s: AppState): number {

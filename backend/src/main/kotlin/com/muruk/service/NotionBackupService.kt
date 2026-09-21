@@ -137,9 +137,14 @@ class NotionBackupService(
         notion("PATCH", "/v1/blocks/$pageId/children", body.toString())
     }
 
+    /**
+     * 모은 스티커 총합.
+     * earned 는 목표(dream) 단위에 있다 — 예전에는 dreams[].goals[].earned 를 읽어
+     * 실제 데이터와 무관하게 언제나 0 이 기록됐다(프론트 totalStickers 와 같은 기준으로 맞춤).
+     */
     private fun countStickers(state: com.fasterxml.jackson.databind.JsonNode?): Int {
         var n = 0
-        state?.path("dreams")?.forEach { d -> d.path("goals").forEach { g -> n += g.path("earned").asInt(0) } }
+        state?.path("dreams")?.forEach { d -> n += d.path("earned").asInt(0) }
         return n
     }
 

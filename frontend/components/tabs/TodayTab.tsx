@@ -175,7 +175,7 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
 
       {showSlump && (
         <div className="card" style={{ background: "#fff7ee", border: "1px solid #ffe0b8" }}>
-          <div style={{ fontWeight: 700 }}>{gap}일 만이에요</div>
+          <div style={{ fontWeight: "var(--fw-medium)" }}>{gap}일 만이에요</div>
           {slump ? (
             <p style={{ marginTop: 8, lineHeight: 1.6, marginBottom: 0 }}>{slump}</p>
           ) : (

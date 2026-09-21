@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { GOOGLE_CLIENT_ID, saveToken, whenGoogleReady } from "@/lib/auth";
+import { GOOGLE_CLIENT_ID, isGoogleConfigured, saveToken, whenGoogleReady } from "@/lib/auth";
 import { treeSVG } from "@/lib/trees";
 import { Icon } from "./Icon";
 import { Wordmark } from "./Wordmark";
@@ -10,7 +10,7 @@ export function LoginGate({ onLogin }: { onLogin: () => void }) {
   const btnRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID.includes("여기에")) return;
+    if (!isGoogleConfigured()) return;
     whenGoogleReady(() => {
       const g = window.google!;
       g.accounts.id.initialize({
@@ -34,7 +34,7 @@ export function LoginGate({ onLogin }: { onLogin: () => void }) {
     });
   }, [onLogin]);
 
-  const configured = GOOGLE_CLIENT_ID && !GOOGLE_CLIENT_ID.includes("여기에");
+  const configured = isGoogleConfigured();
 
   return (
     <div className="login">

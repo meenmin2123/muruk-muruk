@@ -55,10 +55,16 @@ const sparkle = (x: number, y: number, s: number, c = "#FFD23E") =>
 
 const ACCENT: Record<string, string> = { tree: "#4E9E45", grape: "#8E6FC0", star: "#5B8DEF", flower: "#FF7DA3", balloon: "#5C9BE0", rainbow: "#5B8DEF" };
 
-/** 테마별 칭찬판 SVG. n칸 중 filled칸을 커스텀 스티커로 채우고, 빈칸은 점선 동그라미. */
-function renderBoard(theme: string, n: number, filled: number): string {
+/**
+ * 테마별 칭찬판 SVG. n칸 중 filled칸을 커스텀 스티커로 채우고, 빈칸은 점선 동그라미.
+ *
+ * @param growth 0~1. 1이면 원래 크기(칭찬판). 1보다 작으면 지면을 축으로 전체를 축소해
+ *               '자라는' 느낌을 준다 — 오늘의 나무에서만 쓴다.
+ * @param accentOverride 빈칸 테두리 색. 없으면 테마 기본색.
+ */
+function renderBoard(theme: string, n: number, filled: number, growth = 1, accentOverride?: string): string {
   const W = 300, H = 300, cx = W / 2;
-  const accent = ACCENT[theme] || ACCENT.tree;
+  const accent = accentOverride || ACCENT[theme] || ACCENT.tree;
   let area = { ax: 34, ay: 74, aw: W - 68, ah: H - 138 };
   if (theme === "tree") area = { ax: 42, ay: 56, aw: W - 84, ah: 146 };
   if (theme === "flower") area = { ax: 40, ay: 70, aw: W - 80, ah: H - 150 };
@@ -111,24 +117,40 @@ function renderBoard(theme: string, n: number, filled: number): string {
       : `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" fill="#ffffff" stroke="${accent}" stroke-width="2.2" stroke-dasharray="3.5 3.5" opacity="0.85"/>`
   ).join("");
 
-  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;display:block">${bg}${scene}${slotSvg}</svg>`;
+  // 나무·슬롯을 함께 지면 기준으로 축소한다. 함께 줄여야 스티커가 수관 밖으로 튀지 않는다.
+  const g = Math.min(1, Math.max(0, growth));
+  const body = scene + slotSvg;
+  const inner =
+    g >= 0.999
+      ? body
+      : `<g transform="translate(${cx} ${GROUND_Y}) scale(${(MIN_SCALE + (1 - MIN_SCALE) * g).toFixed(3)}) translate(${-cx} ${-GROUND_Y})">${body}</g>`;
+
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;display:block">${bg}${inner}</svg>`;
 }
 
-// 4번째 인자(accent)는 하위호환용 — 테마별 고정 색을 쓰므로 무시한다.
-export function boardSVG(g: Goal, theme: string, cap = 10, _accent?: string): string {
-  void _accent;
+// 성장 축소의 기준점(지면)과 가장 작을 때의 배율.
+const GROUND_Y = 288;
+const MIN_SCALE = 0.68;
+
+/** 칭찬판 — 목표 색(accent)이 있으면 빈칸 테두리에 반영한다. */
+export function boardSVG(g: Goal, theme: string, cap = 10, accent?: string): string {
   const n = Math.min(60, Math.max(1, Math.round(cap)));
-  return renderBoard(theme || "tree", n, Math.min(stk(g).length, n));
+  return renderBoard(theme || "tree", n, Math.min(stk(g).length, n), 1, accent);
 }
 
 export function treeSVG(g: Goal, cap = 10): string {
   return boardSVG(g, "tree", cap);
 }
 
-/** 오늘의 나무 — 오늘 할 일 개수(total)만큼 칸을 그리고 완료한(done)만큼 스티커로 채운다. */
+/**
+ * 오늘의 나무 — 오늘 할 일 개수(total)만큼 칸을 그리고 완료한(done)만큼 스티커로 채운다.
+ * 완료 비율만큼 나무가 실제로 자란다(PRD 4.1 "완료 비율에 따라 자라는 시각 피드백").
+ */
 export function todayTreeSVG(done: number, total: number): string {
   const n = Math.min(60, Math.max(0, total));
-  return renderBoard("tree", n, Math.min(Math.max(0, done), n));
+  const filled = Math.min(Math.max(0, done), n);
+  const growth = total > 0 ? filled / total : 0;
+  return renderBoard("tree", n, filled, growth);
 }
 
 // ── 완성 도장(칭찬판을 가득 채우면 찍힌다) ──
