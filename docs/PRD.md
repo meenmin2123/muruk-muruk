@@ -166,7 +166,7 @@ Todo     { id, text, date(YYYY-MM-DD), done, goalId | null }
 | 프론트엔드 | Next.js 15(App Router) · React 19 · TypeScript · 정적 export |
 | 배포(FE) | Render **정적 사이트**(CDN, 콜드스타트 없음) |
 | 백엔드 | Kotlin · Spring Boot · Docker |
-| DB | PostgreSQL (Render) |
+| DB | PostgreSQL (외부 호스팅 — `DB_URL/DB_USER/DB_PASSWORD`) |
 | 인증 | Google OAuth(GIS) + JWT id token |
 | AI | Anthropic Claude(코칭) |
 | 네이티브 | Capacitor(iOS/Android), WidgetKit(iOS 위젯) |

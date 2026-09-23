@@ -2,21 +2,22 @@
 #
 # 사용법:
 #   1) 이 저장소를 Render에 연결 (Dashboard → New → Blueprint → 이 repo/branch 선택)
-#   2) Render가 render.yaml 을 읽어 서비스 3개를 자동 생성
-#   3) sync:false 로 표시된 비밀값(ANTHROPIC_API_KEY 등)만 대시보드에서 입력
+#   2) Render가 render.yaml 을 읽어 서비스 2개(백엔드·프론트)를 자동 생성
+#   3) sync:false 로 표시된 값(DB 접속 정보, ANTHROPIC_API_KEY 등)을 대시보드에서 입력
 #   4) Deploy
+#
+# 데이터베이스:
+#   Render 무료 Postgres 는 기간이 지나면 만료·삭제되어 데이터가 사라진다(실제로 겪음).
+#   그래서 DB 는 블루프린트가 만들지 않고, 외부 Postgres 를 쓴다.
+#   대시보드에서 DB_URL / DB_USER / DB_PASSWORD 세 값을 넣어주면 된다.
+#   DB_URL 예시: jdbc:postgresql://<host>:5432/<db>?sslmode=require
+#   (외부 호스팅 Postgres 는 대개 SSL 을 요구하므로 sslmode=require 를 붙인다)
 #
 # 주의:
 #   - Render가 서비스에 부여하는 실제 URL을 확인하고, 이름이 바뀌면 아래
 #     NEXT_PUBLIC_API_BASE / CORS_ORIGINS 값을 그 URL로 맞춰주세요.
 #   - 구글 로그인: 발급해둔 클라이언트 ID의 "승인된 자바스크립트 출처"에
 #     프론트 URL(https://muruk-frontend.onrender.com)을 추가해야 동작합니다.
-
-databases:
-  - name: muruk-db
-    databaseName: muruk
-    user: muruk
-    plan: free
 
 services:
   # --- 백엔드 (Kotlin / Spring Boot) ---
@@ -33,26 +34,14 @@ services:
       # 무료 등급(512MB)에 맞춰 JVM 힙 제한 — OOM 방지
       - key: JAVA_TOOL_OPTIONS
         value: -XX:MaxRAMPercentage=65.0 -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss512k
-      - key: DB_HOST
-        fromDatabase:
-          name: muruk-db
-          property: host
-      - key: DB_PORT
-        fromDatabase:
-          name: muruk-db
-          property: port
-      - key: DB_NAME
-        fromDatabase:
-          name: muruk-db
-          property: database
+      # 외부 Postgres 접속 정보 — 대시보드에서 입력한다(블루프린트에 값을 두지 않는다).
+      # DB_URL 예시: jdbc:postgresql://<host>:5432/<db>?sslmode=require
+      - key: DB_URL
+        sync: false
       - key: DB_USER
-        fromDatabase:
-          name: muruk-db
-          property: user
+        sync: false
       - key: DB_PASSWORD
-        fromDatabase:
-          name: muruk-db
-          property: password
+        sync: false
       # 구글 OAuth 웹 클라이언트 ID
       - key: GOOGLE_CLIENT_ID
         value: 799206979966-2lnqig1fc0unf4g7j2q44mll6kg4sn1f.apps.googleusercontent.com

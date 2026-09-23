@@ -98,6 +98,10 @@ npm run dev    # http://localhost:3000
 1. **구글 OAuth 클라이언트 ID**(웹) 발급 → 프론트 `.env.local`과 백엔드 `GOOGLE_CLIENT_ID`에 동일 값
 2. **Claude API 키** → 백엔드 `ANTHROPIC_API_KEY`
 3. (운영) **Postgres** 인스턴스 → `DB_URL/DB_USER/DB_PASSWORD`
+   - Render 블루프린트는 DB 를 만들지 않는다. 무료 Postgres 는 기간이 지나면 만료·삭제되어
+     데이터가 사라지기 때문이다(실제로 겪음). 만료가 없는 외부 Postgres 를 쓰고,
+     세 값을 Render 대시보드에 입력한다.
+   - 외부 호스팅은 대개 SSL 을 요구한다: `jdbc:postgresql://<host>:5432/<db>?sslmode=require`
 
 ## 인증 수명주기
 - 구글 ID 토큰은 약 1시간 뒤 만료된다. 프론트는 요청 직전에 만료가 임박하면(60초) **무음 갱신**을 시도하고,
