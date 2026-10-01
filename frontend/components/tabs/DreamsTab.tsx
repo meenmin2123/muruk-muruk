@@ -342,6 +342,7 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
             <Calendar
               value={d.targetDate}
               color={color}
+              min={todayStr()}
               onPick={(ds) => { actions.setDday(d.id, ds); setCalOpen(false); }}
               onClose={() => setCalOpen(false)}
             />

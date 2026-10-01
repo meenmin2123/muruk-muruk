@@ -5,6 +5,7 @@ import { coachMessage } from "@/lib/api";
 import type { AppActions } from "@/lib/store";
 import { AppState, dateStr, daysSinceLastDone, daysUntil, findGoal, todayStr, SLUMP_FALLBACK } from "@/lib/state";
 import { todayTreeSVG } from "@/lib/trees";
+import { Calendar } from "../Calendar";
 import { Icon } from "../Icon";
 
 const WD = ["일", "월", "화", "수", "목", "금", "토"];
@@ -12,6 +13,7 @@ const WD = ["일", "월", "화", "수", "목", "금", "토"];
 export function TodayTab({ state, actions }: { state: AppState; actions: AppActions }) {
   const [text, setText] = useState("");
   const [sel, setSel] = useState(todayStr()); // 보고 있는 날짜
+  const [calOpen, setCalOpen] = useState(false);
   const [slump, setSlump] = useState("");
   const [slumpLoading, setSlumpLoading] = useState(false);
   const [editId, setEditId] = useState<string | null>(null); // 수정 중인 할 일
@@ -152,23 +154,28 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
         <button className="dn-arrow" onClick={() => shift(-1)} aria-label="이전 날">
           <Icon name="back" size={18} />
         </button>
-        <label className="dn-date" title="날짜 선택">
+        {/* 예전에는 <input type="date"> 였다. 그 달력은 OS가 직접 그려서 CSS로 손댈 수 없고
+            iOS·안드로이드·크롬이 저마다 다르게 보인다. 목표 탭에서 이미 쓰던 자체 Calendar 로
+            바꿔 어느 기기에서나 같은 화면이 되게 한다. */}
+        <button className="dn-date" onClick={() => setCalOpen(true)} aria-label="날짜 선택" title="날짜 선택">
           <span className="dn-md">{selDate.getMonth() + 1}월 {selDate.getDate()}일</span>
           <span className={"dn-wd" + (isToday ? " today" : "") + (isFuture ? " ahead" : "")}>{wdLabel}</span>
           <Icon name="calendar" size={14} className="dn-cal" />
-          <input
-            type="date"
-            className="dn-pick"
-            value={sel}
-            max={maxStr}
-            onChange={(e) => e.target.value && setSel(e.target.value)}
-            aria-label="날짜 선택"
-          />
-        </label>
+        </button>
         <button className="dn-arrow" onClick={() => shift(1)} disabled={ahead >= AHEAD_MAX} aria-label="다음 날">
           <Icon name="back" size={18} style={{ transform: "rotate(180deg)" }} />
         </button>
       </div>
+      {calOpen && (
+        <Calendar
+          value={sel}
+          color="#2e9e63"
+          max={maxStr}
+          onPick={(ds) => { setSel(ds); setCalOpen(false); }}
+          onClose={() => setCalOpen(false)}
+        />
+      )}
+
       {!isToday && (
         <button className="dn-reset" onClick={() => setSel(today)}>오늘로 돌아가기</button>
       )}
