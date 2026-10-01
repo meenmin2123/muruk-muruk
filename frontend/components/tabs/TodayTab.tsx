@@ -134,7 +134,7 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
           </div>
           {editId !== t.id && !t.done && !(fg && fg.goal.repeat === "daily") && (
             <button className="later" onClick={() => actions.tomorrow(t.id)}>
-              내일로
+              미루기
             </button>
           )}
           {editId !== t.id && (
