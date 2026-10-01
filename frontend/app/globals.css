@@ -52,6 +52,48 @@
   --shadow-xs: 0 2px 8px rgba(46, 58, 47, 0.12);
   --shadow-xs-active: 0 1px 4px rgba(46, 58, 47, 0.14);
 
+  /* ── 중성 램프 ──────────────────────────────────────────────
+     --text / --muted 두 단뿐이라 '본문이냐 아니냐' 밖에 표현할 수 없었다.
+     초록 기운을 유지한다(G >= R, G >= B) — 브랜드가 초록이라 푸른 회색은 겉돈다.
+     괄호 안은 흰 카드 위 대비. */
+  --ink-900: #283330;      /* = --text. 본문·제목 (13.07:1) */
+  --ink-700: #44584d;      /* 소제목·배지 글자 (7.64:1) */
+  --ink-500: #5e7967;      /* = --muted. 보조 텍스트 (4.77:1) */
+  --ink-300: #819a8d;      /* 비활성·플레이스홀더 (3.03:1) — 본문에 쓰지 않는다 */
+  --ink-200: #c6d6cb;      /* 구분선 강조 */
+  --ink-100: #e9f1e6;      /* = --line. 경계 */
+  --surface-soft: #f1f6f0; /* 카드 안의 한 단 낮은 면 */
+
+  /* ── 역할 토큰 ──────────────────────────────────────────────
+     채도 있는 초록은 '주 행동' 하나만 쓴다.
+     지금까지 --grad-primary 가 8곳에 칠해져 있었고 역할이 다섯 가지였다:
+     추가 버튼(주 행동) / 칩 선택 / 모드 토글 / 상태 배지 / 세그먼트 선택.
+     전부 같은 최고 채도라 무엇이 주된 행동인지 읽히지 않았다.
+     구분은 모양·크기가 아니라 채도로 한다. */
+  --action-bg: var(--grad-primary);  /* 주 행동 — 한 화면에서 가장 강한 하나 */
+  --action-fg: #fff;                 /* 5.32:1 */
+
+  --selected-bg: var(--primary-soft);  /* 선택 상태 — 누를 수 있고 지금 켜져 있음 */
+  --selected-fg: var(--on-primary);    /* 4.59:1 */
+  --selected-line: var(--primary-d);   /* 3.39:1 — 비텍스트 UI 기준 통과 */
+
+  --badge-bg: var(--ink-100);   /* 상태 배지 — 읽기 전용 */
+  --badge-fg: var(--ink-700);   /* 6.62:1 */
+
+  /* ── 간격 ──────────────────────────────────────────────────
+     gap/padding/margin 에 283곳, 27종이 흩어져 있다. 빈도 상위값으로 단계를 잡았다.
+     이 단계에서는 정의만 한다 — 283곳을 색 변경과 한꺼번에 바꾸면 검토가 불가능해진다.
+     화면을 손대는 단계에서 점진적으로 치환한다. */
+  --sp-0: 2px;   /* 20곳 */
+  --sp-1: 4px;   /* 26곳 */
+  --sp-2: 6px;   /* 22곳 */
+  --sp-3: 8px;   /* 28곳 */
+  --sp-4: 10px;  /* 24곳 */
+  --sp-5: 12px;  /* 28곳 */
+  --sp-6: 14px;  /* 20곳 */
+  --sp-7: 18px;  /* 13곳 */
+  --sp-8: 24px;  /* 4곳 */
+
   /* 링 — 고도가 아니라 '선택 표시'라 별도 계열로 둔다. */
   --ring-soft: 0 0 0 1.5px var(--line);
   --ring-strong: 0 0 0 2.5px var(--text);
@@ -251,8 +293,8 @@ main > section {
 .btn,
 .addbar button {
   border: none;
-  background: var(--grad-primary);
-  color: #fff;
+  background: var(--action-bg);
+  color: var(--action-fg);
   font-weight: var(--fw-bold);
   border-radius: var(--r-md);
   padding: 0 18px;
@@ -1242,8 +1284,9 @@ main > section {
   gap: 3px;
   flex: none;
   border: none;
-  background: var(--primary-soft);
-  color: var(--primary-d);
+  /* 꺼짐 상태. 예전엔 여기도 --primary-soft 라 켜짐과 같은 계열이었다. */
+  background: var(--surface-soft);
+  color: var(--ink-700);
   border-radius: var(--r-md);
   padding: 0 9px;
   font-size: var(--fs-sm);
@@ -1291,8 +1334,8 @@ main > section {
 .ta-add {
   flex: none;
   border: none;
-  background: var(--grad-primary);
-  color: #fff;
+  background: var(--action-bg);
+  color: var(--action-fg);
   font-weight: var(--fw-bold);
   border-radius: var(--r-md);
   padding: 0 18px;
@@ -1301,8 +1344,10 @@ main > section {
   font-family: inherit;
 }
 .type-toggle.daily {
-  background: var(--grad-primary);
-  color: #fff;
+  background: var(--selected-bg);
+  color: var(--selected-fg);
+  /* border:none 인 요소라 inset 링으로 테두리를 대신한다 */
+  box-shadow: inset 0 0 0 1.5px var(--selected-line);
 }
 .boardflip {
   display: inline-flex;
@@ -1432,6 +1477,8 @@ main > section {
   word-break: break-word;
 }
 .gt-badge.mini {
+  /* RecordsTab 에서는 <span> 이다 — 누를 수 없으므로 손가락 커서를 뺀다 */
+  cursor: default;
   flex: none;
   padding: 2px 7px;
   font-size: var(--fs-2xs);
@@ -1498,8 +1545,8 @@ main > section {
 .add-today {
   font-size: var(--fs-xs);
   font-weight: var(--fw-bold);
-  color: #fff;
-  background: var(--grad-primary);
+  color: var(--action-fg);
+  background: var(--action-bg);
   border: none;
   border-radius: var(--r-sm);
   padding: 7px 10px;
@@ -1524,9 +1571,9 @@ main > section {
   font-family: inherit;
 }
 .gt-badge.daily {
-  border-color: transparent;
-  color: #fff;
-  background: var(--grad-primary);
+  border-color: var(--selected-line);
+  color: var(--selected-fg);
+  background: var(--selected-bg);
 }
 .goal-add {
   display: flex;
@@ -1569,10 +1616,10 @@ main > section {
   transform: scale(0.95);
 }
 .chip.on {
-  background: var(--grad-primary);
-  color: #fff;
-  border-color: transparent;
-  box-shadow: var(--shadow-sm);
+  background: var(--selected-bg);
+  color: var(--selected-fg);
+  border-color: var(--selected-line);
+  /* 그림자 제거 — 단순 선택 상태가 카드에서 가장 무거운 요소였다 */
 }
 .row-wrap {
   display: flex;
@@ -1605,9 +1652,9 @@ main > section {
   font-family: inherit;
 }
 .theme-opt.on {
-  border-color: transparent;
-  color: #fff;
-  background: var(--grad-primary);
+  border-color: var(--selected-line);
+  color: var(--selected-fg);
+  background: var(--selected-bg);
 }
 .addbox {
   margin-top: 16px;
@@ -1757,8 +1804,8 @@ main > section {
   border-left: 1.5px solid var(--line);
 }
 .seg button.on {
-  background: var(--grad-primary);
-  color: #fff;
+  background: var(--selected-bg);
+  color: var(--selected-fg);
 }
 .ai-link {
   display: inline-flex;
