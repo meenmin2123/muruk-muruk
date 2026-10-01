@@ -61,7 +61,7 @@ export function DreamsTab({ state, actions }: { state: AppState; actions: AppAct
       </div>
 
       <button className="newdream-btn" onClick={() => setOpen((o) => !o)}>
-        {open ? "닫기" : <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Icon name="add" size={16} color="var(--primary-d)" /> 새 목표</span>}
+        {open ? "닫기" : <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--sp-2)" }}><Icon name="add" size={16} color="var(--primary-d)" /> 새 목표</span>}
       </button>
 
       {open && (
@@ -83,7 +83,7 @@ export function DreamsTab({ state, actions }: { state: AppState; actions: AppAct
           </div>
 
           {catOpen && (
-            <div className="addbar" style={{ marginBottom: 12 }}>
+            <div className="addbar" style={{ marginBottom: "var(--sp-5)" }}>
               <input style={{ flex: "0 0 56px", textAlign: "center" }} value={ce} maxLength={2} onChange={(e) => setCe(e.target.value)} />
               <input value={cl} placeholder="카테고리 이름 (예: 독서)" maxLength={10} onChange={(e) => setCl(e.target.value)} onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && addCustom()} />
               <button onClick={addCustom}>추가</button>
@@ -452,7 +452,7 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
           )}
 
           {aiMsg && (
-            <div className="muted" style={{ marginTop: 10, fontWeight: "var(--fw-medium)" }}>⚠️ {aiMsg}</div>
+            <div className="muted" style={{ marginTop: "var(--sp-4)", fontWeight: "var(--fw-medium)" }}>⚠️ {aiMsg}</div>
           )}
 
           {aiTasks.length > 0 && (

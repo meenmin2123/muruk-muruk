@@ -112,6 +112,11 @@ const FILL = ["star", "heart", "sprout", "clover", "strawberry", "rainbow", "chi
 const sticker = (name: string, cx: number, cy: number, size: number) =>
   `<g transform="translate(${(cx - size / 2).toFixed(1)} ${(cy - size / 2).toFixed(1)}) scale(${(size / 100).toFixed(3)})">${STK[name]}</g>`;
 
+/** 스티커 한 장 — 칭찬판 밖(로그인 장식 등)에서 쓸 때. */
+export function stickerSVG(name: string, px: number): string {
+  return `<svg width="${px}" height="${px}" viewBox="0 0 100 100" style="display:block" aria-hidden="true">${STK[name] ?? STK.star}</svg>`;
+}
+
 // ── 공통 부품 ──
 function packSlots(n: number, ax: number, ay: number, aw: number, ah: number): [number, number, number][] {
   const cols = Math.min(5, Math.max(1, Math.ceil(Math.sqrt(n * 1.45))));

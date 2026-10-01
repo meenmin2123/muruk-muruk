@@ -58,8 +58,8 @@ export function RecordsTab({ state, actions }: { state: AppState; actions: AppAc
         <div className="grass">{cells}</div>
       </div>
 
-      <div className="sec-title" style={{ marginTop: 22 }}>
-        <h3 style={{ margin: 0, fontSize: "var(--fs-xl)", display: "inline-flex", alignItems: "center", gap: 7 }}>
+      <div className="sec-title" style={{ marginTop: "var(--sp-8)" }}>
+        <h3 style={{ margin: 0, fontSize: "var(--fs-xl)", display: "inline-flex", alignItems: "center", gap: "var(--sp-2)" }}>
           <Icon name="best" size={18} color="#E7B53A" /> 이룬 목표 {archived.length > 0 && <span className="muted" style={{ fontWeight: "var(--fw-bold)" }}>{archived.length}</span>}
         </h3>
       </div>
@@ -106,10 +106,11 @@ function ArchivedCard({ dream: d, state, actions }: { dream: Dream; state: AppSt
 
       {open && (
         <div className="arch-body">
-          <div className="arch-board done">
-            {/* 다 모은 스티커판은 옅은 회색 음영으로 깔고, 그 위에 '참 잘했어요' 도장을 크게 중앙에 */}
+          <div className="arch-board">
+            {/* 목표 탭과 같은 방식 — 보드는 색을 그대로 두고 도장만 모서리에.
+                도장 종류도 그 목표가 실제로 받은 것(stamps)으로 맞춘다. */}
             <div className="arch-board-bg" dangerouslySetInnerHTML={{ __html: boardHtml }} />
-            <div className="arch-stamp" dangerouslySetInnerHTML={{ __html: stampSVG(150, 0) }} />
+            <div className="arch-stamp" dangerouslySetInnerHTML={{ __html: stampSVG(62, (d.stamps ?? 1) - 1) }} />
           </div>
           <div className="arch-tasks">
             {d.goals.map((g) => {

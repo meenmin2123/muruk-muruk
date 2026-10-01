@@ -181,10 +181,10 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
       )}
 
       {showSlump && (
-        <div className="card" style={{ background: "#fff7ee", border: "1px solid #ffe0b8" }}>
+        <div className="card note">
           <div style={{ fontWeight: "var(--fw-medium)" }}>{gap}일 만이에요</div>
           {slump ? (
-            <p style={{ marginTop: 8, lineHeight: 1.6, marginBottom: 0 }}>{slump}</p>
+            <p style={{ marginTop: "var(--sp-3)", lineHeight: 1.6, marginBottom: 0 }}>{slump}</p>
           ) : (
             <>
               <p className="muted" style={{ margin: "4px 0 12px" }}>쉬어가도 괜찮아요. 다시 시작해볼까요?</p>

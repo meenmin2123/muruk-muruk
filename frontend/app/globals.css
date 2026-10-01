@@ -137,6 +137,16 @@ select {
   font-family: inherit;
   letter-spacing: inherit;
 }
+/* 비활성 버튼이 눌러 보이면 안 된다. .remind-time·.dn-arrow·.cal-nav·.cal-day·
+   .ta-ai 에는 있었는데 가장 많이 쓰는 .btn 에만 없었다. */
+button:disabled {
+  cursor: not-allowed;
+}
+.btn:disabled,
+.chip:disabled {
+  opacity: 0.45;
+  filter: none;
+}
 /* 키보드 접근성: 탭(마우스/터치)엔 안 보이고 키보드 포커스에만 표시 */
 :focus-visible {
   outline: 2px solid var(--primary);
@@ -224,11 +234,6 @@ header {
 .gear:active {
   transform: scale(0.92);
   box-shadow: var(--shadow-xs-active);
-}
-.toprow {
-  display: flex;
-  gap: var(--sp-4);
-  margin-top: var(--sp-6);
 }
 
 main {
@@ -534,6 +539,40 @@ main > section {
   overflow: hidden;
   line-height: 0;
 }
+/* 눈길을 끄는 카드(슬럼프 안내·관리자 모드). 지금까지 화면마다 다른 주황을
+   리터럴로 썼다(#fff7ee+#ffe0b8 / #fffaf3+#ffe0b8). 달성 금색으로 합친다. */
+.sheet-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--sp-6);
+}
+.sheet-head b {
+  font-size: var(--fs-xl);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+/* 설정 카드의 소제목 — 네 장이 같은 인라인 style 을 되풀이하고 있었다. */
+.set-h {
+  margin: 0 0 var(--sp-4);
+  font-size: var(--fs-lg);
+}
+.btn-row {
+  display: flex;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+.set-msg {
+  margin: var(--sp-6) 0 0;
+  line-height: 1.6;
+}
+
+.card.note {
+  background: var(--gold-soft);
+  border: 1.5px solid var(--gold-line);
+}
+
 .board-stamp {
   position: absolute;
   top: 8px;
@@ -786,10 +825,11 @@ main > section {
   overflow: hidden;
   box-shadow: var(--shadow-sm);
 }
+/* 장식은 칭찬판과 같은 스티커를 쓴다. 플랫 이모지는 질감이 달라 겉돌았다. */
 .login-hero .float {
   position: absolute;
-  font-size: var(--fs-display);
-  filter: drop-shadow(0 3px 5px rgba(46, 58, 47, 0.18));
+  line-height: 0;
+  filter: drop-shadow(0 3px 5px rgba(46, 58, 47, 0.14));
   animation: floaty 3.2s ease-in-out infinite;
 }
 .login-hero .f1 {
@@ -1351,25 +1391,15 @@ main > section {
   line-height: 0;
 }
 /* 이룬 목표: 스티커판은 옅은 회색 음영으로 깔고, 가운데에 '참 잘했어요' 도장을 크게 */
-.arch-board.done .arch-board-bg {
-  filter: grayscale(1) opacity(0.45);
-}
-.arch-board.done::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(90, 90, 90, 0.08);
-  pointer-events: none;
-}
+/* 도장은 목표 탭(.board-stamp)과 같은 자리·같은 크기로. 예전에는 보드를
+   회색조 45% 로 덮고 가운데에 150px 도장을 얹어, 정작 모은 스티커가 안 보였다. */
 .arch-stamp {
   position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  top: var(--sp-3);
+  right: var(--sp-3);
   line-height: 0;
   pointer-events: none;
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.2));
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
 }
 .arch-tasks {
   margin-top: var(--sp-5);
@@ -1583,20 +1613,7 @@ main > section {
 .taskadd {
   margin-top: var(--sp-5);
 }
-.taskadd-opts {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sp-3);
-  margin-top: var(--sp-3);
-}
 
-.taskadd-help {
-  font-size: var(--fs-xs);
-  color: var(--muted);
-  font-weight: var(--fw-medium);
-  margin: var(--sp-3) var(--sp-0) 0;
-}
 .field-label {
   font-size: var(--fs-sm);
   font-weight: var(--fw-medium);
@@ -1708,44 +1725,7 @@ main > section {
 .cell.today {
   outline: 2px solid var(--accent2);
 }
-.tree-card {
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg);
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  margin-bottom: var(--sp-6);
-}
-.tree-card.done {
-  border-color: var(--gold-line);
-}
-.tree-title {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--sp-5) var(--sp-6) var(--sp-4);
-  font-weight: var(--fw-bold);
-  font-size: var(--fs-lg);
-}
-.tree-title span {
-  font-size: var(--fs-sm);
-  font-weight: var(--fw-bold);
-  color: var(--primary-d);
-  background: var(--primary-soft);
-  border-radius: var(--r-sm);
-  padding: var(--sp-1) var(--sp-3);
-}
-.tree-card.done .tree-title span {
-  background: var(--gold-soft);
-  color: var(--gold-ink);
-}
-.tree-from {
-  padding: 0 var(--sp-6) var(--sp-4);
-  margin-top: -4px;
-  font-size: var(--fs-sm);
-  font-weight: var(--fw-medium);
-  color: var(--muted);
-}
+
 nav {
   position: fixed;
   bottom: 0;

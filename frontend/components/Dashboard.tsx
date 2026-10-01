@@ -87,7 +87,7 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
         <div className="empty" style={{ paddingTop: 120 }}>
           불러오는 중…
           {slowLoad && (
-            <div className="muted" style={{ marginTop: 12, fontSize: "var(--fs-md)", lineHeight: 1.7 }}>
+            <div className="muted" style={{ marginTop: "var(--sp-5)", fontSize: "var(--fs-md)", lineHeight: 1.7 }}>
               서버를 깨우는 중이에요.
               <br />
               처음 접속이면 최대 1분 정도 걸릴 수 있어요 ☕
@@ -154,7 +154,7 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
             </div>
             <h3 style={{ margin: "10px 0 6px" }}>완성! 🎉</h3>
             <p className="muted">“{gold}” 칭찬판을 가득 채웠어요.</p>
-            {celebrate && <p style={{ lineHeight: 1.6, marginTop: 4 }}>{celebrate}</p>}
+            {celebrate && <p style={{ lineHeight: 1.6, marginTop: "var(--sp-1)" }}>{celebrate}</p>}
             <button className="btn" style={{ width: "100%" }} onClick={clearGold}>
               확인
             </button>
@@ -297,8 +297,8 @@ function SettingsSheet({
   return (
     <div className="sheet-bg" onClick={onClose}>
       <div className="sheet" onClick={(e) => e.stopPropagation()}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-          <b style={{ fontSize: "var(--fs-xl)", display: "flex", alignItems: "center", gap: 7 }}>
+        <div className="sheet-head">
+          <b>
             <Icon name="settings" size={18} color="var(--primary-d)" /> 설정
           </b>
           <button className="x" aria-label="설정 닫기" onClick={onClose}>
@@ -321,8 +321,8 @@ function SettingsSheet({
         </div>
 
         <div className="card">
-          <h3 style={{ margin: "0 0 10px", fontSize: "var(--fs-lg)" }}>AI 코칭</h3>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <h3 className="set-h">AI 코칭</h3>
+          <div className="btn-row">
             <button className="btn" onClick={askCoach} disabled={loading}>
               {loading ? "…" : "오늘의 응원"}
             </button>
@@ -330,13 +330,13 @@ function SettingsSheet({
               {reviewLoading ? "…" : "주간 회고"}
             </button>
           </div>
-          {coach && <p style={{ marginTop: 14, lineHeight: 1.6 }}>{coach}</p>}
-          {review && <p style={{ marginTop: 14, lineHeight: 1.6 }}>{review}</p>}
+          {coach && <p className="set-msg">{coach}</p>}
+          {review && <p className="set-msg">{review}</p>}
         </div>
 
         <div className="card">
-          <h3 style={{ margin: "0 0 10px", fontSize: "var(--fs-lg)" }}>백업</h3>
-          <div style={{ display: "flex", gap: 8 }}>
+          <h3 className="set-h">백업</h3>
+          <div className="btn-row">
             <button className="btn btn-soft" onClick={exportData}>내보내기</button>
             <button className="btn btn-soft" onClick={() => fileRef.current?.click()}>불러오기</button>
             <input ref={fileRef} type="file" accept="application/json" hidden onChange={importData} />
@@ -344,10 +344,10 @@ function SettingsSheet({
         </div>
 
         <div className="card">
-          <h3 style={{ margin: "0 0 10px", fontSize: "var(--fs-lg)" }}>매일 알림</h3>
+          <h3 className="set-h">매일 알림</h3>
           {notif !== "granted" ? (
             <>
-              <p className="muted" style={{ margin: "0 0 10px" }}>정해진 시간에 오늘 남은 할 일을 살짝 알려드려요.</p>
+              <p className="muted" style={{ margin: "0 0 var(--sp-4)" }}>정해진 시간에 오늘 남은 할 일을 살짝 알려드려요.</p>
               <button className="btn btn-soft" onClick={enableNotif} disabled={notif === "denied"}>
                 {notif === "denied" ? "브라우저에서 차단됨" : "알림 켜기"}
               </button>
@@ -368,16 +368,16 @@ function SettingsSheet({
             </div>
           )}
           {notif === "granted" && remindOn && (
-            <p className="muted" style={{ margin: "10px 0 0" }}>매일 {remindTime}, 앱을 열어두었거나 다시 열었을 때 알려드려요.</p>
+            <p className="muted" style={{ margin: "var(--sp-4) 0 0" }}>매일 {remindTime}, 앱을 열어두었거나 다시 열었을 때 알려드려요.</p>
           )}
         </div>
 
         {isAdmin && (
-          <div className="card" style={{ border: "1.5px solid #ffe0b8", background: "#fffaf3" }}>
+          <div className="card note">
             <div className="remind-row">
               <div style={{ flex: 1, minWidth: 0 }}>
-                <h3 style={{ margin: "0 0 2px", fontSize: "var(--fs-lg)", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                  <Icon name="settings" size={16} color="#c9912e" /> 관리자 모드
+                <h3 style={{ margin: "0 0 2px", fontSize: "var(--fs-lg)", display: "inline-flex", alignItems: "center", gap: "var(--sp-2)" }}>
+                  <Icon name="settings" size={16} color="var(--gold-ink)" /> 관리자 모드
                 </h3>
                 <p className="muted" style={{ margin: 0, fontSize: "var(--fs-sm)" }}>켜면 메인 화면이 모든 사용자 데이터로 전환돼요.</p>
               </div>
@@ -425,7 +425,7 @@ function AdminView({ onExit }: { onExit: () => void }) {
   return (
     <section>
       <div className="sec-title">
-        <h2 style={{ display: "inline-flex", alignItems: "center", gap: 7 }}>
+        <h2 style={{ display: "inline-flex", alignItems: "center", gap: "var(--sp-2)" }}>
           <Icon name="settings" size={18} color="#c9912e" /> 관리자 모드
         </h2>
         <button className="link" onClick={onExit}>내 화면으로</button>
@@ -475,10 +475,10 @@ function AdminView({ onExit }: { onExit: () => void }) {
                 const cap = Math.min(100, Math.max(1, dr.goals?.length ?? 0));
                 return (
                   <div key={i} className="admin-dream" style={{ opacity: dr.done ? 0.7 : 1 }}>
-                    <div style={{ fontWeight: "var(--fw-medium)", display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                    <div style={{ fontWeight: "var(--fw-medium)", display: "flex", alignItems: "center", gap: "var(--sp-2)", flexWrap: "wrap" }}>
                       <span style={{ width: 10, height: 10, borderRadius: "var(--r-xs)", background: dr.color || "#ccc", display: "inline-block" }} />
                       {dr.title || "(제목 없음)"}
-                      {dr.done && <span style={{ fontSize: "var(--fs-2xs)", fontWeight: "var(--fw-bold)", color: "#a9821f", background: "#fff3cf", borderRadius: "var(--r-xs)", padding: "1px 6px" }}>달성·보관{dr.completedAt ? ` ${dr.completedAt.slice(5)}` : ""}</span>}
+                      {dr.done && <span style={{ fontSize: "var(--fs-2xs)", fontWeight: "var(--fw-bold)", color: "var(--gold-ink)", background: "var(--gold-soft)", borderRadius: "var(--r-xs)", padding: "1px 6px" }}>달성·보관{dr.completedAt ? ` ${dr.completedAt.slice(5)}` : ""}</span>}
                     </div>
                     <div className="muted" style={{ fontSize: "var(--fs-xs)", margin: "2px 0 3px" }}>
                       {dr.cat && `분류 ${dr.cat} · `}테마 {dr.theme || "tree"}
@@ -503,7 +503,7 @@ function AdminView({ onExit }: { onExit: () => void }) {
                 );
               })
             )}
-            <details className="admin-raw" style={{ marginTop: 8 }}>
+            <details className="admin-raw" style={{ marginTop: "var(--sp-3)" }}>
               <summary>할 일 기록 {todosArr.length}개 (완료 {doneTodos})</summary>
               {recentTodos.length === 0 ? (
                 <div className="muted" style={{ fontSize: "var(--fs-sm)", padding: "4px 0" }}>기록 없음</div>
