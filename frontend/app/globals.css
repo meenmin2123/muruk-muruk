@@ -1,5 +1,7 @@
 :root {
   --bg: #f3faf1;
+  /* 넓은 화면에서 '앱 창' 뒤에 깔리는 바탕. --bg 보다 한 단 진하다. */
+  --bg-deep: #e6f0e3;
   --primary: #46b97c;
   --primary-d: #2e9e63;
   --primary-soft: #e2f2e8;
@@ -503,6 +505,10 @@ main > section {
   margin-bottom: var(--sp-6);
   perspective: 1600px;
   transition: height 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+  /* 두 면이 absolute 라 .flip 의 높이는 '보이는 면' 하나로만 정해진다. 그래서 더 긴
+     면(대개 칭찬판)이 아래로 삐져나와, 목록 끝에 아무것도 없는 스크롤이 생긴다
+     (420px 에서 132px, 1440px 에서 191px). 넘치는 쪽을 잘라 없앤다. */
+  overflow: hidden;
 }
 .flip-inner {
   position: relative;
@@ -548,31 +554,6 @@ main > section {
 /* ── 폭 분기점 ──────────────────────────────────────────────
    이 앱은 모바일 우선이고 .app 이 480px 로 고정돼 있다. 대부분의 폭에서는
    그게 맞아 분기점을 두지 않는다. 양 끝만 손본다. */
-
-/* 아주 좁은 폰(≤360px) — 아이폰 SE, 갤럭시 A 계열.
-   본문 폭이 292px 밖에 안 남아 목표 제목이 세 줄로 접힌다. 여백을 돌려준다. */
-@media (max-width: 360px) {
-  main {
-    padding-left: var(--sp-4);
-    padding-right: var(--sp-4);
-  }
-  header {
-    padding-left: var(--sp-6);
-    padding-right: var(--sp-6);
-  }
-  .dream {
-    padding: var(--sp-5);
-  }
-  .card {
-    padding: var(--sp-5);
-  }
-  /* 요일 칩 7개가 한 줄에 들어가야 한다 — 칩이 줄바꿈되면 날짜를 읽기 어렵다. */
-  .dn-wd,
-  .daydot {
-    padding-left: var(--sp-1);
-    padding-right: var(--sp-1);
-  }
-}
 
 /* 눈길을 끄는 카드(슬럼프 안내·관리자 모드). 지금까지 화면마다 다른 주황을
    리터럴로 썼다(#fff7ee+#ffe0b8 / #fffaf3+#ffe0b8). 달성 금색으로 합친다. */
@@ -2020,4 +2001,72 @@ nav button.on .nl {
   color: var(--ink-700);
   font-weight: var(--fw-normal);
   border-radius: var(--r-md);
+}
+
+/* 아주 좁은 폰(≤360px) — 아이폰 SE, 갤럭시 A 계열.
+   본문 폭이 292px 밖에 안 남아 목표 제목이 세 줄로 접힌다. 여백을 돌려준다. */
+@media (max-width: 360px) {
+  main {
+    padding-left: var(--sp-4);
+    padding-right: var(--sp-4);
+  }
+  header {
+    padding-left: var(--sp-6);
+    padding-right: var(--sp-6);
+  }
+  .dream {
+    padding: var(--sp-5);
+  }
+  .card {
+    padding: var(--sp-5);
+  }
+  /* 요일 칩 7개가 한 줄에 들어가야 한다 — 칩이 줄바꿈되면 날짜를 읽기 어렵다. */
+  .dn-wd,
+  .daydot {
+    padding-left: var(--sp-1);
+    padding-right: var(--sp-1);
+  }
+}
+
+/* 큰 화면(≥600px) — 480px 기둥을 '앱 창'으로 세운다.
+   폭은 그대로 두고 기둥 바깥만 다룬다. 폰 화면은 1픽셀도 바뀌지 않는다.
+   창 바깥에 떠 있는 레이어(바텀시트·토스트·하단 네비)도 창 기준으로 옮겨야
+   창 밖으로 삐져나오지 않는다. */
+@media (min-width: 600px) {
+  html,
+  body {
+    background: var(--bg-deep);
+  }
+  .app,
+  .login {
+    background: var(--bg);
+    border-radius: var(--r-xl);
+    box-shadow: var(--shadow-md);
+    margin: var(--sp-8) auto;
+    min-height: calc(100dvh - var(--sp-8) * 2);
+  }
+  header {
+    border-radius: var(--r-xl) var(--r-xl) 0 0;
+  }
+  /* 하단 네비는 창 안쪽에 떠 있는 바가 된다. */
+  nav {
+    width: min(100%, calc(480px - var(--sp-8) * 2));
+    bottom: calc(var(--sp-8) + var(--sp-3));
+    border: 1px solid var(--line);
+    border-radius: var(--r-xl);
+    box-shadow: var(--shadow-md);
+    background: rgba(255, 255, 255, 0.94);
+  }
+  /* 떠 있는 네비만큼 토스트도 올린다 — 안 올리면 네비에 가린다. */
+  .toast {
+    bottom: calc(128px + env(safe-area-inset-bottom));
+  }
+  /* 바텀시트는 뷰포트 바닥이 아니라 창 바닥에서 올라온다. */
+  .sheet-bg {
+    padding-bottom: var(--sp-8);
+  }
+  .sheet {
+    border-radius: var(--r-xl);
+    padding-bottom: var(--sp-8);
+  }
 }
