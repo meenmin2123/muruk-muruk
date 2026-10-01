@@ -12,7 +12,8 @@
   --accent2: #bee89e;
   --gold: #e7b53a;
   --text: #283330;
-  --muted: #5e7967;
+  /* 앱 배경(#f3faf1) 위에서 #5e7967 은 4.48:1 로 AA 에 0.02 모자랐다. 한 단 어둡게. */
+  --muted: #5b7563;
   --card: #fff;
   --line: #e9f1e6;
   --success: #3fb984;
@@ -58,7 +59,7 @@
      괄호 안은 흰 카드 위 대비. */
   --ink-900: #283330;      /* = --text. 본문·제목 (13.07:1) */
   --ink-700: #44584d;      /* 소제목·배지 글자 (7.64:1) */
-  --ink-500: #5e7967;      /* = --muted. 보조 텍스트 (4.77:1) */
+  --ink-500: #5b7563;      /* = --muted. 보조 텍스트 (흰 카드 5.04:1, 앱 배경 4.74:1) */
   --ink-300: #819a8d;      /* 비활성·플레이스홀더 (3.03:1) — 본문에 쓰지 않는다 */
   --ink-200: #c6d6cb;      /* 구분선 강조 */
   --ink-100: #e9f1e6;      /* = --line. 경계 */
@@ -79,6 +80,28 @@
 
   --badge-bg: var(--ink-100);   /* 상태 배지 — 읽기 전용 */
   --badge-fg: var(--ink-700);   /* 6.62:1 */
+
+  /* ── 보조 면 ────────────────────────────────────────────────
+     눈으로는 구분되지 않는데 값만 다른 연초록이 10종 흩어져 있었다
+     (#eaf3ea #dcecdb #e3f1e6 #eaf7f0 #f2fbee #eef8e9 #f6fbf4 #f5faf3 #fbfdfb #f6f8f5).
+     손볼 때마다 새 값이 하나씩 늘던 자리라 3단으로 묶는다. 괄호는 흰 카드와의 대비. */
+  --surface-tint: #e9f4ec;  /* 브랜드 기운이 도는 면 — 추천·완료 (1.13:1) */
+  --surface-mute: #fafcf9;  /* 거의 흰 면 — 끝낸 행·기계 텍스트 (1.03:1) */
+  /* --surface-soft 는 위 중성 램프에 있다. */
+
+  /* ── 의미색 ─────────────────────────────────────────────────
+     토요일·일요일·삭제·달성은 색으로 뜻을 전하는데 토큰이 없어 화면마다 값이 달랐고,
+     넷 다 흰 배경에서 AA(4.5:1)에 미달했다(3.23 / 3.29 / 4.48 / 3.38).
+     글자로 쓰는 값만 AA 를 맞추고, 면·테두리는 짝으로 둔다. 괄호는 흰 배경 대비. */
+  --info: #3d6cc6;        /* 토요일·미리 해둔 날 (5.05:1) */
+  --info-soft: #edf2fd;
+  --danger: #b4473f;      /* 삭제·일요일 (5.37:1) */
+  --danger-soft: #fdeeec;
+  --gold-ink: #876712;    /* 금색 면 위 글자 (5.28:1, --gold-soft 위 4.90:1) */
+  --gold-soft: #fff6df;
+  --gold-line: #e9c96a;   /* 완료 카드 테두리 — 상태는 배지·도장이 따로 알려서 장식이다 */
+
+  --scrim: rgba(61, 44, 41, 0.5);  /* 모달·시트 뒤 가림막 */
 
   /* ── 간격 ──────────────────────────────────────────────────
      gap/padding/margin 에 283곳, 27종이 흩어져 있다. 빈도 상위값으로 단계를 잡았다.
@@ -102,6 +125,17 @@
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
+}
+/* 폼 요소는 브라우저 기본 스타일이 글꼴·자간을 끊는다. 지정하지 않으면
+   버튼·입력칸 글자만 본문과 다른 자간으로 그려진다(본문 -0.01em, 버튼 normal).
+   줄높이는 되돌리지 않는다 — 컨트롤은 한 줄이라 normal 이 맞고, 1.5 로 올리면
+   버튼 높이가 전부 달라진다. */
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+  letter-spacing: inherit;
 }
 /* 키보드 접근성: 탭(마우스/터치)엔 안 보이고 키보드 포커스에만 표시 */
 :focus-visible {
@@ -144,14 +178,14 @@ body {
 header {
   background: var(--primary-soft);
   /* 노치/상단바 안전영역만큼 위쪽 여백 추가 */
-  padding: calc(24px + env(safe-area-inset-top)) 22px 20px;
+  padding: calc(var(--sp-8) + env(safe-area-inset-top)) var(--sp-8) var(--sp-7);
   border-radius: 0 0 var(--r-xl) var(--r-xl);
   position: relative;
 }
 .logo {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: var(--sp-3);
   font-size: var(--fs-display);
   font-weight: var(--fw-bold);
   letter-spacing: -1px;
@@ -162,15 +196,7 @@ header {
   border-radius: var(--r-sm);
   display: block;
 }
-.logo .dot {
-  color: var(--primary);
-}
-.tagline {
-  font-size: var(--fs-md);
-  color: var(--muted);
-  margin-top: 2px;
-  font-weight: var(--fw-medium);
-}
+
 .appver {
   position: absolute;
   top: calc(12px + env(safe-area-inset-top));
@@ -201,29 +227,12 @@ header {
 }
 .toprow {
   display: flex;
-  gap: 10px;
-  margin-top: 16px;
+  gap: var(--sp-4);
+  margin-top: var(--sp-6);
 }
-.stat {
-  flex: 1;
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid #fff;
-  border-radius: var(--r-lg);
-  padding: 10px 12px;
-}
-.stat .v {
-  font-size: var(--fs-2xl);
-  font-weight: var(--fw-bold);
-  line-height: 1;
-}
-.stat .l {
-  font-size: var(--fs-xs);
-  color: var(--muted);
-  margin-top: 4px;
-  font-weight: var(--fw-medium);
-}
+
 main {
-  padding: 18px 16px 0;
+  padding: var(--sp-7) var(--sp-6) 0;
 }
 main > section {
   animation: fadeup 0.34s cubic-bezier(0.2, 0.7, 0.2, 1) both;
@@ -247,44 +256,27 @@ main > section {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  margin: 4px 4px 12px;
+  margin: var(--sp-1) var(--sp-1) var(--sp-5);
 }
 .sec-title h2 {
   font-size: var(--fs-xl);
   margin: 0;
   font-weight: var(--fw-bold);
 }
-.hint {
-  font-size: var(--fs-sm);
-  color: var(--muted);
-  font-weight: var(--fw-medium);
-}
-.greet {
-  font-size: var(--fs-lg);
-  font-weight: var(--fw-medium);
-  margin: 2px 4px 14px;
-}
-.greet small {
-  display: block;
-  font-weight: var(--fw-medium);
-  color: var(--muted);
-  font-size: var(--fs-sm);
-  margin-top: 3px;
-}
+
 .addbar {
   display: flex;
-  gap: 8px;
-  margin: 6px 0 8px;
+  gap: var(--sp-3);
+  margin: var(--sp-2) 0 var(--sp-3);
 }
 .addbar input {
   flex: 1;
   border: 1.5px solid var(--line);
   background: #fff;
   border-radius: var(--r-md);
-  padding: 13px 15px;
+  padding: var(--sp-5) var(--sp-6);
   font-size: var(--fs-lg);
   outline: none;
-  font-family: inherit;
   color: var(--text);
 }
 .addbar input:focus {
@@ -297,10 +289,9 @@ main > section {
   color: var(--action-fg);
   font-weight: var(--fw-bold);
   border-radius: var(--r-md);
-  padding: 0 18px;
+  padding: 0 var(--sp-7);
   font-size: var(--fs-lg);
   cursor: pointer;
-  font-family: inherit;
   box-shadow: var(--shadow-sm);
   transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
 }
@@ -310,34 +301,23 @@ main > section {
   filter: brightness(0.97);
 }
 .btn {
-  padding: 12px 18px;
+  padding: var(--sp-5) var(--sp-7);
 }
 .btn-soft {
   background: var(--primary-soft);
   color: var(--primary-d);
   box-shadow: none;
 }
-.goalpick {
-  width: 100%;
-  border: 1.5px solid var(--line);
-  background: #fff;
-  border-radius: var(--r-md);
-  padding: 11px 13px;
-  font-size: var(--fs-lg);
-  font-family: inherit;
-  color: var(--text);
-  outline: none;
-  margin: -2px 0 14px;
-}
+
 .task {
   display: flex;
   align-items: center;
-  gap: 13px;
+  gap: var(--sp-5);
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
-  padding: 14px 15px;
-  margin-bottom: 10px;
+  padding: var(--sp-6) var(--sp-6);
+  margin-bottom: var(--sp-4);
   box-shadow: var(--shadow-sm);
 }
 /* 목표에 딸린 할일 — 단독 할일과 완전히 동일한 카드(흰 배경·테두리·그림자·크기).
@@ -362,7 +342,6 @@ main > section {
   justify-content: center;
   color: #fff;
   font-size: var(--fs-xl);
-  font-family: inherit;
   background: #fff;
   transition: background 0.25s ease, border-color 0.25s ease, transform 0.15s ease;
 }
@@ -412,8 +391,7 @@ main > section {
   box-sizing: border-box;
   border: 1.5px solid var(--primary);
   border-radius: var(--r-sm);
-  padding: 7px 9px;
-  font-family: inherit;
+  padding: var(--sp-2) var(--sp-3);
   font-size: var(--fs-lg);
   font-weight: var(--fw-medium);
   color: var(--text);
@@ -427,33 +405,26 @@ main > section {
 .task .meta {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--sp-1);
   font-size: var(--fs-sm);
   color: var(--primary-d);
   font-weight: var(--fw-medium);
-  margin-top: 4px;
+  margin-top: var(--sp-1);
 }
-.task .meta-tag {
-  font-size: var(--fs-2xs);
-  font-weight: var(--fw-medium);
-  color: var(--primary-d);
-  background: var(--primary-soft);
-  border-radius: var(--r-xs);
-  padding: 1px 6px;
-}
+
 .task .later {
   font-size: var(--fs-xs);
   color: var(--muted);
-  background: #eaf3ea;
+  background: var(--surface-tint);
   border: none;
   border-radius: var(--r-sm);
-  padding: 6px 8px;
+  padding: var(--sp-2) var(--sp-3);
   font-weight: var(--fw-medium);
   cursor: pointer;
   transition: background 0.15s ease, transform 0.12s ease;
 }
 .task .later:active {
-  background: #dcecdb;
+  background: var(--primary-soft);
   transform: scale(0.94);
 }
 .x {
@@ -462,7 +433,7 @@ main > section {
   justify-content: center;
   color: var(--muted);
   font-size: var(--fs-xl);
-  padding: 4px 6px;
+  padding: var(--sp-1) var(--sp-2);
   cursor: pointer;
   opacity: 0.55;
   background: none;
@@ -475,11 +446,11 @@ main > section {
 }
 /* 완료된 할 일 카드는 살짝 가라앉혀 상태를 명확히 */
 .task.done {
-  background: #fbfdfb;
+  background: var(--surface-mute);
 }
 .empty {
   text-align: center;
-  padding: 40px 18px;
+  padding: 40px var(--sp-7);
   color: var(--muted);
   font-weight: var(--fw-medium);
   line-height: 1.6;
@@ -490,7 +461,7 @@ main > section {
   display: block;
   width: 54px;
   height: 54px;
-  margin: 0 auto 14px;
+  margin: 0 auto var(--sp-6);
   opacity: 0.9;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 90 L50 48' stroke='%23a9cf9c' stroke-width='5' stroke-linecap='round' fill='none'/%3E%3Cpath d='M50 64 C 31 64 21 49 24 35 C 42 36 51 51 50 64 Z' fill='%23c6e6b8' stroke='%23a9cf9c' stroke-width='2.5' stroke-linejoin='round'/%3E%3Cpath d='M50 55 C 69 55 79 40 76 26 C 58 27 49 42 50 55 Z' fill='%23b8dfa8' stroke='%23a9cf9c' stroke-width='2.5' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
   animation: emptybob 3.6s ease-in-out infinite;
@@ -511,14 +482,14 @@ main > section {
 .dream {
   background: var(--card);
   border-radius: var(--r-xl);
-  padding: 17px;
-  margin-bottom: 14px;
+  padding: var(--sp-7);
+  margin-bottom: var(--sp-6);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--line);
 }
 .flip {
   position: relative;
-  margin-bottom: 14px;
+  margin-bottom: var(--sp-6);
   perspective: 1600px;
   transition: height 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
@@ -552,16 +523,13 @@ main > section {
 .flip-inner.flipped .flip-front {
   pointer-events: none;
 }
-.flipbtn {
-  font-size: var(--fs-xl);
-  opacity: 0.85;
-}
+
 .board-back {
   min-height: 220px;
 }
 .board-back-art {
   position: relative;
-  margin-top: 14px;
+  margin-top: var(--sp-6);
   border-radius: var(--r-md);
   overflow: hidden;
   line-height: 0;
@@ -574,14 +542,14 @@ main > section {
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
 }
 .board-back-foot {
-  margin-top: 12px;
+  margin-top: var(--sp-5);
   text-align: center;
   font-weight: var(--fw-medium);
 }
 .dream-h {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--sp-4);
 }
 .dream-emoji {
   display: inline-flex;
@@ -602,7 +570,7 @@ main > section {
   height: 9px;
   background: var(--primary-soft);
   border-radius: var(--r-lg);
-  margin: 12px 0 4px;
+  margin: var(--sp-5) 0 var(--sp-1);
   overflow: hidden;
 }
 .progress i {
@@ -620,15 +588,15 @@ main > section {
 .goal {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 7px 0;
+  gap: var(--sp-3);
+  padding: var(--sp-2) 0;
   border-top: 1px dashed var(--line);
 }
 .admin-row {
   border: 1px solid var(--line);
   border-radius: var(--r-md);
-  padding: 10px 12px;
-  margin-bottom: 8px;
+  padding: var(--sp-4) var(--sp-5);
+  margin-bottom: var(--sp-3);
   background: #fff;
 }
 .admin-row summary {
@@ -636,7 +604,7 @@ main > section {
   font-size: var(--fs-md);
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--sp-2);
   align-items: baseline;
 }
 .admin-counts {
@@ -646,20 +614,20 @@ main > section {
   color: var(--primary-d);
 }
 .admin-dream {
-  padding: 6px 0;
+  padding: var(--sp-2) 0;
   border-top: 1px dashed var(--line);
   font-size: var(--fs-md);
 }
 .admin-goals {
-  margin: 4px 0 0;
-  padding-left: 18px;
+  margin: var(--sp-1) 0 0;
+  padding-left: var(--sp-7);
   font-size: var(--fs-sm);
 }
 .admin-goals li {
-  margin: 1px 0;
+  margin: var(--sp-0) 0;
 }
 .admin-raw {
-  margin-top: 8px;
+  margin-top: var(--sp-3);
 }
 .admin-raw summary {
   font-size: var(--fs-xs);
@@ -669,9 +637,9 @@ main > section {
 .admin-json {
   max-height: 240px;
   overflow: auto;
-  background: #f6f8f5;
+  background: var(--surface-soft);
   border-radius: var(--r-sm);
-  padding: 10px;
+  padding: var(--sp-4);
   font-size: var(--fs-xs);
   line-height: 1.45;
   white-space: pre-wrap;
@@ -692,8 +660,8 @@ main > section {
 .ipick-tabs {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 12px 14px;
+  gap: var(--sp-2);
+  padding: var(--sp-5) var(--sp-6);
   border-bottom: 1px solid var(--line);
 }
 .ipick-tabs button {
@@ -703,8 +671,7 @@ main > section {
   font-size: var(--fs-lg);
   color: var(--muted);
   cursor: pointer;
-  font-family: inherit;
-  padding: 5px 10px;
+  padding: var(--sp-1) var(--sp-4);
   border-radius: var(--r-sm);
 }
 .ipick-tabs button.on {
@@ -719,8 +686,8 @@ main > section {
 .ipick-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 6px;
-  padding: 14px;
+  gap: var(--sp-2);
+  padding: var(--sp-6);
   overflow-y: auto;
 }
 .ipick-grid.emoji {
@@ -729,7 +696,7 @@ main > section {
 .ipick-cell {
   aspect-ratio: 1;
   border: none;
-  background: #f5faf3;
+  background: var(--surface-soft);
   border-radius: var(--r-md);
   display: flex;
   align-items: center;
@@ -753,21 +720,21 @@ main > section {
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 24px;
+  padding: var(--sp-8);
 }
 .err-emoji {
   font-size: 48px;
-  margin-bottom: 12px;
+  margin-bottom: var(--sp-5);
 }
 .err-detail {
-  margin-top: 22px;
+  margin-top: var(--sp-8);
   max-width: 100%;
   overflow: auto;
   font-size: var(--fs-xs);
   color: var(--muted);
-  background: #f6f8f5;
+  background: var(--surface-soft);
   border-radius: var(--r-sm);
-  padding: 10px 12px;
+  padding: var(--sp-4) var(--sp-5);
   white-space: pre-wrap;
   word-break: break-all;
 }
@@ -778,7 +745,7 @@ main > section {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: var(--sp-1);
   background: var(--on-primary);
   z-index: 100;
 }
@@ -786,7 +753,7 @@ main > section {
   font-size: var(--fs-display);
   font-weight: var(--fw-bold);
   letter-spacing: -1px;
-  margin-top: 10px;
+  margin-top: var(--sp-4);
   color: #fff;
 }
 .splash-hint {
@@ -794,13 +761,7 @@ main > section {
   color: rgba(255, 255, 255, 0.9);
   font-weight: var(--fw-medium);
 }
-.login-ic {
-  width: 76px;
-  height: 76px;
-  border-radius: var(--r-lg);
-  margin-bottom: 18px;
-  box-shadow: var(--shadow-sm);
-}
+
 .login {
   max-width: 480px;
   margin: 0 auto;
@@ -810,13 +771,13 @@ main > section {
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 24px 20px calc(28px + env(safe-area-inset-bottom));
+  padding: var(--sp-8) var(--sp-7) calc(28px + env(safe-area-inset-bottom));
 }
 .login-hero {
   position: relative;
   width: 230px;
   max-width: 70vw;
-  margin-bottom: 6px;
+  margin-bottom: var(--sp-2);
   animation: sway 5s ease-in-out infinite;
 }
 .login-tree {
@@ -855,7 +816,7 @@ main > section {
   font-size: 32px;
   font-weight: var(--fw-bold);
   letter-spacing: -1px;
-  margin: 18px 0 6px;
+  margin: var(--sp-7) 0 var(--sp-2);
 }
 /* '여기붙여' 워드마크 — 둥글둥글한 Jua로 앱 분위기 통일(장식 없이 폰트만, 깔끔). */
 .logo,
@@ -864,33 +825,28 @@ main > section {
   font-family: "Jua", "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", sans-serif;
   letter-spacing: 0.2px;
 }
-.logo .dot,
 .splash-logo span,
-.login-title span {
-  margin-left: 1px;
+.login-title span{
+  margin-left: var(--sp-0);
 }
-.login-tagline {
-  color: var(--muted);
-  font-weight: var(--fw-medium);
-  margin: 0 0 18px;
-}
+
 .login-features {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 8px;
+  gap: var(--sp-3);
   margin-bottom: 28px;
 }
 .login-features span {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--sp-1);
   background: var(--primary-soft);
   color: var(--primary-d);
   font-weight: var(--fw-medium);
   font-size: var(--fs-sm);
   border-radius: var(--r-lg);
-  padding: 7px 13px;
+  padding: var(--sp-2) var(--sp-5);
 }
 .login-btn {
   display: flex;
@@ -921,7 +877,7 @@ main > section {
 }
 .stamp-hero {
   display: inline-block;
-  margin-bottom: 20px;
+  margin-bottom: var(--sp-7);
   transform-origin: center;
   animation: stampDown 0.7s cubic-bezier(0.18, 0.7, 0.2, 1) both;
 }
@@ -930,7 +886,7 @@ main > section {
 }
 /* 축하 모달 안에서는 아래 문구와 붙지 않게 여백만 줄인다. */
 .stamp-hero.in-modal {
-  margin-bottom: 4px;
+  margin-bottom: var(--sp-1);
 }
 @media (prefers-reduced-motion: reduce) {
   .stamp-hero {
@@ -966,13 +922,13 @@ main > section {
 .remind-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--sp-5);
   flex-wrap: wrap;
 }
 .remind-toggle {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--sp-3);
   font-weight: var(--fw-medium);
   cursor: pointer;
 }
@@ -984,8 +940,7 @@ main > section {
 .remind-time {
   border: 1.5px solid var(--line);
   border-radius: var(--r-sm);
-  padding: 8px 10px;
-  font-family: inherit;
+  padding: var(--sp-3) var(--sp-4);
   font-size: var(--fs-lg);
   color: var(--text);
   background: #fff;
@@ -1001,10 +956,9 @@ main > section {
   background: none;
   color: var(--muted);
   font-size: var(--fs-lg);
-  padding: 4px 6px;
+  padding: var(--sp-1) var(--sp-2);
   cursor: pointer;
   opacity: 0.6;
-  font-family: inherit;
   flex: none;
 }
 .icon-btn:hover,
@@ -1016,8 +970,7 @@ main > section {
   min-width: 0;
   border: 1.5px solid var(--primary);
   border-radius: var(--r-sm);
-  padding: 5px 9px;
-  font-family: inherit;
+  padding: var(--sp-1) var(--sp-3);
   font-size: var(--fs-lg);
   color: var(--text);
   outline: none;
@@ -1027,8 +980,8 @@ main > section {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  margin: 2px 0 14px;
+  gap: var(--sp-4);
+  margin: var(--sp-0) 0 var(--sp-6);
 }
 .dn-arrow {
   width: 34px;
@@ -1053,14 +1006,13 @@ main > section {
   color: var(--ink-900);
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--sp-3);
   border: none;
   background: #fff;
   border-radius: var(--r-md);
-  padding: 8px 16px;
+  padding: var(--sp-3) var(--sp-6);
   cursor: pointer;
   box-shadow: var(--shadow-sm);
-  font-family: inherit;
 }
 .dn-cal {
   color: var(--muted);
@@ -1069,11 +1021,10 @@ main > section {
 /* 날짜 칩 위에 투명한 네이티브 날짜 선택기를 겹쳐, 탭하면 달력이 뜨게 한다. */
 .dn-reset {
   display: block;
-  margin: -8px auto 14px;
+  margin: -8px auto var(--sp-6);
   border: none;
   background: none;
   color: var(--primary-d);
-  font-family: inherit;
   font-size: var(--fs-sm);
   font-weight: var(--fw-medium);
   cursor: pointer;
@@ -1092,17 +1043,17 @@ main > section {
   color: var(--primary-d);
   background: var(--primary-soft);
   border-radius: var(--r-xs);
-  padding: 1px 7px;
+  padding: var(--sp-0) var(--sp-2);
 }
 .dn-wd.ahead {
-  color: #5b8def;
-  background: #eef3ff;
+  color: var(--info);
+  background: var(--info-soft);
   border-radius: var(--r-xs);
-  padding: 1px 7px;
+  padding: var(--sp-0) var(--sp-2);
 }
 .today-tree {
   max-width: 250px;
-  margin: 6px auto 18px;
+  margin: var(--sp-2) auto var(--sp-7);
 }
 .today-tree > div:first-child {
   border-radius: var(--r-lg);
@@ -1115,7 +1066,7 @@ main > section {
   font-weight: var(--fw-medium);
   font-size: var(--fs-sm);
   color: var(--primary-d);
-  margin-top: 7px;
+  margin-top: var(--sp-2);
 }
 .goal .g-t {
   flex: 1;
@@ -1130,16 +1081,15 @@ main > section {
 .dday-line {
   display: flex;
   align-items: center;
-  gap: 7px;
-  margin: 2px 2px 12px;
+  gap: var(--sp-2);
+  margin: var(--sp-0) var(--sp-0) var(--sp-5);
   font-size: var(--fs-sm);
   font-weight: var(--fw-medium);
 }
 .dday-pick {
   border: 1.5px solid var(--line);
   border-radius: var(--r-sm);
-  padding: 5px 9px;
-  font-family: inherit;
+  padding: var(--sp-1) var(--sp-3);
   font-size: var(--fs-sm);
   font-weight: var(--fw-medium);
   color: var(--text);
@@ -1156,14 +1106,14 @@ main > section {
   border-radius: var(--r-xl);
   width: 100%;
   max-width: 330px;
-  padding: 16px 16px 12px;
+  padding: var(--sp-6) var(--sp-6) var(--sp-5);
   box-shadow: var(--shadow-md);
 }
 .cal-head {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 12px;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-5);
 }
 .cal-title {
   font-weight: var(--fw-medium);
@@ -1190,30 +1140,29 @@ main > section {
 .cal-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 3px;
+  gap: var(--sp-0);
 }
 .cal-wd {
-  margin-bottom: 4px;
+  margin-bottom: var(--sp-1);
 }
 .cal-wd-c {
   text-align: center;
   font-size: var(--fs-xs);
   font-weight: var(--fw-medium);
   color: var(--muted);
-  padding: 4px 0;
+  padding: var(--sp-1) 0;
 }
 .cal-wd-c.sun {
-  color: #e8607a;
+  color: var(--danger);
 }
 .cal-wd-c.sat {
-  color: #5b8def;
+  color: var(--info);
 }
 .cal-day {
   aspect-ratio: 1;
   border: 1.5px solid transparent;
   background: none;
   border-radius: var(--r-sm);
-  font-family: inherit;
   font-size: var(--fs-md);
   font-weight: var(--fw-medium);
   color: var(--text);
@@ -1240,13 +1189,11 @@ main > section {
 .cal-foot {
   display: flex;
   justify-content: flex-end;
-  margin-top: 10px;
+  margin-top: var(--sp-4);
 }
-.dday-add {
-  margin: 0 2px 12px !important;
-}
+
 .goalblock {
-  margin-bottom: 2px;
+  margin-bottom: var(--sp-0);
 }
 .g-check {
   width: 22px;
@@ -1264,24 +1211,23 @@ main > section {
 .taskadd-row {
   display: flex;
   align-items: stretch;
-  gap: 6px;
-  margin-top: 11px;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
 }
 .type-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: var(--sp-0);
   flex: none;
   border: none;
   /* 꺼짐 상태. 예전엔 여기도 --primary-soft 라 켜짐과 같은 계열이었다. */
   background: var(--surface-soft);
   color: var(--ink-700);
   border-radius: var(--r-md);
-  padding: 0 9px;
+  padding: 0 var(--sp-3);
   font-size: var(--fs-sm);
   font-weight: var(--fw-medium);
   cursor: pointer;
-  font-family: inherit;
 }
 .ta-input {
   position: relative;
@@ -1293,10 +1239,9 @@ main > section {
   box-sizing: border-box;
   border: 1.5px solid var(--line);
   border-radius: var(--r-md);
-  padding: 10px 38px 10px 12px;
+  padding: var(--sp-4) 38px var(--sp-4) var(--sp-5);
   font-size: var(--fs-lg);
   outline: none;
-  font-family: inherit;
   color: var(--text);
 }
 .ta-input input:focus {
@@ -1310,7 +1255,7 @@ main > section {
   border: none;
   background: none;
   cursor: pointer;
-  padding: 5px;
+  padding: var(--sp-1);
   display: inline-flex;
   border-radius: var(--r-sm);
 }
@@ -1327,10 +1272,9 @@ main > section {
   color: var(--action-fg);
   font-weight: var(--fw-bold);
   border-radius: var(--r-md);
-  padding: 0 18px;
+  padding: 0 var(--sp-7);
   font-size: var(--fs-lg);
   cursor: pointer;
-  font-family: inherit;
 }
 .type-toggle.daily {
   background: var(--selected-bg);
@@ -1341,34 +1285,14 @@ main > section {
 .boardflip {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--sp-1);
   flex: none;
   border: none;
   border-radius: var(--r-sm);
-  padding: 5px 10px;
+  padding: var(--sp-1) var(--sp-4);
   font-size: var(--fs-sm);
   font-weight: var(--fw-medium);
   cursor: pointer;
-  font-family: inherit;
-}
-/* 목표 마치기(보관) 버튼 — 습관형 목표 헤더에 */
-.achieve {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  flex: none;
-  border: 1.5px solid #f0d98a;
-  background: #fff9e8;
-  color: #a9821f;
-  border-radius: var(--r-sm);
-  padding: 4px 9px;
-  font-size: var(--fs-sm);
-  font-weight: var(--fw-medium);
-  cursor: pointer;
-  font-family: inherit;
-}
-.achieve:active {
-  transform: scale(0.96);
 }
 
 /* ── 이룬 목표(보관) — 읽기 전용 ── */
@@ -1382,14 +1306,14 @@ main > section {
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
-  padding: 12px 13px;
-  margin-bottom: 10px;
+  padding: var(--sp-5) var(--sp-5);
+  margin-bottom: var(--sp-4);
   box-shadow: var(--shadow-sm);
 }
 .arch-h {
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: var(--sp-4);
   cursor: pointer;
 }
 .arch-h-txt {
@@ -1404,21 +1328,21 @@ main > section {
 .arch-date {
   font-size: var(--fs-xs);
   font-weight: var(--fw-medium);
-  margin-top: 1px;
+  margin-top: var(--sp-0);
 }
 .arch-badge {
   flex: none;
   font-size: var(--fs-xs);
   font-weight: var(--fw-medium);
   border-radius: var(--r-sm);
-  padding: 3px 8px;
+  padding: var(--sp-0) var(--sp-3);
 }
 .arch-caret {
   flex: none;
   transition: transform 0.2s ease;
 }
 .arch-body {
-  margin-top: 12px;
+  margin-top: var(--sp-5);
 }
 .arch-board {
   position: relative;
@@ -1448,15 +1372,15 @@ main > section {
   filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.2));
 }
 .arch-tasks {
-  margin-top: 12px;
+  margin-top: var(--sp-5);
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: var(--sp-2);
 }
 .arch-task {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: var(--sp-2);
   font-size: var(--fs-lg);
   font-weight: var(--fw-medium);
 }
@@ -1469,19 +1393,19 @@ main > section {
   /* RecordsTab 에서는 <span> 이다 — 누를 수 없으므로 손가락 커서를 뺀다 */
   cursor: default;
   flex: none;
-  padding: 2px 7px;
+  padding: var(--sp-0) var(--sp-2);
   font-size: var(--fs-2xs);
   font-weight: var(--fw-medium);
 }
 .arch-restore {
   display: block;
-  margin: 14px auto 2px;
+  margin: var(--sp-6) auto var(--sp-0);
   font-size: var(--fs-sm);
 }
 .goal-week {
   display: flex;
-  gap: 5px;
-  padding: 5px 2px 5px 0;
+  gap: var(--sp-1);
+  padding: var(--sp-1) var(--sp-0) var(--sp-1) 0;
 }
 .daydot {
   flex: 1;
@@ -1489,14 +1413,13 @@ main > section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1px;
+  gap: var(--sp-0);
   border: 1.5px solid var(--line);
   background: #fff;
   border-radius: var(--r-sm);
-  padding: 5px 0;
+  padding: var(--sp-1) 0;
   cursor: pointer;
   color: var(--muted);
-  font-family: inherit;
   transition: transform 0.1s ease;
 }
 .daydot:active {
@@ -1516,48 +1439,19 @@ main > section {
   font-size: var(--fs-sm);
   font-weight: var(--fw-bold);
 }
-.goal-onecheck {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin: 8px 0 6px 14px;
-  border: 1.5px solid var(--line);
-  background: #fff;
-  border-radius: var(--r-md);
-  padding: 8px 16px;
-  font-weight: var(--fw-medium);
-  font-size: var(--fs-md);
-  color: var(--muted);
-  cursor: pointer;
-  font-family: inherit;
-}
-.add-today {
-  font-size: var(--fs-xs);
-  font-weight: var(--fw-bold);
-  color: var(--action-fg);
-  background: var(--action-bg);
-  border: none;
-  border-radius: var(--r-sm);
-  padding: 7px 10px;
-  cursor: pointer;
-}
-.add-today.added {
-  background: #eaf7f0;
-  color: var(--success);
-}
+
 .gt-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--sp-1);
   border: 1.5px solid var(--line);
   background: #fff;
   color: var(--muted);
   border-radius: var(--r-sm);
-  padding: 5px 9px;
+  padding: var(--sp-1) var(--sp-3);
   font-size: var(--fs-xs);
   font-weight: var(--fw-medium);
   cursor: pointer;
-  font-family: inherit;
 }
 .gt-badge.daily {
   border-color: var(--selected-line);
@@ -1566,36 +1460,36 @@ main > section {
 }
 .goal-add {
   display: flex;
-  gap: 7px;
-  margin-top: 11px;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
 }
 .goal-add input {
   flex: 1;
   border: 1.5px solid var(--line);
   border-radius: var(--r-md);
-  padding: 10px 12px;
+  padding: var(--sp-4) var(--sp-5);
   font-size: var(--fs-lg);
   outline: none;
-  font-family: inherit;
 }
 .goal-add button {
   border: none;
-  background: #e3f1e6;
+  background: var(--primary-soft);
   color: var(--primary-d);
   font-weight: var(--fw-bold);
   border-radius: var(--r-md);
-  padding: 0 14px;
+  padding: 0 var(--sp-6);
   cursor: pointer;
 }
 .chip {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--sp-1);
   border: 1.5px solid var(--line);
-  background: #fff;
+  background: var(--card);
   border-radius: var(--r-lg);
-  padding: 8px 13px;
+  padding: var(--sp-3) var(--sp-5);
   font-size: var(--fs-md);
+  text-align: left;
   font-weight: var(--fw-medium);
   cursor: pointer;
   color: var(--text);
@@ -1613,8 +1507,8 @@ main > section {
 .row-wrap {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-5);
 }
 .sw {
   width: 26px;
@@ -1633,12 +1527,11 @@ main > section {
   border: 1.5px solid var(--line);
   background: #fff;
   border-radius: var(--r-md);
-  padding: 10px 6px;
+  padding: var(--sp-4) var(--sp-2);
   font-size: var(--fs-md);
   font-weight: var(--fw-medium);
   color: var(--muted);
   cursor: pointer;
-  font-family: inherit;
 }
 .theme-opt.on {
   border-color: var(--selected-line);
@@ -1646,8 +1539,8 @@ main > section {
   background: var(--selected-bg);
 }
 .addbox {
-  margin-top: 16px;
-  padding-top: 14px;
+  margin-top: var(--sp-6);
+  padding-top: var(--sp-6);
   border-top: 1px dashed var(--line);
 }
 /* 오늘 탭: 입력칸을 목록 위로 올리고 상단에 고정 */
@@ -1655,8 +1548,8 @@ main > section {
   position: sticky;
   top: 0;
   z-index: 20;
-  margin-top: 14px;
-  padding: 8px 0 10px;
+  margin-top: var(--sp-6);
+  padding: var(--sp-3) 0 var(--sp-4);
   border-top: none;
   background: var(--bg);
 }
@@ -1674,175 +1567,47 @@ main > section {
   margin: 0;
 }
 /* 자주 적은 할 일 추천 — 입력칸 바로 위, 작게 */
-.suggest {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-  margin: 0 0 8px;
-}
-.suggest-label {
-  font-size: var(--fs-xs);
-  font-weight: var(--fw-medium);
-  color: var(--muted);
-  margin-right: 2px;
-}
-.suggest-chip {
-  border: 1px solid #cde7c2;
-  background: #f2fbee;
-  color: var(--primary-d);
-  font-family: inherit;
-  font-size: var(--fs-sm);
-  font-weight: var(--fw-medium);
-  border-radius: var(--r-full);
-  padding: 4px 10px;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  cursor: pointer;
-}
-.suggest-chip:active {
-  transform: translateY(1px);
-  filter: brightness(0.97);
-}
 /* 오늘 할 일 입력칸 — 연두/초록 틴트 */
 .today-add .addbar input {
-  background: #eef8e9;
-  border-color: #cde7c2;
+  background: var(--surface-tint);
+  border-color: var(--ink-200);
 }
 .today-add .addbar input::placeholder {
-  color: #8bbf86;
+  color: var(--ink-300);
 }
 .today-add .addbar input:focus {
-  background: #fff;
+  background: var(--card);
   border-color: var(--primary);
 }
-.board-cap {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  flex-wrap: wrap;
-  margin: 4px 2px 10px;
-  font-size: var(--fs-sm);
-  font-weight: var(--fw-medium);
-  color: var(--muted);
-}
-.board-cap input[type="number"] {
-  width: 58px;
-  border: 1.5px solid var(--line);
-  border-radius: var(--r-sm);
-  padding: 5px 8px;
-  font-family: inherit;
-  font-size: var(--fs-lg);
-  font-weight: var(--fw-medium);
-  color: var(--text);
-  text-align: center;
-}
-.board-cap input[type="date"] {
-  border: 1.5px solid var(--primary);
-  border-radius: var(--r-sm);
-  padding: 5px 8px;
-  font-family: inherit;
-  font-size: var(--fs-sm);
-  color: var(--text);
-}
-.board-cap .link {
-  border: none;
-  background: none;
-  padding: 2px 4px;
-  font-family: inherit;
-  font-size: var(--fs-sm);
-  font-weight: var(--fw-medium);
-  color: var(--primary-d);
-  cursor: pointer;
-}
-.board-cap .link:hover {
-  text-decoration: underline;
-}
+
 .taskadd {
-  margin-top: 12px;
+  margin-top: var(--sp-5);
 }
 .taskadd-opts {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  margin-top: 9px;
+  gap: var(--sp-3);
+  margin-top: var(--sp-3);
 }
-.seg {
-  display: inline-flex;
-  border: 1.5px solid var(--line);
-  border-radius: var(--r-sm);
-  overflow: hidden;
-}
-.seg button {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  border: none;
-  background: #fff;
-  padding: 7px 12px;
-  font-size: var(--fs-md);
-  font-weight: var(--fw-medium);
-  color: var(--muted);
-  cursor: pointer;
-  font-family: inherit;
-}
-.seg button + button {
-  border-left: 1.5px solid var(--line);
-}
-.seg button.on {
-  background: var(--selected-bg);
-  color: var(--selected-fg);
-}
-.ai-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border: 1.5px dashed var(--accent2);
-  background: #f6fbf4;
-  color: var(--primary-d);
-  font-weight: var(--fw-medium);
-  border-radius: var(--r-sm);
-  padding: 7px 13px;
-  font-size: var(--fs-md);
-  cursor: pointer;
-  font-family: inherit;
-}
-.ai-link:disabled {
-  opacity: 0.6;
-}
+
 .taskadd-help {
   font-size: var(--fs-xs);
   color: var(--muted);
   font-weight: var(--fw-medium);
-  margin: 8px 2px 0;
+  margin: var(--sp-3) var(--sp-0) 0;
 }
 .field-label {
   font-size: var(--fs-sm);
   font-weight: var(--fw-medium);
   color: var(--muted);
-  margin: 2px 2px 8px;
+  margin: var(--sp-0) var(--sp-0) var(--sp-3);
 }
-.newdream-title {
-  width: 100%;
-  border: 1.5px solid var(--line);
-  border-radius: var(--r-md);
-  padding: 12px 13px;
-  font-size: var(--fs-lg);
-  font-family: inherit;
-  outline: none;
-  margin-bottom: 4px;
-}
-.newdream-title:focus {
-  border-color: var(--primary);
-}
+
 .link {
   border: none;
   background: none;
-  padding: 2px 4px;
-  font-family: inherit;
+  padding: var(--sp-0) var(--sp-1);
   font-size: var(--fs-sm);
   font-weight: var(--fw-medium);
   color: var(--primary-d);
@@ -1853,12 +1618,9 @@ main > section {
 }
 .deco-toggle {
   display: inline-block;
-  margin: 6px 2px 8px;
+  margin: var(--sp-2) var(--sp-0) var(--sp-3);
 }
-.newdream-create {
-  width: 100%;
-  margin-top: 12px;
-}
+
 .newdream-btn {
   width: 100%;
   /* 채운 틴트 + bold 라 정작 목표 카드보다 무겁게 읽혔다.
@@ -1868,23 +1630,22 @@ main > section {
   color: var(--ink-700);
   font-weight: var(--fw-medium);
   border-radius: var(--r-lg);
-  padding: 13px;
+  padding: var(--sp-5);
   font-size: var(--fs-lg);
   cursor: pointer;
-  font-family: inherit;
-  margin-bottom: 14px;
+  margin-bottom: var(--sp-6);
 }
 .recards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 18px;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-7);
 }
 .recard {
   flex: 1;
   background: var(--card);
   border-radius: var(--r-lg);
-  padding: 16px 12px;
+  padding: var(--sp-6) var(--sp-5);
   text-align: center;
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--line);
@@ -1899,25 +1660,25 @@ main > section {
 .recard .v {
   font-size: var(--fs-2xl);
   font-weight: var(--fw-bold);
-  margin-top: 4px;
+  margin-top: var(--sp-1);
 }
 .recard .l {
   font-size: var(--fs-xs);
   color: var(--muted);
   font-weight: var(--fw-medium);
-  margin-top: 2px;
+  margin-top: var(--sp-0);
 }
 .cal-card {
   background: var(--card);
   border-radius: var(--r-lg);
-  padding: 18px 16px;
+  padding: var(--sp-7) var(--sp-6);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--line);
 }
 .grass {
   display: grid;
   grid-template-columns: repeat(14, 1fr);
-  gap: 5px;
+  gap: var(--sp-1);
 }
 .cell {
   aspect-ratio: 1;
@@ -1953,16 +1714,16 @@ main > section {
   border-radius: var(--r-lg);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
-  margin-bottom: 14px;
+  margin-bottom: var(--sp-6);
 }
 .tree-card.done {
-  border-color: #f5c23b;
+  border-color: var(--gold-line);
 }
 .tree-title {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 13px 15px 11px;
+  padding: var(--sp-5) var(--sp-6) var(--sp-4);
   font-weight: var(--fw-bold);
   font-size: var(--fs-lg);
 }
@@ -1972,14 +1733,14 @@ main > section {
   color: var(--primary-d);
   background: var(--primary-soft);
   border-radius: var(--r-sm);
-  padding: 4px 9px;
+  padding: var(--sp-1) var(--sp-3);
 }
 .tree-card.done .tree-title span {
-  background: #fff1c9;
-  color: #b07a12;
+  background: var(--gold-soft);
+  color: var(--gold-ink);
 }
 .tree-from {
-  padding: 0 15px 11px;
+  padding: 0 var(--sp-6) var(--sp-4);
   margin-top: -4px;
   font-size: var(--fs-sm);
   font-weight: var(--fw-medium);
@@ -1998,7 +1759,7 @@ nav {
   -webkit-backdrop-filter: saturate(180%) blur(16px);
   border-top: 1px solid var(--line);
   display: flex;
-  padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+  padding: var(--sp-3) var(--sp-5) calc(var(--sp-3) + env(safe-area-inset-bottom));
   z-index: 20;
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
@@ -2010,10 +1771,9 @@ nav button {
   flex: 1;
   background: none;
   border: none;
-  padding: 6px 0;
+  padding: var(--sp-2) 0;
   cursor: pointer;
   color: var(--muted);
-  font-family: inherit;
   transition: color 0.18s ease, transform 0.12s ease;
 }
 nav button:active {
@@ -2033,7 +1793,7 @@ nav button .ni {
 nav button .nl {
   font-size: var(--fs-xs);
   font-weight: var(--fw-medium);
-  margin-top: 3px;
+  margin-top: var(--sp-0);
   transition: font-weight 0.15s ease;
 }
 nav button.on {
@@ -2053,7 +1813,7 @@ nav button.on .nl {
   transform: translateX(-50%) translateY(20px);
   background: var(--text);
   color: #fff;
-  padding: 12px 20px;
+  padding: var(--sp-5) var(--sp-7);
   border-radius: var(--r-xl);
   font-weight: var(--fw-medium);
   font-size: var(--fs-lg);
@@ -2070,8 +1830,8 @@ nav button.on .nl {
 .toast.undo {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding-right: 8px;
+  gap: var(--sp-6);
+  padding-right: var(--sp-3);
 }
 .toast.undo button {
   background: none;
@@ -2079,9 +1839,8 @@ nav button.on .nl {
   color: var(--accent2);
   font-weight: var(--fw-medium);
   font-size: var(--fs-lg);
-  font-family: inherit;
   cursor: pointer;
-  padding: 6px 10px;
+  padding: var(--sp-2) var(--sp-4);
   border-radius: var(--r-lg);
 }
 .toast.undo button:active {
@@ -2090,17 +1849,17 @@ nav button.on .nl {
 .modal-bg {
   position: fixed;
   inset: 0;
-  background: rgba(61, 44, 41, 0.5);
+  background: var(--scrim);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 60;
-  padding: 24px;
+  padding: var(--sp-8);
 }
 .modal {
   background: #fff;
   border-radius: var(--r-xl);
-  padding: 26px 22px;
+  padding: var(--sp-8) var(--sp-8);
   text-align: center;
   max-width: 340px;
   width: 100%;
@@ -2113,8 +1872,8 @@ nav button.on .nl {
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 16px;
-  margin-bottom: 14px;
+  padding: var(--sp-6);
+  margin-bottom: var(--sp-6);
   box-shadow: var(--shadow-sm);
 }
 .sheet-bg {
@@ -2122,7 +1881,7 @@ nav button.on .nl {
   inset: 0;
   height: 100vh;
   height: 100dvh;
-  background: rgba(61, 44, 41, 0.5);
+  background: var(--scrim);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -2138,12 +1897,12 @@ nav button.on .nl {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   border-radius: var(--r-xl) var(--r-xl) 0 0;
-  padding: 18px 16px calc(32px + env(safe-area-inset-bottom));
+  padding: var(--sp-7) var(--sp-6) calc(32px + env(safe-area-inset-bottom));
 }
 .acct {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--sp-5);
 }
 .acct img {
   width: 44px;
@@ -2151,13 +1910,12 @@ nav button.on .nl {
   border-radius: 50%;
 }
 
-
 /* ── 목표 카드 1단계 ─────────────────────────────────────────── */
 
 /* 헤더의 … 메뉴 버튼 */
 .more-btn {
   opacity: 0.75;
-  padding: 4px 2px;
+  padding: var(--sp-1) var(--sp-0);
 }
 
 /* 카드 메뉴 — 자주 쓰지 않는 조작(이름 수정·마치기·삭제)을 모아 둔다.
@@ -2194,10 +1952,9 @@ nav button.on .nl {
   text-align: left;
   border-radius: var(--r-md);
   cursor: pointer;
-  font-family: inherit;
 }
 .cardmenu button.danger {
-  color: #c0564e;
+  color: var(--danger);
 }
 .cardmenu-x {
   justify-content: center;
@@ -2230,6 +1987,11 @@ nav button.on .nl {
    '작게'는 여백·굵기·색으로 만든다. */
 .sugg {
   margin-top: var(--sp-5);
+}
+/* 입력칸 '위'에 붙는 추천(오늘 탭)은 위가 아니라 아래로 띄운다. */
+.sugg:first-child {
+  margin-top: 0;
+  margin-bottom: var(--sp-3);
 }
 .sugg-l {
   color: var(--ink-500);

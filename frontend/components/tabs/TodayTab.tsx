@@ -203,13 +203,15 @@ export function TodayTab({ state, actions }: { state: AppState; actions: AppActi
 
       <div className="addbox today-add">
         {suggestions.length > 0 && (
-          <div className="suggest">
-            <span className="suggest-label">자주 적은 할 일</span>
-            {suggestions.map((s) => (
-              <button key={s} className="suggest-chip" onClick={() => actions.addTodo(s, null, sel)} title="눌러서 추가">
-                + {s}
-              </button>
-            ))}
+          <div className="sugg">
+            <div className="sugg-l">자주 적은 할 일</div>
+            <div className="row-wrap">
+              {suggestions.map((s) => (
+                <button key={s} type="button" className="chip sug" onClick={() => actions.addTodo(s, null, sel)} title="눌러서 추가">
+                  + {s}
+                </button>
+              ))}
+            </div>
           </div>
         )}
         <div className="addbar">

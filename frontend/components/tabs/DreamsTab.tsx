@@ -443,9 +443,9 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
               <div className="sugg-l">추천</div>
               <div className="row-wrap">
                 {sugg.map((s) => (
-                  <span key={s} className="chip sug" onClick={() => addGoal(s, "once")}>
+                  <button key={s} type="button" className="chip sug" onClick={() => addGoal(s, "once")}>
                     + {s}
-                  </span>
+                  </button>
                 ))}
               </div>
             </div>
@@ -460,9 +460,9 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
               <div className="sugg-l">AI 추천 (눌러서 추가)</div>
               <div className="row-wrap">
                 {aiTasks.map((s) => (
-                  <span key={s} className="chip sug" onClick={() => { addGoal(s, "once"); setAiTasks((p) => p.filter((x) => x !== s)); }}>
+                  <button key={s} type="button" className="chip sug" onClick={() => { addGoal(s, "once"); setAiTasks((p) => p.filter((x) => x !== s)); }}>
                     + {s}
-                  </span>
+                  </button>
                 ))}
               </div>
             </div>
