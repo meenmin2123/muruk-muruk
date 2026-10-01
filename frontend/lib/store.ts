@@ -113,6 +113,10 @@ function normalize(data: unknown): AppState {
 
 // 마지막으로 본 상태를 로컬에 캐시 → 다음 접속 때 백엔드 응답을 기다리지 않고 즉시 화면을 띄운다.
 // (특히 무료 백엔드 콜드 스타트 30~60초 동안 하얀 '불러오는 중' 화면을 없앤다.)
+//
+// 캐시조차 없는 기기(새 브라우저·캐시 삭제)에서는 서버 응답을 기다릴 수밖에 없는데,
+// 그 대기가 끝나지 않으면 화면이 묶인다. 이 시간이 지나면 빈 상태로 먼저 들여보낸다.
+const BOOT_GRACE_MS = 8000;
 // 사용자(sub)별로 분리 저장해 다른 계정 데이터가 섞이지 않게 한다.
 //
 // v2부터는 상태만이 아니라 동기화 문맥까지 함께 저장한다:
@@ -426,6 +430,17 @@ export function useAppState() {
       applyState(c); // commit이 아니라 applyState — 캐시 표시 자체는 새 편집이 아니다
     }
 
+    // 캐시가 없고 서버 응답까지 늦으면(무료 백엔드 콜드 스타트, 또는 DB 미연결로 지연)
+    // 아래 await 가 풀릴 때까지 화면이 '불러오는 중' 에 묶인다. 폴백은 await 뒤에
+    // 있어서 도달하지 못한다. 그래서 일정 시간이 지나면 빈 상태로 먼저 들여보낸다 —
+    // 응답이 도착하면 아래 분기들이 이어서 반영한다.
+    const bootTimer = setTimeout(() => {
+      if (!alive || stateRef.current) return;
+      const s = ensureDailyTodos(defaultState());
+      s.lastSeen = todayStr();
+      applyState(s); // commit 이 아니다 — 이건 사용자의 편집이 아니라 빈 화면 대체물이다
+    }, BOOT_GRACE_MS);
+
     (async () => {
       let remote: AppState | null = null;
       let remoteVersion = 0;
@@ -440,6 +455,7 @@ export function useAppState() {
       } catch {
         // 오프라인·콜드스타트·토큰 만료 — 캐시로 계속 진행한다.
       }
+      clearTimeout(bootTimer);
       if (!alive) return;
 
       const local = stateRef.current;
@@ -471,7 +487,8 @@ export function useAppState() {
           s.lastSeen = todayStr();
           applyState(s);
         }
-      } else if (!cached) {
+      } else if (!stateRef.current) {
+        // 캐시도 없고 서버도 못 받았다(위 유예 타이머가 아직 안 돌았을 때만 여기 온다)
         const s = ensureDailyTodos(defaultState());
         s.lastSeen = todayStr();
         applyState(s);
@@ -483,6 +500,7 @@ export function useAppState() {
 
     return () => {
       alive = false;
+      clearTimeout(bootTimer);
     };
   }, [applyState, setToast]);
 

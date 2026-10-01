@@ -5,13 +5,11 @@ import { Dashboard } from "@/components/Dashboard";
 import { LoginGate } from "@/components/LoginGate";
 import { SplashScreen } from "@/components/SplashScreen";
 import {
-  GOOGLE_CLIENT_ID,
   getToken,
   isGoogleConfigured,
   onAuthExpired,
   onTokenSaved,
-  saveToken,
-  whenGoogleReady,
+  refreshToken,
 } from "@/lib/auth";
 
 export default function Home() {
@@ -28,21 +26,17 @@ export default function Home() {
 
     // 토큰이 없으면 스플래시 동안 무음 자동 로그인 시도
     // (구글 세션이 살아있고 이전에 동의했다면 클릭 없이 자동 로그인 → 로그인 유지 효과).
+    // GIS 초기화와 prompt() 는 auth 모듈 한 곳에서만 한다.
+    // 여기서 따로 initialize()/prompt() 를 부르면 갱신 쪽과 겹쳐
+    // FedCM 이 "Only one navigator.credentials.get request may be outstanding"
+    // 으로 거절하고, 무음 갱신이 실패한다.
     let settled = false;
-    const configured = isGoogleConfigured();
-    if (configured) {
-      whenGoogleReady(() => {
-        window.google!.accounts.id.initialize({
-          client_id: GOOGLE_CLIENT_ID,
-          auto_select: true,
-          callback: (resp) => {
-            saveToken(resp.credential);
-            settled = true;
-            setLoggedIn(true);
-            setBooting(false);
-          },
-        });
-        window.google!.accounts.id.prompt();
+    if (isGoogleConfigured()) {
+      void refreshToken().then((cred) => {
+        if (!cred) return;
+        settled = true;
+        setLoggedIn(true);
+        setBooting(false);
       });
     }
 

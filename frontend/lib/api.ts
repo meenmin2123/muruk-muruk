@@ -10,15 +10,34 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8080";
 export const ERR_UNAUTHORIZED = "UNAUTHORIZED";
 export const ERR_CONFLICT = "CONFLICT";
 
+/**
+ * 요청 타임아웃.
+ *
+ * fetch 는 기본적으로 스스로 끊지 않는다. 그래서 백엔드가 응답을 주지 않으면
+ * 최초 로드의 `await api.pullState()` 가 풀리지 않고, 화면이 '불러오는 중' 에
+ * 묶인 채 폴백(캐시·빈 상태)에 도달하지 못한다. 실제로 그 상태를 겪었다.
+ *
+ * 무료 인스턴스는 콜드 스타트에 50초 이상 걸릴 수 있다고 안내하므로 그보다
+ * 넉넉히 잡되, '영영 안 끝나는' 상태만은 반드시 끊는다.
+ */
+const REQUEST_TIMEOUT_MS = 60_000;
+
 async function send(path: string, init: RequestInit, token: string | null): Promise<Response> {
-  return fetch(`${API_BASE}${path}`, {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(init.headers ?? {}),
-    },
-  });
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS);
+  try {
+    return await fetch(`${API_BASE}${path}`, {
+      ...init,
+      signal: ctrl.signal,
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(init.headers ?? {}),
+      },
+    });
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 /**

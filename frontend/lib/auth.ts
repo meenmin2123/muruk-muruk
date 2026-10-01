@@ -159,6 +159,96 @@ export function emitAuthExpired() {
 
 let pendingRefresh: Promise<string | null> | null = null;
 
+/* ------------------------------------------------------------------ *
+ * GIS 단일 진입점
+ *
+ * initialize() 와 prompt() 는 반드시 여기를 거친다.
+ * 예전에는 app/page.tsx · lib/auth.ts · components/LoginGate.tsx 세 곳에서
+ * 각자 initialize() + prompt() 를 불렀고, 그 결과:
+ *   - GIS 경고: "google.accounts.id.initialize() is called multiple times.
+ *     ... only the last initialized instance will be used" — 먼저 등록한 콜백이 죽는다
+ *   - FedCM 거절: "Only one navigator.credentials.get request may be outstanding
+ *     at one time" — prompt() 가 겹치면 뒤엣것이 NotAllowedError 로 떨어진다
+ * 둘 다 무음 토큰 갱신을 실패시킨다. 갱신이 실패하면 저장이 조용히 멈추고,
+ * 사용자는 그걸 모른 채 계속 편집하다 변경을 잃는다 — 막으려던 바로 그 경로다.
+ * ------------------------------------------------------------------ */
+
+let gisInitialized = false;
+/** 지금 prompt() 결과를 기다리는 쪽. 공용 콜백이 여기로 전달한다. */
+let credentialWaiter: ((cred: string | null) => void) | null = null;
+/** One Tap 이 떠 있는 동안 true. 겹쳐 띄우지 않기 위한 표시. */
+let promptOutstanding = false;
+
+/** initialize() 는 페이지당 한 번만. 성공하면 true. */
+function initGis(): boolean {
+  const g = typeof window === "undefined" ? undefined : window.google;
+  if (!g?.accounts?.id) return false;
+  if (gisInitialized) return true;
+  g.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    auto_select: true,
+    // 콜백은 하나뿐이다. 토큰은 항상 저장하고(onTokenSaved 로 화면에 전파된다),
+    // 기다리는 쪽이 있으면 거기에도 넘긴다.
+    callback: (resp) => {
+      promptOutstanding = false;
+      const cred = resp?.credential ?? null;
+      if (cred) saveToken(cred);
+      const waiter = credentialWaiter;
+      credentialWaiter = null;
+      waiter?.(cred);
+    },
+  });
+  gisInitialized = true;
+  return true;
+}
+
+/** GIS 스크립트가 준비되면 초기화하고 cb(성공여부) 를 부른다. */
+export function withGoogle(cb: (ok: boolean) => void) {
+  if (typeof window === "undefined" || !isGoogleConfigured()) {
+    cb(false);
+    return;
+  }
+  whenGoogleReady(() => cb(initGis()));
+}
+
+/** One Tap 요청. 이미 떠 있으면 건너뛴다 — 겹치면 FedCM 이 거절한다. */
+export function promptGoogle() {
+  withGoogle((ok) => {
+    if (!ok || promptOutstanding) return;
+    promptOutstanding = true;
+    try {
+      window.google!.accounts.id.prompt();
+    } catch {
+      promptOutstanding = false;
+    }
+  });
+}
+
+/** 떠 있는 One Tap 을 닫는다. 닫지 않으면 다음 prompt() 가 FedCM 에 막힌다. */
+function cancelPrompt() {
+  if (!promptOutstanding) return;
+  promptOutstanding = false;
+  try {
+    window.google?.accounts.id.cancel?.();
+  } catch {
+    /* GIS 미로드 — 무시 */
+  }
+}
+
+/** 구글 로그인 버튼을 그린다. 초기화는 내부에서 보장한다. */
+export function renderGoogleButton(el: HTMLElement) {
+  withGoogle((ok) => {
+    if (!ok) return;
+    window.google!.accounts.id.renderButton(el, {
+      theme: "filled_blue",
+      size: "large",
+      shape: "pill",
+      text: "continue_with",
+      width: 280,
+    });
+  });
+}
+
 /**
  * 구글 세션이 살아 있으면 클릭 없이 새 ID 토큰을 받아온다.
  *
@@ -185,36 +275,29 @@ function doRefresh(): Promise<string | null> {
     if (typeof window === "undefined" || !isGoogleConfigured()) return resolve(null);
 
     let settled = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const waiter = (cred: string | null) => finish(cred);
     const finish = (t: string | null) => {
       if (settled) return;
       settled = true;
+      if (timer !== undefined) clearTimeout(timer);
+      if (credentialWaiter === waiter) credentialWaiter = null;
       resolve(t);
     };
-    // One Tap이 뜨지 않거나 사용자가 무시하면 콜백이 영영 오지 않는다 → 반드시 타임아웃.
-    const timer = setTimeout(() => finish(null), 8000);
 
-    whenGoogleReady(() => {
+    // One Tap 이 뜨지 않거나 사용자가 무시하면 콜백이 영영 오지 않는다 → 반드시 타임아웃.
+    // 이때 cancel() 로 떠 있는 요청을 닫아야 한다 — 그대로 두면 다음 prompt() 가
+    // "Only one navigator.credentials.get request may be outstanding" 으로 거절된다.
+    timer = setTimeout(() => {
+      cancelPrompt();
+      finish(null);
+    }, 8000);
+
+    withGoogle((ok) => {
       if (settled) return;
-      try {
-        const g = window.google!;
-        g.accounts.id.initialize({
-          client_id: GOOGLE_CLIENT_ID,
-          auto_select: true,
-          callback: (resp) => {
-            clearTimeout(timer);
-            if (resp?.credential) {
-              saveToken(resp.credential);
-              finish(resp.credential);
-            } else {
-              finish(null);
-            }
-          },
-        });
-        g.accounts.id.prompt();
-      } catch {
-        clearTimeout(timer);
-        finish(null);
-      }
+      if (!ok) return finish(null);
+      credentialWaiter = waiter;
+      promptGoogle();
     });
   });
 }

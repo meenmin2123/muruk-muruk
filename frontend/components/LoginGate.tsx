@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { GOOGLE_CLIENT_ID, isGoogleConfigured, saveToken, whenGoogleReady } from "@/lib/auth";
+import { isGoogleConfigured, onTokenSaved, promptGoogle, renderGoogleButton } from "@/lib/auth";
 import { treeSVG } from "@/lib/trees";
 import { Icon } from "./Icon";
 import { Wordmark } from "./Wordmark";
@@ -11,27 +11,12 @@ export function LoginGate({ onLogin }: { onLogin: () => void }) {
 
   useEffect(() => {
     if (!isGoogleConfigured()) return;
-    whenGoogleReady(() => {
-      const g = window.google!;
-      g.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
-        auto_select: true,
-        callback: (resp) => {
-          saveToken(resp.credential);
-          onLogin();
-        },
-      });
-      if (btnRef.current) {
-        g.accounts.id.renderButton(btnRef.current, {
-          theme: "filled_blue",
-          size: "large",
-          shape: "pill",
-          text: "continue_with",
-          width: 280,
-        });
-      }
-      g.accounts.id.prompt();
-    });
+    if (btnRef.current) renderGoogleButton(btnRef.current);
+    // One Tap 도 한 번 띄워 본다. 부팅 때 띄운 게 아직 떠 있으면 내부에서 건너뛴다
+    // (겹쳐 띄우면 FedCM 이 NotAllowedError 로 거절한다).
+    promptGoogle();
+    // 토큰 저장은 auth 모듈의 공용 콜백이 한다. 여기서는 저장 신호만 듣는다.
+    return onTokenSaved(() => onLogin());
   }, [onLogin]);
 
   const configured = isGoogleConfigured();
