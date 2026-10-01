@@ -195,6 +195,9 @@ function reconcileAll(s: AppState): AppState {
   return s;
 }
 
+/** 창 복귀 재조회 사이의 최소 간격. 탭을 자주 오가도 서버를 두드리지 않게 묶는다. */
+const PULL_COOLDOWN_MS = 60_000;
+
 export interface AppActions {
   addTodo(text: string, goalId: string | null, date?: string): void;
   editTodo(id: string, text: string): void;
@@ -246,6 +249,10 @@ export function useAppState() {
   const retryCount = useRef(0);
   const conflictRounds = useRef(0);
   const pushRef = useRef<(() => void) | null>(null);
+  // 창 복귀 재조회용 — 올리는 중/받는 중이면 건너뛰고, 쿨다운으로 호출 빈도를 묶는다.
+  const pushing = useRef(false);
+  const pulling = useRef(false);
+  const lastPull = useRef(0);
 
   useEffect(() => {
     stateRef.current = state;
@@ -344,6 +351,7 @@ export function useAppState() {
     const s = stateRef.current;
     if (!s || !dirty.current) return;
     setSyncing(true);
+    pushing.current = true;
     try {
       const res = await api.pushState(s, versionRef.current);
       versionRef.current = res.version;
@@ -364,6 +372,7 @@ export function useAppState() {
         scheduleRetry();
       }
     } finally {
+      pushing.current = false;
       setSyncing(false);
     }
   }, [resolveConflict, scheduleRetry, setToast]);
@@ -392,7 +401,48 @@ export function useAppState() {
     setUndoLabel("");
   }, [commit]);
 
-  // 자정이 지나거나 다시 포커스됐을 때, 날짜가 바뀌었으면 오늘 목록을 갱신.
+  /**
+   * 창이 다시 보일 때 서버본을 다시 받는다.
+   *
+   * 이 앱은 지금까지 '페이지를 열 때' 딱 한 번만 서버를 읽었다. 그래서 폰에서 할 일을
+   * 체크하고 열어둔 데스크톱 탭으로 돌아오면 예전 화면이 그대로 있었다 — 새로고침해야만
+   * 맞춰졌다.
+   *
+   * 올릴 게 있을 때(dirty)는 여기서 손대지 않는다. 그 경우는 디바운스 push 가 올리다가
+   * 409 를 받고 resolveConflict 가 3-way 병합을 한다. 병합 경로를 둘로 만들면 한쪽만
+   * 고쳐져 편집이 조용히 사라진다. 그래서 이 함수는 '합칠 게 없을 때'만 돈다.
+   */
+  const pullOnFocus = useCallback(async () => {
+    if (!readyRef.current || !stateRef.current) return;
+    if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
+    // 올릴 게 있거나 이미 주고받는 중이면 그쪽 경로에 맡긴다.
+    if (dirty.current || pushing.current || pulling.current) return;
+    // 탭을 자주 오가도 서버를 두드리지 않도록 묶는다. 무료 DB 는 조회 한 번에 컴퓨트가
+    // 깨어나므로, 주기적 폴링은 쓰지 않고 '사람이 돌아왔을 때'만 받는다.
+    if (Date.now() - lastPull.current < PULL_COOLDOWN_MS) return;
+    lastPull.current = Date.now();
+    pulling.current = true;
+    try {
+      const env = await api.pullState();
+      const remoteVersion = env.version ?? 0;
+      // 그 사이 편집이 생겼으면 이 응답은 버린다 — 덮어쓰면 그 편집이 사라진다.
+      if (dirty.current || !stateRef.current) return;
+      if (remoteVersion === versionRef.current) return; // 바뀐 것 없음
+      const remote = normalize(env.data);
+      versionRef.current = remoteVersion;
+      baseRef.current = structuredClone(remote);
+      // commit 이 아니다 — 사용자의 편집이 아니므로 dirty 를 세우지 않는다.
+      applyState(reconcileAll(ensureDailyTodos(remote)));
+      setToast("다른 기기의 변경을 가져왔어요 🔄");
+    } catch {
+      // 네트워크 실패는 조용히 넘긴다. 화면에는 쓰던 상태가 그대로 남는다.
+    } finally {
+      pulling.current = false;
+    }
+  }, [applyState, setToast]);
+
+  // 자정이 지나거나 다시 포커스됐을 때: 날짜가 바뀌었으면 오늘 목록을 갱신하고,
+  // 창이 다시 보인 것이라면 서버본도 다시 받는다.
   useEffect(() => {
     const refresh = () => {
       const cur = stateRef.current;
@@ -402,16 +452,22 @@ export function useAppState() {
       next.lastSeen = todayStr();
       commit(next);
     };
-    const onVis = () => document.visibilityState === "visible" && refresh();
+    const onFocus = () => {
+      refresh();
+      void pullOnFocus();
+    };
+    const onVis = () => document.visibilityState === "visible" && onFocus();
     document.addEventListener("visibilitychange", onVis);
-    window.addEventListener("focus", refresh);
+    window.addEventListener("focus", onFocus);
+    // 주기 실행은 날짜 넘어감만 본다. 서버 조회를 여기 걸면 탭을 열어둔 내내
+    // 무료 DB 컴퓨트가 깨어 있게 된다.
     const iv = setInterval(refresh, 60000);
     return () => {
       document.removeEventListener("visibilitychange", onVis);
-      window.removeEventListener("focus", refresh);
+      window.removeEventListener("focus", onFocus);
       clearInterval(iv);
     };
-  }, [commit]);
+  }, [commit, pullOnFocus]);
 
   // 최초 로드:
   //  1) 로컬 캐시가 있으면 즉시 화면에 띄운다(백엔드 콜드 스타트 동안 '불러오는 중' 방지).
