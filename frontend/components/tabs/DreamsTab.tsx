@@ -5,6 +5,7 @@ import { api, looksLikeError } from "@/lib/api";
 import type { AppActions } from "@/lib/store";
 import { AppState, CAT_ORDER, Dream, PALETTE, Repeat, TEMPLATES, THEMES, boardCap, dateStr, ddayText, isHabitDream, template, todayStr } from "@/lib/state";
 import { boardSVG, stampSVG } from "@/lib/trees";
+import { createPortal } from "react-dom";
 import { Icon, catIconName, hasIcon } from "../Icon";
 import { IconPicker } from "../IconPicker";
 import { Calendar } from "../Calendar";
@@ -144,6 +145,7 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
   const [editGoalId, setEditGoalId] = useState("");
   const [goalVal, setGoalVal] = useState("");
   const [iconOpen, setIconOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [calOpen, setCalOpen] = useState(false);
   const [flipped, setFlipped] = useState(false);
   const [deco, setDeco] = useState(false);
@@ -267,9 +269,6 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
             <span className="t" onClick={() => actions.toggleCollapse(d.id)}>
               {d.title}
             </span>
-            <button className="icon-btn" aria-label="목표 이름 수정" onClick={() => { setTitleVal(d.title); setEditTitle(true); }}>
-              <Icon name="edit" size={15} />
-            </button>
           </>
         )}
         {!editTitle && (
@@ -277,22 +276,44 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
             <Icon name="tree" size={16} color={color} /> 칭찬판
           </button>
         )}
+        {/* 이름 수정·마치기·삭제는 자주 쓰지 않는다. 한 줄에 다 늘어놓으면
+            정작 제목이 밀려 세 줄로 접힌다 — 메뉴로 접어 제목에 자리를 돌려준다. */}
         {!editTitle && (
-          <button
-            className="achieve"
-            aria-label="목표 마치기"
-            title="이 목표를 달성으로 보관해요"
-            onClick={() => confirm(`‘${d.title}’을(를) 달성으로 보관할까요?\n보관하면 기록 탭 ‘이룬 목표’에서 볼 수 있어요.`) && actions.completeDream(d.id)}
-          >
-            <Icon name="best" size={15} color="#caa12e" /> 마치기
-          </button>
-        )}
-        {!editTitle && (
-          <button className="x" aria-label="목표 삭제" onClick={() => confirm("이 목표와 할 일을 삭제할까요?") && actions.removeDream(d.id)}>
-            <Icon name="close" size={15} />
+          <button className="icon-btn more-btn" aria-label="목표 메뉴" onClick={() => setMenuOpen(true)}>
+            <Icon name="more" size={18} />
           </button>
         )}
       </div>
+
+      {menuOpen && typeof document !== "undefined" && createPortal(
+        <div className="modal-bg" onClick={() => setMenuOpen(false)}>
+          <div className="cardmenu" onClick={(e) => e.stopPropagation()}>
+            <div className="cardmenu-t">{d.title}</div>
+            <button onClick={() => { setTitleVal(d.title); setEditTitle(true); setMenuOpen(false); }}>
+              <Icon name="edit" size={17} color="var(--ink-700)" /> 이름 수정
+            </button>
+            <button
+              onClick={() => {
+                setMenuOpen(false);
+                if (confirm(`‘${d.title}’을(를) 달성으로 보관할까요?\n보관하면 기록 탭 ‘이룬 목표’에서 볼 수 있어요.`)) actions.completeDream(d.id);
+              }}
+            >
+              <Icon name="best" size={17} color="#caa12e" /> 마치기
+            </button>
+            <button
+              className="danger"
+              onClick={() => {
+                setMenuOpen(false);
+                if (confirm("이 목표와 할 일을 삭제할까요?")) actions.removeDream(d.id);
+              }}
+            >
+              <Icon name="close" size={17} color="#c0564e" /> 삭제
+            </button>
+            <button className="cardmenu-x" onClick={() => setMenuOpen(false)}>닫기</button>
+          </div>
+        </div>,
+        document.body,
+      )}
 
       {!d.collapsed && (
         <>
@@ -393,33 +414,11 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
             );
           })}
 
-          {sugg.length > 0 && (
-            <div style={{ marginTop: 11 }}>
-              <div className="muted" style={{ fontWeight: "var(--fw-medium)", marginBottom: 7 }}>추천</div>
-              <div className="row-wrap">
-                {sugg.map((s) => (
-                  <span key={s} className="chip" onClick={() => addGoal(s, "once")}>
-                    + {s}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {aiMsg && (
-            <div className="muted" style={{ marginTop: 10, fontWeight: "var(--fw-medium)" }}>⚠️ {aiMsg}</div>
-          )}
-
-          {aiTasks.length > 0 && (
-            <div style={{ marginTop: 11 }}>
-              <div className="muted" style={{ fontWeight: "var(--fw-medium)", marginBottom: 7 }}>AI 추천 (눌러서 추가)</div>
-              <div className="row-wrap">
-                {aiTasks.map((s) => (
-                  <span key={s} className="chip" onClick={() => { addGoal(s, "once"); setAiTasks((p) => p.filter((x) => x !== s)); }}>
-                    + {s}
-                  </span>
-                ))}
-              </div>
+          {d.goals.length === 0 && (
+            <div className="goals-empty">
+              아직 할 일이 없어요.
+              <br />
+              아래에서 하나 등록해 보세요.
             </div>
           )}
 
@@ -437,6 +436,36 @@ function DreamCard({ dream: d, state, actions }: { dream: Dream; state: AppState
               <button className="ta-add" onClick={() => addGoal(goalText)}>추가</button>
             </div>
           </div>
+
+          {sugg.length > 0 && (
+            <div className="sugg">
+              <div className="sugg-l">추천</div>
+              <div className="row-wrap">
+                {sugg.map((s) => (
+                  <span key={s} className="chip sug" onClick={() => addGoal(s, "once")}>
+                    + {s}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {aiMsg && (
+            <div className="muted" style={{ marginTop: 10, fontWeight: "var(--fw-medium)" }}>⚠️ {aiMsg}</div>
+          )}
+
+          {aiTasks.length > 0 && (
+            <div className="sugg">
+              <div className="sugg-l">AI 추천 (눌러서 추가)</div>
+              <div className="row-wrap">
+                {aiTasks.map((s) => (
+                  <span key={s} className="chip sug" onClick={() => { addGoal(s, "once"); setAiTasks((p) => p.filter((x) => x !== s)); }}>
+                    + {s}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </>
       )}
           </div>

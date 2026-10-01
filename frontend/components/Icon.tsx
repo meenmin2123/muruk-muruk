@@ -42,6 +42,8 @@ const ICONS: Record<string, { filled?: boolean; render: (c: string) => string }>
   add: { render: () => `<line x1="12" y1="5.5" x2="12" y2="18.5"/><line x1="5.5" y1="12" x2="18.5" y2="12"/>` },
   edit: { render: () => `<path d="M4.5 19.5 L4.5 15.7 L14.8 5.4 L18.6 9.2 L8.3 19.5 Z"/><line x1="13" y1="7.2" x2="16.8" y2="11"/>` },
   close: { render: () => `<line x1="6.5" y1="6.5" x2="17.5" y2="17.5"/><line x1="17.5" y1="6.5" x2="6.5" y2="17.5"/>` },
+  // 카드 메뉴(…) — 자주 쓰지 않는 조작을 접어 두는 자리
+  more: { filled: true, render: (c) => `<circle cx="5.5" cy="12" r="1.7" fill="${c}" stroke="none"/><circle cx="12" cy="12" r="1.7" fill="${c}" stroke="none"/><circle cx="18.5" cy="12" r="1.7" fill="${c}" stroke="none"/>` },
   check: { render: () => `<polyline points="5,12.5 10,17.5 19,7" fill="none"/>` },
   once: { render: () => `<circle cx="12" cy="12" r="8.5"/><polyline points="8,12.3 11,15.3 16.2,9" fill="none"/>` },
   daily: { render: () => `<path d="M5.5 10 A7 7 0 0 1 18 7.5" fill="none"/><polyline points="17.5,3.5 18.6,7.7 14.3,7.6" fill="none"/><path d="M18.5 14 A7 7 0 0 1 6 16.5" fill="none"/><polyline points="6.5,20.5 5.4,16.3 9.7,16.4" fill="none"/>` },

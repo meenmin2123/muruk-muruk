@@ -1872,10 +1872,12 @@ main > section {
 }
 .newdream-btn {
   width: 100%;
-  border: 1.5px dashed var(--primary);
-  background: var(--primary-soft);
-  color: var(--primary-d);
-  font-weight: var(--fw-bold);
+  /* 채운 틴트 + bold 라 정작 목표 카드보다 무겁게 읽혔다.
+     '추가할 수 있다'는 안내지 주된 행동이 아니다 — 면을 비우고 한 단 낮춘다. */
+  border: 1.5px dashed var(--ink-200);
+  background: transparent;
+  color: var(--ink-700);
+  font-weight: var(--fw-medium);
   border-radius: var(--r-lg);
   padding: 13px;
   font-size: var(--fs-lg);
@@ -2158,4 +2160,98 @@ nav button.on .nl {
   width: 44px;
   height: 44px;
   border-radius: 50%;
+}
+
+
+/* ── 목표 카드 1단계 ─────────────────────────────────────────── */
+
+/* 헤더의 … 메뉴 버튼 */
+.more-btn {
+  opacity: 0.75;
+  padding: 4px 2px;
+}
+
+/* 카드 메뉴 — 자주 쓰지 않는 조작(이름 수정·마치기·삭제)을 모아 둔다.
+   IconPicker 와 같은 modal-bg 위에 올린다. */
+.cardmenu {
+  width: min(320px, 86vw);
+  background: var(--card);
+  border-radius: var(--r-xl);
+  padding: var(--sp-2);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+}
+.cardmenu-t {
+  padding: var(--sp-4) var(--sp-5) var(--sp-2);
+  font-size: var(--fs-sm);
+  color: var(--ink-500);
+  font-weight: var(--fw-medium);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cardmenu button {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  width: 100%;
+  border: none;
+  background: none;
+  padding: var(--sp-6) var(--sp-5);
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-medium);
+  color: var(--ink-900);
+  text-align: left;
+  border-radius: var(--r-md);
+  cursor: pointer;
+  font-family: inherit;
+}
+.cardmenu button.danger {
+  color: #c0564e;
+}
+.cardmenu-x {
+  justify-content: center;
+  margin-top: var(--sp-1);
+  border-top: 1px solid var(--ink-100) !important;
+  border-radius: 0 !important;
+  color: var(--ink-500) !important;
+}
+@media (hover: hover) {
+  .cardmenu button:hover {
+    background: var(--surface-soft);
+  }
+}
+
+/* 할 일이 하나도 없을 때 — 바로 아래 입력창이 '여기가 할 일 자리'로 읽히게 한다 */
+.goals-empty {
+  margin-top: var(--sp-5);
+  padding: var(--sp-7) var(--sp-5);
+  background: var(--surface-soft);
+  border: 1.5px dashed var(--ink-100);
+  border-radius: var(--r-md);
+  color: var(--ink-500);
+  font-size: var(--fs-md);
+  line-height: 1.7;
+  text-align: center;
+}
+
+/* 추천 — 보조 콘텐츠. 입력창(주 행동) 아래로 내리고 한 단 낮춘다.
+   글자는 13px(--fs-md) 그대로 둔다. 한국어 라벨의 하한이라 더 줄이지 않는다.
+   '작게'는 여백·굵기·색으로 만든다. */
+.sugg {
+  margin-top: var(--sp-5);
+}
+.sugg-l {
+  color: var(--ink-500);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  margin-bottom: var(--sp-2);
+}
+.chip.sug {
+  padding: var(--sp-2) var(--sp-4);
+  border-color: var(--ink-100);
+  color: var(--ink-700);
+  font-weight: var(--fw-normal);
+  border-radius: var(--r-md);
 }
