@@ -176,6 +176,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
   letter-spacing: -0.01em;
   font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  /* 한국어는 어절 단위로 끊어야 읽힌다. 기본값(normal)이면 브라우저가 CJK 를 글자
+     단위로 끊어, 320px 에서 '도쿄 치이카 / 와 토벌' 처럼 어절 중간에서 줄이 바뀐다.
+     대신 줄보다 긴 한 덩어리(URL·영문 단어)는 overflow-wrap 으로 끊어 넘침을 막는다.
+     기계 텍스트(.admin-json·.err-detail)는 자기 규칙으로 break-all 을 그대로 쓴다. */
+  word-break: keep-all;
+  overflow-wrap: anywhere;
 }
 .app {
   max-width: 480px;
@@ -539,6 +545,35 @@ main > section {
   overflow: hidden;
   line-height: 0;
 }
+/* ── 폭 분기점 ──────────────────────────────────────────────
+   이 앱은 모바일 우선이고 .app 이 480px 로 고정돼 있다. 대부분의 폭에서는
+   그게 맞아 분기점을 두지 않는다. 양 끝만 손본다. */
+
+/* 아주 좁은 폰(≤360px) — 아이폰 SE, 갤럭시 A 계열.
+   본문 폭이 292px 밖에 안 남아 목표 제목이 세 줄로 접힌다. 여백을 돌려준다. */
+@media (max-width: 360px) {
+  main {
+    padding-left: var(--sp-4);
+    padding-right: var(--sp-4);
+  }
+  header {
+    padding-left: var(--sp-6);
+    padding-right: var(--sp-6);
+  }
+  .dream {
+    padding: var(--sp-5);
+  }
+  .card {
+    padding: var(--sp-5);
+  }
+  /* 요일 칩 7개가 한 줄에 들어가야 한다 — 칩이 줄바꿈되면 날짜를 읽기 어렵다. */
+  .dn-wd,
+  .daydot {
+    padding-left: var(--sp-1);
+    padding-right: var(--sp-1);
+  }
+}
+
 /* 눈길을 끄는 카드(슬럼프 안내·관리자 모드). 지금까지 화면마다 다른 주황을
    리터럴로 썼다(#fff7ee+#ffe0b8 / #fffaf3+#ffe0b8). 달성 금색으로 합친다. */
 .sheet-head {
