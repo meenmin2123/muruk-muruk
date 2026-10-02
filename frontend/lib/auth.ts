@@ -1,14 +1,41 @@
 "use client";
 
+import { Capacitor } from "@capacitor/core";
+import { isNativeGoogleConfigured, refreshNative, signInNative, signOutNative } from "./auth-native";
 import type { MurukUser } from "./types";
 
 const TOKEN_KEY = "muruk_id_token";
 
 export const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? "";
 
+/**
+ * 아이폰/안드로이드 앱 안인가.
+ *
+ * 앱에서는 구글 로그인 경로가 통째로 다르다 — 웹의 Google Identity Services 는
+ * 내장 웹뷰에서 구글이 막기 때문이다(자세한 건 auth-native.ts 머리말).
+ * 이 모듈의 공개 함수들은 겉보기 이름을 유지한 채 안에서 갈라진다.
+ */
+export const isNativeApp = (): boolean => Capacitor.isNativePlatform();
+
 /** 구글 클라이언트 ID가 실제 값으로 채워져 있는가(플레이스홀더 아님). */
 export function isGoogleConfigured(): boolean {
+  if (isNativeApp()) return isNativeGoogleConfigured();
   return !!GOOGLE_CLIENT_ID && !GOOGLE_CLIENT_ID.includes("여기에");
+}
+
+/**
+ * 사용자가 로그인 버튼을 눌렀을 때. 앱에서는 시스템 브라우저가 떠서
+ * 화면을 가리므로, 반드시 사용자의 행동에서만 불러야 한다.
+ * 웹에서는 GIS 버튼이 자체 처리하므로 호출할 일이 없다.
+ */
+export async function startSignIn(): Promise<boolean> {
+  if (!isNativeApp()) {
+    promptGoogle();
+    return false;
+  }
+  const token = await signInNative();
+  if (token) saveToken(token);
+  return !!token;
 }
 
 // 관리자 이메일(개발용). 서버도 ADMIN_EMAILS로 별도 검증하므로 여기는 UI 노출용.
@@ -208,11 +235,23 @@ export function withGoogle(cb: (ok: boolean) => void) {
     cb(false);
     return;
   }
+  // 앱에는 GIS 스크립트가 없다. 기다리면 영영 안 온다.
+  if (isNativeApp()) {
+    cb(true);
+    return;
+  }
   whenGoogleReady(() => cb(initGis()));
 }
 
-/** One Tap 요청. 이미 떠 있으면 건너뛴다 — 겹치면 FedCM 이 거절한다. */
+/**
+ * One Tap 요청. 이미 떠 있으면 건너뛴다 — 겹치면 FedCM 이 거절한다.
+ *
+ * 앱에서는 아무 일도 하지 않는다. 이 함수는 부팅·화면 진입에서 자동으로 불리는데,
+ * 앱에서 자동으로 시스템 브라우저를 띄우면 사용자가 아무것도 안 했는데 구글
+ * 로그인 페이지가 덮친다. 앱의 로그인은 startSignIn() 으로만 시작한다.
+ */
 export function promptGoogle() {
+  if (isNativeApp()) return;
   withGoogle((ok) => {
     if (!ok || promptOutstanding) return;
     promptOutstanding = true;
@@ -237,6 +276,7 @@ function cancelPrompt() {
 
 /** 구글 로그인 버튼을 그린다. 초기화는 내부에서 보장한다. */
 export function renderGoogleButton(el: HTMLElement) {
+  if (isNativeApp()) return; // 앱은 자체 버튼을 쓴다(LoginGate)
   withGoogle((ok) => {
     if (!ok) return;
     window.google!.accounts.id.renderButton(el, {
@@ -271,6 +311,13 @@ export function refreshToken(): Promise<string | null> {
 }
 
 function doRefresh(): Promise<string | null> {
+  // 앱에는 리프레시 토큰이 있다 — One Tap 을 무음으로 띄우는 웹의 우회보다 확실하다.
+  if (isNativeApp()) {
+    return refreshNative().then((t) => {
+      if (t) saveToken(t);
+      return t;
+    });
+  }
   return new Promise<string | null>((resolve) => {
     if (typeof window === "undefined" || !isGoogleConfigured()) return resolve(null);
 
@@ -316,6 +363,10 @@ export async function ensureToken(marginMs = 60_000): Promise<string | null> {
 /** 로그아웃 — 토큰을 지우고 구글 자동 재선택도 꺼서 즉시 재로그인되는 것을 막는다. */
 export function signOut() {
   clearToken();
+  if (isNativeApp()) {
+    void signOutNative();
+    return;
+  }
   try {
     window.google?.accounts.id.disableAutoSelect();
     window.google?.accounts.id.cancel?.();

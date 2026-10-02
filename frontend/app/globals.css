@@ -551,6 +551,12 @@ main > section {
   overflow: hidden;
   line-height: 0;
 }
+/* 앱(Capacitor) 전용 구글 로그인 버튼 — 웹은 구글이 그려 주는 버튼을 쓴다. */
+.login-google {
+  min-width: 240px;
+  justify-content: center;
+}
+
 /* ── 폭 분기점 ──────────────────────────────────────────────
    이 앱은 모바일 우선이고 .app 이 480px 로 고정돼 있다. 대부분의 폭에서는
    그게 맞아 분기점을 두지 않는다. 양 끝만 손본다. */

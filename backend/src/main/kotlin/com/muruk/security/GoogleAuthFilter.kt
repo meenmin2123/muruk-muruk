@@ -29,10 +29,12 @@ class GoogleAuthFilter(
 
     private val log = LoggerFactory.getLogger(javaClass)
 
+    // 웹과 앱이 서로 다른 클라이언트 ID를 쓰므로 audience 를 복수로 받는다.
+    // 하나만 허용하면 아이폰 앱에서 받은 토큰이 통째로 거부된다.
     private val verifier: GoogleIdTokenVerifier? =
-        props.googleClientId.takeIf { it.isNotBlank() }?.let {
+        props.googleClientIds.takeIf { it.isNotEmpty() }?.let { ids ->
             GoogleIdTokenVerifier.Builder(NetHttpTransport(), GsonFactory.getDefaultInstance())
-                .setAudience(listOf(it))
+                .setAudience(ids)
                 .build()
         }
 
