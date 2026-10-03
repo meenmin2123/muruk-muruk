@@ -31,7 +31,24 @@ Next.js 정적 export + Capacitor 로 앱을 만든다. 웹 배포(Render 정적
 
 > iOS 클라이언트에는 보안 비밀이 없다. 공개되는 값이라 코드에 넣어도 된다.
 
-### 2. 받은 ID를 두 곳에 넣기
+### 2. 한 줄로 끝내기 (권장)
+
+받은 ID 하나만 주면 아래 2~4단계를 알아서 한다. 여러 번 돌려도 된다.
+
+```bash
+cd frontend
+./scripts/ios-setup.sh 799206979966-xxxxx.apps.googleusercontent.com
+```
+
+`.env.production` 과 `Info.plist` 를 같은 값으로 맞추고(둘이 어긋나면 로그인이 멈춘다),
+빌드·동기화·`pod install` 까지 한 뒤 Xcode 를 연다. 끝나면 **3단계(Render 설정)만** 손으로
+하면 된다 — 그건 스크립트가 할 수 없다.
+
+아래는 그 스크립트가 무슨 일을 하는지, 손으로 할 때는 어떻게 하는지다.
+
+---
+
+### 2-손으로. 받은 ID를 두 곳에 넣기
 
 **둘이 짝이 안 맞으면 로그인 창은 뜨는데 앱으로 돌아오지 못하고 멈춘다.**
 
@@ -48,7 +65,7 @@ Next.js 정적 export + Capacitor 로 앱을 만든다. 웹 배포(Render 정적
 ```
 (`.apps.googleusercontent.com` 을 떼고 앞에 `com.googleusercontent.apps.` 를 붙인다)
 
-### 3. 백엔드에 아이폰 ID 추가 (Render 대시보드)
+### 3. 백엔드에 아이폰 ID 추가 (Render 대시보드) — 손으로만 가능
 
 백엔드는 허용된 클라이언트 ID로 발급된 토큰만 받는다. 아이폰 ID를 추가하지 않으면
 **로그인은 되는데 데이터가 안 불러와진다.**
@@ -59,7 +76,7 @@ Render ▸ `muruk-backend` ▸ Environment ▸ `GOOGLE_CLIENT_ID` 를 **쉼표�
 ```
 저장하면 백엔드가 자동 재배포된다. (웹 로그인은 그대로 동작한다)
 
-### 4. 맥에서 빌드
+### 4-손으로. 맥에서 빌드
 
 ```bash
 git pull
